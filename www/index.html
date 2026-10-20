@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>TapVerse</title>
+<style>
+html,body{margin:0;height:100%;background:#0b0f1a;color:#fff;font-family:sans-serif;overflow:hidden;touch-action:manipulation}
+canvas{display:block;width:100%;height:100%}
+#ui{position:fixed;top:12px;left:0;right:0;text-align:center;font-size:28px;font-weight:bold;pointer-events:none}
+#msg{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000a;font-size:22px;text-align:center}
+#msg b{font-size:40px;margin-bottom:10px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">0</div>
+<div id="msg"><b>TapVerse</b>Başlamak için dokun<br><small>Zıplamak için ekrana dokun</small></div>
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const ui=document.getElementById('ui'),msg=document.getElementById('msg');
+let W,H,G;
+function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;G=H*0.75}
+addEventListener('resize',resize);resize();
+let p,obs,score,speed,run=false,last=0,best=+localStorage.getItem('tv_best')||0;
+function reset(){p={x:W*0.2,y:G-40,w:40,h:40,vy:0,on:true};obs=[];score=0;speed=300;next=1;}
+let next=1;
+function jump(){
+  if(!run){reset();run=true;msg.style.display='none';last=performance.now();requestAnimationFrame(loop);return}
+  if(p.on){p.vy=-H*1.1;p.on=false}
+}
+addEventListener('pointerdown',jump);
+addEventListener('keydown',e=>{if(e.code==='Space')jump()});
+function loop(t){
+  if(!run)return;
+  const dt=Math.min((t-last)/1000,0.05);last=t;
+  speed+=8*dt;               // zamanla hızlanır
+  score+=speed*dt*0.05;      // hız arttıkça puan da artar
+  p.vy+=H*3*dt;p.y+=p.vy*dt;
+  if(p.y>=G-p.h){p.y=G-p.h;p.vy=0;p.on=true}
+  next-=dt;
+  if(next<=0){
+    const h=30+Math.random()*40;
+    obs.push({x:W+20,w:30,h});
+    next=(0.9+Math.random()*0.8)*(300/speed)+0.35;
+  }
+  obs.forEach(o=>o.x-=speed*dt);
+  obs=obs.filter(o=>o.x>-60);
+  for(const o of obs){
+    if(p.x<o.x+o.w&&p.x+p.w>o.x&&p.y+p.h>G-o.h){return over()}
+  }
+  ctx.fillStyle='#0b0f1a';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#1d2a44';ctx.fillRect(0,G,W,H-G);
+  ctx.fillStyle='#4ade80';ctx.fillRect(p.x,p.y,p.w,p.h);
+  ctx.fillStyle='#f87171';
+  obs.forEach(o=>ctx.fillRect(o.x,G-o.h,o.w,o.h));
+  ui.textContent=Math.floor(score);
+  requestAnimationFrame(loop);
+}
+function over(){
+  run=false;
+  const s=Math.floor(score);
+  if(s>best){best=s;try{localStorage.setItem('tv_best',best)}catch(e){}}
+  msg.innerHTML='<b>Bitti</b>Puan: '+s+'<br>En iyi: '+best+'<br><br><small>Tekrar için dokun</small>';
+  msg.style.display='flex';
+}
+</script>
+</body>
+</html>
