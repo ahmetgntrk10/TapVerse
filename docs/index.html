@@ -221,7 +221,7 @@ function animateRunner(dt,running){
   const k=Math.min(1,dt*14);
   const air=y>0.01,sl=sliding>0;
   let hipL,hipR,knL,knR,aL,aR,eL,eR,lean=0.12,lift=0;
-  if(sl){hipL=-1.25;hipR=-1.15;knL=2.1;knR=2.0;aL=-0.9;aR=-0.9;eL=-0.9;eR=-0.9;lean=0.55;lift=-0.3}
+  if(sl){hipL=-0.1;hipR=-0.25;knL=0.25;knR=0.55;aL=1.0;aR=0.8;eL=-0.25;eR=-0.25;lean=-1.35;lift=-0.3;headG.rotation.x=0.35}
   else if(air){hipL=-0.9;hipR=0.5;knL=0.4;knR=1.2;aL=-2.4;aR=-2.0;eL=-0.3;eR=-0.3;lean=0.2}
   else{
     const s=Math.sin(t);
@@ -231,13 +231,14 @@ function animateRunner(dt,running){
     lift=Math.abs(Math.cos(t))*0.09;
     headG.rotation.x=Math.sin(t*2)*0.03;
   }
+  if(!sl&&air)headG.rotation.x=0;
   const L=(o,v)=>o.rotation.x+=(v-o.rotation.x)*k;
   L(LL.hip,hipL);L(LR.hip,hipR);L(LL.kn,knL);L(LR.kn,knR);
   L(AL.sh,aL);L(AR.sh,aR);L(AL.el,eL);L(AR.el,eR);
   L(rig,lean);
   rig.position.y+=((0.95+lift)-rig.position.y)*k;
   // kayarken biraz alçal
-  rig.position.y=sl?0.58:rig.position.y;
+  rig.position.y=sl?0.4:rig.position.y;
 }
 function frame(now){
   requestAnimationFrame(frame);
