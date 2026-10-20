@@ -55,6 +55,7 @@ button:disabled{opacity:.5}
     <button id="questBtn" class="alt">📅 Görevler <span id="qdot"></span></button>
     <button id="achBtn" class="alt">🏆 Başarımlar <span id="adot"></span></button>
     <button id="wheelBtn" class="alt">🎡 Çark <span id="wdot"></span></button>
+    <button id="lbBtn" class="alt" style="grid-column:span 2">🏅 Skor Tablosu</button>
   </div>
   <small>Sağa / sola kaydır: şerit değiştir<br>Yukarı: zıpla · Aşağı: kay</small>
 </div>
@@ -74,6 +75,11 @@ button:disabled{opacity:.5}
   <div id="list"></div>
 </div>
 <div id="toast"></div>
+<div id="lb" class="sheet hidden" style="height:70vh">
+  <div class="top"><span>Skor Tablosu</span><button id="lback" class="alt">Geri</button></div>
+  <div style="display:flex;gap:8px;margin-bottom:8px"><input id="lname" maxlength="14" placeholder="Adın" style="flex:1;font:inherit;font-size:18px;padding:8px 12px;border-radius:12px;border:0;background:#221b45;color:#fff"><button id="lsave" style="min-width:0;padding:8px 16px;font-size:16px">Kaydet</button></div>
+  <div id="llist" style="overflow-y:auto;flex:1"></div>
+</div>
 <div id="ach" class="sheet hidden" style="height:62vh">
   <div class="top"><span>Başarımlar</span><span>🪙 <span class="tc">0</span></span><button id="aback" class="alt">Geri</button></div>
   <div id="alist" style="overflow-y:auto;flex:1"></div>
@@ -385,6 +391,37 @@ function renderQuests(){
   }
 }
 
+// ---- Skor tablosu (Supabase) ----
+// Sunucu hazır olunca sadece bu iki satırı doldur:
+const SB={url:'',key:''};
+let pid=ld('tv_pid',null);if(!pid){pid=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));sv('tv_pid',pid)}
+let pname=ld('tv_name','');
+const sbOn=()=>!!(SB.url&&SB.key);
+async function sbSubmit(score){
+  if(!sbOn()||!pname)return;
+  try{await fetch(SB.url+'/rest/v1/rpc/submit_score',{method:'POST',headers:{'apikey':SB.key,'Authorization':'Bearer '+SB.key,'Content-Type':'application/json'},body:JSON.stringify({p_player_id:pid,p_name:pname,p_score:score})})}catch(e){}
+}
+async function renderLb(){
+  const list=$('llist');$('lname').value=pname;
+  if(!sbOn()){list.innerHTML='<div class="row"><div class="tx">Skor tablosu yakında açılacak<small>Sunucu bağlanınca herkes burada yarışacak.</small></div></div>';return}
+  list.innerHTML='<div class="row"><div class="tx">Yükleniyor...</div></div>';
+  try{
+    const r=await fetch(SB.url+'/rest/v1/tapverse_scores?select=player_id,name,score&order=score.desc&limit=50',{headers:{'apikey':SB.key,'Authorization':'Bearer '+SB.key}});
+    const d=await r.json();list.innerHTML='';
+    if(!d.length){list.innerHTML='<div class="row"><div class="tx">Henüz kimse yok, ilk sen ol!</div></div>';return}
+    d.forEach((x,i)=>{
+      const row=document.createElement('div');row.className='row'+(x.player_id===pid?' sel':'');
+      const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
+      const nm=document.createElement('div');nm.className='tx';nm.textContent=medal+' '+x.name;
+      const sc=document.createElement('b');sc.textContent=x.score;
+      row.appendChild(nm);row.appendChild(sc);list.appendChild(row);
+    });
+  }catch(e){list.innerHTML='<div class="row"><div class="tx">Bağlanılamadı, internetini kontrol et.</div></div>'}
+}
+$('lbBtn').onclick=()=>{show('menu',false);show('lb',true);renderLb()};
+$('lback').onclick=()=>{show('lb',false);show('menu',true)};
+$('lsave').onclick=()=>{const n=$('lname').value.trim().slice(0,14);if(!n){toast('Bir ad yaz');return}pname=n;sv('tv_name',pname);toast('Kaydedildi');sbSubmit(best);renderLb()};
+
 // ---- Başarımlar ----
 const ACH=[
  {id:'play1',name:'İlk Adım',text:'1 oyun oyna',get:()=>stats.games,target:1,reward:50},
@@ -628,7 +665,7 @@ function toMenu(){
 function die(cause){
   state='over';mTarget=0.8;$('ot').textContent=cause||'Yakalandın!';const s=Math.floor(score);
   if(s>best){best=s;sv('tv_best3d',best)}
-  addProg('score',s,'max');addProg('world',Math.floor(score/1000)+1,'max');stats.worldMax=Math.max(stats.worldMax,Math.floor(score/1000)+1);saveDaily();checkAch();
+  sbSubmit(s);addProg('score',s,'max');addProg('world',Math.floor(score/1000)+1,'max');stats.worldMax=Math.max(stats.worldMax,Math.floor(score/1000)+1);saveDaily();checkAch();
   sv('tv_coins',totalCoins);
   stopMusic();sfx.hit();shakeT=0.6;player.visible=true;
   burst(player.position.x,1.2,0,0xff7043,26,7,0.2,4,speed*0.4);burst(player.position.x,1.2,0,0xffd54f,14,6,0.15,5,speed*0.4);

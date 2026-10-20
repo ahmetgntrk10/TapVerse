@@ -1,0 +1,12 @@
+{
+  "name": "tapverse",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TapVerse mini oyunlar",
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/cli": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "three": "0.160.0"
+  }
+}
