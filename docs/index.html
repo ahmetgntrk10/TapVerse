@@ -909,7 +909,7 @@ function mlimb(x,y,len,r,col){const g=new THREE.Group();g.position.set(x,y,0);co
 const mLegL=mlimb(-0.55,0.55,0.6,0.2,0x2a1648),mLegR=mlimb(0.55,0.55,0.6,0.2,0x2a1648);
 const mArmL=mlimb(-1.25,1.2,0.9,0.16,0x2a1648),mArmR=mlimb(1.25,1.2,0.9,0.16,0x2a1648);
 for(const g of[mArmL,mArmR])g.add(mcone(0.13,0.35,0xe0d4b8,0,-0.95,0,Math.PI,0));
-monster.scale.setScalar(1.25);monster.position.set(0,0,12);monster.visible=false;scene.add(monster);
+monster.scale.setScalar(0.8);monster.position.set(0,0,12);monster.visible=false;scene.add(monster);
 
 // ---- Evcil hayvanlar ----
 const PETS=[
@@ -990,7 +990,7 @@ $('reviveCoin').onclick=()=>{const c=100*(reviveCount+1);if(totalCoins<c){toast(
 $('reviveAd').onclick=()=>Ads.rewarded(()=>{adRevived=true;revive()});
 $('dbl').onclick=()=>Ads.rewarded(()=>{totalCoins+=runCoins;dblUsed=true;sv('tv_coins',totalCoins);$('oc').textContent=runCoins*2;refreshCoins();refreshOver()});
 function stumble(){
-  invuln=1.6;speedMul=0.55;mTarget=4.3;monTimer=10;shakeT=0.4;sfx.hit();
+  invuln=1.6;speedMul=0.55;mTarget=3.2;monTimer=10;shakeT=0.4;sfx.hit();
   burst(player.position.x,1.0,0,0xff7043,14,6,0.16,3,speed*0.4);
   const fl=$('flash');fl.style.transition='none';fl.style.opacity=0.6;setTimeout(()=>{fl.style.transition='';fl.style.opacity=0},60);
 }
