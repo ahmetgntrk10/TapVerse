@@ -2,105 +2,164 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0f0a26">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap">
 <title>TapVerse</title>
 <style>
-html,body{margin:0;height:100%;background:#0b0f1a;color:#fff;font-family:sans-serif;overflow:hidden;touch-action:none;user-select:none}
+:root{--bg:#0f0a26;--card:#231b50;--card2:#2c2363;--line:rgba(255,255,255,.13);--text:#f6f3ff;--mute:#a9a1d8;--pri:#8b5cf6;--pri-d:#5b21b6;--gold:#ffd34d;--gold-d:#d98a00;--teal:#2ee6c5;--green:#52e08a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:'Fredoka',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
 canvas{display:block}
-#ui{position:fixed;top:12px;left:0;right:0;text-align:center;font-size:30px;font-weight:bold;pointer-events:none;text-shadow:0 2px 6px #000}
-#coinhud{position:fixed;top:14px;right:14px;font-size:22px;font-weight:bold;pointer-events:none;text-shadow:0 2px 6px #000;display:none}
-.panel{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;line-height:1.5;font-size:20px}
-.panel.dim{background:#000b}
-.panel h1{font-size:48px;margin:0;text-shadow:0 3px 10px #000}
-.panel h2{font-size:40px;margin:0}
 .hidden{display:none!important}
-button{font:inherit;font-weight:bold;color:#fff;background:#7c4dff;border:0;border-radius:14px;padding:14px 28px;min-width:220px;font-size:20px;box-shadow:0 4px 0 #4527a0;touch-action:manipulation}
-button:active{transform:translateY(3px);box-shadow:0 1px 0 #4527a0}
-button.alt{background:#37474f;box-shadow:0 4px 0 #1c262b}
-button:disabled{opacity:.5}
-.sheet{position:fixed;left:0;right:0;bottom:0;height:52vh;background:#141029f2;border-radius:22px 22px 0 0;padding:14px 14px 18px;box-sizing:border-box;display:flex;flex-direction:column}
-.sheet .top{display:flex;justify-content:space-between;align-items:center;font-size:22px;font-weight:bold;margin-bottom:10px}
-.sheet .top button{min-width:0;padding:8px 16px;font-size:16px}
-#list{overflow-y:auto;flex:1}
-.row{display:flex;align-items:center;gap:12px;background:#221b45;border-radius:14px;padding:10px 12px;margin-bottom:8px}
-.sw{width:38px;height:38px;border-radius:50%;border:3px solid #fff3;flex:none}
-.row .nm{flex:1;font-size:18px;font-weight:bold}
-.row button{min-width:110px;padding:9px 12px;font-size:16px}
-.row.sel{outline:2px solid #69f0ae}
-#pw{position:fixed;top:50px;right:14px;text-align:right;font-size:18px;font-weight:bold;pointer-events:none;text-shadow:0 2px 6px #000;line-height:1.5}
-#mute{position:fixed;top:10px;left:10px;min-width:0;padding:6px 12px;font-size:20px;z-index:5;background:#0008;box-shadow:none}
+/* düğmeler */
+button{font:inherit;font-weight:600;color:#fff;border:0;border-radius:14px;padding:12px 22px;font-size:17px;cursor:pointer;touch-action:manipulation;background:linear-gradient(#a37aff,var(--pri) 55%,#7440e0);box-shadow:0 4px 0 var(--pri-d),0 8px 18px rgba(0,0,0,.35);transition:transform .08s,box-shadow .08s,filter .15s}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--pri-d)}
+button.gold{background:linear-gradient(#ffe27a,var(--gold) 55%,#ffb21f);color:#4a2c00;box-shadow:0 4px 0 var(--gold-d),0 8px 18px rgba(0,0,0,.35)}
+button.alt{background:linear-gradient(#3b3173,var(--card2));color:#e9e4ff;box-shadow:0 4px 0 #170f3a,0 8px 18px rgba(0,0,0,.3)}
+button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;transform:none}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:rgba(20,14,50,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid var(--line);font-weight:600;font-size:18px;width:max-content}
+.pill.sm{font-size:13px;padding:4px 11px;color:var(--mute)}
+.pill.sm b{color:#fff}
+/* oyun içi ekran */
+#ui{position:fixed;top:calc(8px + env(safe-area-inset-top));left:0;right:0;text-align:center;font-size:46px;font-weight:700;pointer-events:none;text-shadow:0 3px 0 #0007,0 0 22px #8b5cf6aa;letter-spacing:1px}
+#coinhud{position:fixed;top:calc(14px + env(safe-area-inset-top));right:12px;display:none;pointer-events:none;color:var(--gold)}
+#pw{position:fixed;top:calc(62px + env(safe-area-inset-top));right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none}
+#pw .pill{font-size:15px;padding:4px 12px}
+#mute{position:fixed;top:calc(12px + env(safe-area-inset-top));left:12px;z-index:5;width:42px;height:42px;min-width:0;padding:0;border-radius:50%;font-size:18px}
 #flash{position:fixed;inset:0;background:radial-gradient(#0000 40%,#ff1744cc);opacity:0;pointer-events:none;transition:opacity .45s}
-#banner{position:fixed;left:0;right:0;top:24%;text-align:center;font-size:36px;font-weight:bold;opacity:0;transition:opacity .5s;pointer-events:none;text-shadow:0 3px 14px #000}
-.bar{height:7px;background:#0006;border-radius:4px;margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;background:#69f0ae}
-.row .tx{flex:1;font-size:16px;font-weight:bold}.row .tx small{display:block;font-weight:normal;opacity:.8;font-size:13px}
-#menu .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(92vw,360px)}
-#menu .grid button{min-width:0;font-size:16px;padding:12px 6px}
-.tabs{display:flex;gap:8px;margin-bottom:8px}.tabs button{flex:1;min-width:0;padding:9px 6px;font-size:15px}
-.tabs button.on{background:#7c4dff;box-shadow:0 4px 0 #4527a0}
-#toast{position:fixed;left:0;right:0;top:20%;text-align:center;font-size:20px;font-weight:bold;pointer-events:none;opacity:0;transition:opacity .25s;text-shadow:0 2px 8px #000}
+#banner{position:fixed;left:50%;top:22%;transform:translateX(-50%);width:max-content;max-width:92vw;text-align:center;font-size:28px;font-weight:700;padding:10px 24px;border-radius:20px;background:rgba(20,14,50,.72);border:1px solid var(--line);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);opacity:0;transition:opacity .5s;pointer-events:none;text-shadow:0 2px 8px #000}
+#toast{position:fixed;left:50%;bottom:150px;transform:translateX(-50%);width:max-content;max-width:90vw;text-align:center;font-size:17px;font-weight:600;padding:9px 18px;border-radius:999px;background:rgba(20,14,50,.85);border:1px solid var(--line);pointer-events:none;opacity:0;transition:opacity .25s;z-index:20}
+/* ana menü */
+#menu{position:fixed;inset:0;pointer-events:none;display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom))}
+#menu>*{pointer-events:auto}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.tb-left{display:flex;flex-direction:column;gap:6px;margin-left:54px}
+.tb-right{display:flex;gap:10px}
+.ibtn{width:48px;height:48px;min-width:0;padding:0;border-radius:16px;font-size:23px;position:relative}
+.dot{position:absolute;top:-5px;right:-5px;font-size:13px;line-height:1;pointer-events:none}
+.logo{text-align:center;margin-top:10px;font-size:50px;font-weight:700;line-height:1;background:linear-gradient(90deg,#ffd34d,#ff7ab6 55%,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 0 #0008);letter-spacing:1px;pointer-events:none!important}
+.logo small{display:block;font-size:13px;letter-spacing:4px;margin-top:6px;-webkit-text-fill-color:var(--mute);color:var(--mute)}
+.spacer{flex:1;pointer-events:none!important}
+.hint{text-align:center;color:var(--mute);font-size:13px;margin-bottom:62px;pointer-events:none}
+.nav{display:flex;align-items:flex-end;justify-content:space-around;background:linear-gradient(rgba(38,29,86,.93),rgba(21,15,50,.97));border:1px solid var(--line);border-radius:28px;padding:10px 6px 8px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 -6px 30px rgba(0,0,0,.35)}
+.nav button.n{flex:1;min-width:0;background:none;box-shadow:none;padding:6px 2px;font-size:12px;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;border-radius:14px}
+.nav button.n:active{transform:scale(.92);box-shadow:none}
+.nav .ic{font-size:27px;line-height:1}
+.nav .dot{top:0;right:20%}
+#play{width:98px;height:98px;min-width:0;border-radius:50%;padding:0;margin:-50px 4px 0;font-size:15px;font-weight:700;letter-spacing:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 28%,#fff0a6,var(--gold) 45%,#ff9f1a);color:#4a2c00;box-shadow:0 6px 0 var(--gold-d),0 0 0 7px rgba(255,211,77,.17),0 10px 28px rgba(255,170,30,.5);animation:pulse 1.8s ease-in-out infinite}
+#play .big{font-size:40px;line-height:1;margin-left:4px}
+#play:active{animation:none;transform:translateY(4px) scale(.97)}
+@keyframes pulse{50%{transform:scale(1.07)}}
+/* pencereler */
+.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(8,5,24,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);padding:16px}
+.card{width:min(92vw,380px);max-height:94vh;overflow-y:auto;background:linear-gradient(160deg,#2b2163,#1a1340);border:1px solid var(--line);border-radius:28px;padding:20px 18px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.14);display:flex;flex-direction:column;gap:11px;animation:pop .28s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.85);opacity:0}}
+.card button{width:100%}
+.ttl{font-size:30px;font-weight:700;color:#ff8ea0;text-shadow:0 2px 0 #0006}
+.bigscore small{display:block;color:var(--mute);letter-spacing:3px;font-size:12px}
+.bigscore b{font-size:58px;line-height:1;background:linear-gradient(#fff,#ffd34d);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.stats{display:flex;gap:8px}
+.stats div{flex:1;background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:14px;padding:7px 4px;font-size:12px;color:var(--mute)}
+.stats b{display:block;font-size:20px;color:#fff}
+.sheet{position:fixed;left:0;right:0;bottom:0;height:62vh;background:linear-gradient(#231a56,#150f38);border-top:1px solid var(--line);border-radius:30px 30px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;box-shadow:0 -14px 50px rgba(0,0,0,.55);animation:up .25s ease}
+@keyframes up{from{transform:translateY(50px);opacity:0}}
+.sheet .top{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:23px;font-weight:700}
+.sheet .top>span:first-child{flex:1}
+.sheet .top>span:nth-child(2){font-size:17px;padding:5px 12px;border-radius:999px;background:rgba(0,0,0,.28);border:1px solid var(--line);color:var(--gold)}
+.sheet .top button{min-width:0;width:40px;height:40px;padding:0;border-radius:50%;font-size:17px}
+.tabs{display:flex;gap:8px;margin-bottom:10px;background:rgba(0,0,0,.25);padding:5px;border-radius:16px}
+.tabs button{flex:1;min-width:0;padding:9px 6px;font-size:15px;background:none;box-shadow:none;color:var(--mute)}
+.tabs button.on{background:linear-gradient(#a37aff,var(--pri));color:#fff;box-shadow:0 3px 0 var(--pri-d)}
+#list,#qlist,#alist,#llist{overflow-y:auto;flex:1;padding-bottom:6px}
+.row{display:flex;align-items:center;gap:12px;background:linear-gradient(var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:10px 12px;margin-bottom:9px}
+.row.sel{border-color:var(--green);box-shadow:0 0 0 1px var(--green) inset,0 0 16px rgba(82,224,138,.22)}
+.sw{width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,.55);flex:none;box-shadow:0 3px 8px rgba(0,0,0,.4)}
+.row .nm,.row .tx{flex:1;font-size:17px;font-weight:600;text-align:left}
+.row .tx small{display:block;font-weight:500;color:var(--mute);font-size:12.5px;margin-top:2px}
+.row b{color:var(--gold);font-size:18px}
+.row button{min-width:98px;padding:9px 12px;font-size:15px}
+.bar{height:8px;background:rgba(0,0,0,.35);border-radius:5px;margin-top:7px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--green));border-radius:5px}
+#lname{flex:1;font:inherit;font-size:17px;padding:9px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:#fff;outline:none;min-width:0}
 </style>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}
 </script>
 </head>
 <body>
-<div id="ui"><span id="score">0</span></div>
-<div id="coinhud">🪙 <span id="rc">0</span></div>
-<div id="menu" class="panel">
-  <h1>TapVerse</h1>
-  <div>🪙 <span class="tc">0</span></div>
-  <button id="play">▶ Oyna</button>
-  <div class="grid">
-    <button id="shopBtn" class="alt">👕 Mağaza</button>
-    <button id="questBtn" class="alt">📅 Görevler <span id="qdot"></span></button>
-    <button id="achBtn" class="alt">🏆 Başarımlar <span id="adot"></span></button>
-    <button id="wheelBtn" class="alt">🎡 Çark <span id="wdot"></span></button>
-    <button id="lbBtn" class="alt" style="grid-column:span 2">🏅 Skor Tablosu</button>
+<div id="ui"><span id="score"></span></div>
+<div id="coinhud" class="pill">🪙 <span id="rc">0</span></div>
+<div id="pw"></div>
+<div id="menu">
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div>
+      <div class="pill sm">🏅 En iyi <b id="bp">0</b></div>
+    </div>
+    <div class="tb-right">
+      <button id="questBtn" class="ibtn alt" title="Görevler">📅<span class="dot" id="qdot"></span></button>
+      <button id="lbBtn" class="ibtn alt" title="Skor Tablosu">🏅</button>
+    </div>
   </div>
-  <small>Sağa / sola kaydır: şerit değiştir<br>Yukarı: zıpla · Aşağı: kay</small>
+  <div class="logo">TapVerse<small>SONSUZ KOŞU</small></div>
+  <div class="spacer"></div>
+  <div class="hint">Sağa / sola kaydır: şerit · Yukarı: zıpla · Aşağı: kay</div>
+  <div class="nav">
+    <button id="shopBtn" class="n"><span class="ic">👕</span>Kostüm</button>
+    <button id="petBtn" class="n"><span class="ic">🐾</span>Hayvan</button>
+    <button id="play"><span class="big">▶</span>OYNA</button>
+    <button id="wheelBtn" class="n"><span class="ic">🎡</span>Çark<span class="dot" id="wdot"></span></button>
+    <button id="achBtn" class="n"><span class="ic">🏆</span>Başarım<span class="dot" id="adot"></span></button>
+  </div>
 </div>
-<div id="over" class="panel dim hidden">
-  <h2 id="ot">Yakalandın!</h2>
-  <div>Puan: <b id="os">0</b> · En iyi: <b id="ob">0</b></div>
-  <div>🪙 Bu oyunda: <b id="oc">0</b> · Toplam: <b class="tc">0</b></div>
-  <button id="reviveCoin">🪙 100 ile devam et</button>
-  <button id="reviveAd">📺 Reklam izle · Devam et</button>
-  <button id="dbl" class="alt">📺 Altınları 2 kat yap</button>
-  <button id="again">↻ Tekrar Oyna</button>
-  <button id="toMenu" class="alt">Menü</button>
+<div id="over" class="overlay hidden">
+  <div class="card">
+    <div class="ttl" id="ot">Yakalandın!</div>
+    <div class="bigscore"><small>PUAN</small><b id="os">0</b></div>
+    <div class="stats"><div>🏅 En iyi<b id="ob">0</b></div><div>🪙 Bu oyun<b id="oc">0</b></div><div>💰 Toplam<b class="tc">0</b></div></div>
+    <button id="reviveCoin" class="gold">🪙 100 ile devam et</button>
+    <button id="reviveAd">📺 Reklam izle · Devam et</button>
+    <button id="dbl" class="alt">📺 Altınları 2 kat yap</button>
+    <button id="again" class="gold">↻ Tekrar Oyna</button>
+    <button id="toMenu" class="alt">🏠 Menü</button>
+  </div>
 </div>
 <div id="shop" class="sheet hidden">
-  <div class="top"><span>Kostümler</span><span>🪙 <span class="tc">0</span></span><button id="back" class="alt">Geri</button></div>
+  <div class="top"><span>Mağaza</span><span>🪙 <span class="tc">0</span></span><button id="back" class="alt">✕</button></div>
   <div class="tabs"><button id="tabCos" class="on">👕 Kostümler</button><button id="tabPet">🐾 Hayvanlar</button></div>
   <div id="list"></div>
 </div>
-<div id="toast"></div>
 <div id="lb" class="sheet hidden" style="height:70vh">
-  <div class="top"><span>Skor Tablosu</span><button id="lback" class="alt">Geri</button></div>
-  <div style="display:flex;gap:8px;margin-bottom:8px"><input id="lname" maxlength="14" placeholder="Adın" style="flex:1;font:inherit;font-size:18px;padding:8px 12px;border-radius:12px;border:0;background:#221b45;color:#fff"><button id="lsave" style="min-width:0;padding:8px 16px;font-size:16px">Kaydet</button></div>
-  <div id="llist" style="overflow-y:auto;flex:1"></div>
+  <div class="top"><span>🏅 Skor Tablosu</span><button id="lback" class="alt">✕</button></div>
+  <div style="display:flex;gap:8px;margin-bottom:10px"><input id="lname" maxlength="14" placeholder="Adın"><button id="lsave" style="min-width:0;padding:9px 16px;font-size:16px">Kaydet</button></div>
+  <div id="llist"></div>
 </div>
-<div id="ach" class="sheet hidden" style="height:62vh">
-  <div class="top"><span>Başarımlar</span><span>🪙 <span class="tc">0</span></span><button id="aback" class="alt">Geri</button></div>
-  <div id="alist" style="overflow-y:auto;flex:1"></div>
+<div id="ach" class="sheet hidden">
+  <div class="top"><span>🏆 Başarımlar</span><span>🪙 <span class="tc">0</span></span><button id="aback" class="alt">✕</button></div>
+  <div id="alist"></div>
 </div>
-<div id="wheel" class="panel dim hidden">
-  <h2>🎡 Şans Çarkı</h2>
-  <div style="position:relative;width:260px;height:260px"><canvas id="wcv" width="520" height="520" style="width:260px;height:260px"></canvas><div style="position:absolute;left:50%;top:-14px;transform:translateX(-50%);font-size:34px">🔻</div></div>
-  <div id="wmsg" style="min-height:28px"></div>
-  <button id="spinBtn">Çevir</button>
-  <button id="spinAd" class="alt">📺 Reklam izle · Çevir</button>
-  <button id="wback" class="alt">Geri</button>
+<div id="quests" class="sheet hidden">
+  <div class="top"><span>📅 Görevler</span><span>🪙 <span class="tc">0</span></span><button id="qback" class="alt">✕</button></div>
+  <div id="qlist"></div>
 </div>
-<div id="ad" class="panel hidden" style="z-index:9;background:#000e"><h2>📺 Reklam</h2><div>(test reklamı: gerçek reklam sonra bağlanacak)</div><button id="adClose" disabled>Reklam... 3</button></div>
+<div id="wheel" class="overlay hidden">
+  <div class="card">
+    <div class="ttl" style="color:var(--gold)">🎡 Şans Çarkı</div>
+    <div style="position:relative;width:260px;height:260px;margin:6px auto"><canvas id="wcv" width="520" height="520" style="width:260px;height:260px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5))"></canvas><div style="position:absolute;left:50%;top:-16px;transform:translateX(-50%);font-size:34px">🔻</div></div>
+    <div id="wmsg" style="min-height:26px;font-weight:600"></div>
+    <button id="spinBtn" class="gold">Çevir</button>
+    <button id="spinAd">📺 Reklam izle · Çevir</button>
+    <button id="wback" class="alt">Geri</button>
+  </div>
+</div>
+<div id="ad" class="overlay hidden" style="z-index:30;background:rgba(0,0,0,.92)">
+  <div class="card"><div class="ttl" style="color:#fff">📺 Reklam</div><div style="color:var(--mute)">Test reklamı. Gerçek reklam sonra bağlanacak.</div><button id="adClose" disabled>Reklam... 3</button></div>
+</div>
 <div id="banner"></div>
-<div id="quests" class="sheet hidden" style="height:62vh">
-  <div class="top"><span>Görevler</span><span>🪙 <span class="tc">0</span></span><button id="qback" class="alt">Geri</button></div>
-  <div id="qlist" style="overflow-y:auto;flex:1"></div>
-</div>
-<div id="pw"></div>
+<div id="toast"></div>
 <div id="flash"></div>
-<button id="mute">🔊</button>
+<button id="mute" class="alt">🔊</button>
 <script type="module">
 import * as THREE from 'three';
 
@@ -377,7 +436,7 @@ function renderQuests(){
   const nextCount=canGift?(streak.last===yestStr()?streak.count%7+1:1):streak.count;
   const g=document.createElement('div');g.className='row';
   g.innerHTML='<div class="tx">🎁 Günlük Hediye<small>Seri: '+streak.count+' gün · Bugünkü: 🪙 '+GIFTS[(nextCount-1)%7]+'</small></div>';
-  const gb=document.createElement('button');gb.textContent=canGift?'Al':'Alındı ✓';gb.disabled=!canGift;
+  const gb=document.createElement('button');gb.textContent=canGift?'Al':'Alındı ✓';gb.disabled=!canGift;if(canGift)gb.className='gold';
   gb.onclick=()=>{totalCoins+=GIFTS[(nextCount-1)%7];streak={last:todayStr(),count:nextCount};sv('tv_coins',totalCoins);saveDaily();sfx.power();toast('+'+GIFTS[(nextCount-1)%7]+' altın!');refreshCoins();renderQuests();updateBadge()};
   g.appendChild(gb);list.appendChild(g);
   for(const q of daily.quests){
@@ -385,7 +444,7 @@ function renderQuests(){
     const pr=Math.min(1,q.p/q.target);
     row.innerHTML='<div class="tx">'+q.text+'<small>'+Math.min(q.p,q.target)+' / '+q.target+' · Ödül: 🪙 '+q.reward+'</small><div class="bar"><i style="width:'+Math.round(pr*100)+'%"></i></div></div>';
     const b=document.createElement('button');
-    b.textContent=q.claimed?'Alındı ✓':done?'Al 🪙 '+q.reward:'Devam';b.disabled=q.claimed||!done;
+    b.textContent=q.claimed?'Alındı ✓':done?'Al 🪙 '+q.reward:'Devam';b.disabled=q.claimed||!done;if(done&&!q.claimed)b.className='gold';
     b.onclick=()=>{q.claimed=true;totalCoins+=q.reward;sv('tv_coins',totalCoins);saveDaily();sfx.power();toast('+'+q.reward+' altın!');refreshCoins();renderQuests();updateBadge()};
     row.appendChild(b);list.appendChild(row);
   }
@@ -449,7 +508,7 @@ function renderAch(){
     const v=a.get(),done=v>=a.target,cl=achClaimed.includes(a.id),row=document.createElement('div');
     row.className='row'+(done&&!cl?' sel':'');
     row.innerHTML='<div class="tx">🏆 '+a.name+'<small>'+a.text+' · '+Math.min(v,a.target)+' / '+a.target+' · Ödül: 🪙 '+a.reward+'</small><div class="bar"><i style="width:'+Math.round(Math.min(1,v/a.target)*100)+'%"></i></div></div>';
-    const b=document.createElement('button');b.textContent=cl?'Alındı ✓':done?'Al 🪙 '+a.reward:'Devam';b.disabled=cl||!done;
+    const b=document.createElement('button');b.textContent=cl?'Alındı ✓':done?'Al 🪙 '+a.reward:'Devam';b.disabled=cl||!done;if(done&&!cl)b.className='gold';
     b.onclick=()=>{achClaimed.push(a.id);totalCoins+=a.reward;sv('tv_coins',totalCoins);saveDaily();sfx.power();toast('+'+a.reward+' altın!');refreshCoins();renderAch();updateBadge()};
     row.appendChild(b);list.appendChild(row);
   }
@@ -465,7 +524,7 @@ function drawWheel(){
   c.clearRect(0,0,520,520);
   for(let i=0;i<n;i++){
     c.beginPath();c.moveTo(R,R);c.arc(R,R,R-6,i*seg-Math.PI/2,(i+1)*seg-Math.PI/2);c.closePath();c.fillStyle=WCOL[i];c.fill();c.lineWidth=4;c.strokeStyle='#fff';c.stroke();
-    c.save();c.translate(R,R);c.rotate((i+0.5)*seg);c.fillStyle='#fff';c.font='bold 44px sans-serif';c.textAlign='center';c.fillText('🪙'+WVALS[i],0,-R+90);c.restore();
+    c.save();c.translate(R,R);c.rotate((i+0.5)*seg);c.fillStyle='#fff';c.font='700 44px Fredoka,sans-serif';c.textAlign='center';c.fillText('🪙'+WVALS[i],0,-R+90);c.restore();
   }
   c.beginPath();c.arc(R,R,34,0,7);c.fillStyle='#141029';c.fill();c.lineWidth=5;c.strokeStyle='#fff';c.stroke();
 }
@@ -649,11 +708,11 @@ function reset(){
   for(let i=0;i<6;i++){spawnRow(spawnZ);spawnZ-=16}
 }
 const show=(id,v)=>$(id).classList.toggle('hidden',!v);
-function refreshCoins(){document.querySelectorAll('.tc').forEach(e=>e.textContent=totalCoins)}
+function refreshCoins(){document.querySelectorAll('.tc').forEach(e=>e.textContent=totalCoins);const bp=$('bp');if(bp)bp.textContent=best}
 function toast(t){const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.opacity=0,1400)}
 function start(){
   reset();hudStr='';state='run';player.rotation.y=Math.PI;worldIdx=0;worldInstant();ensureDaily();addProg('play',1);stats.games++;
-  show('menu',false);show('over',false);show('shop',false);$('coinhud').style.display='block';
+  show('menu',false);show('over',false);show('shop',false);$('coinhud').style.display='inline-flex';
   $('rc').textContent=0;scoreEl.textContent=0;last=performance.now();
   ac();sfx.power();startMusic();player.visible=true;
 }
@@ -687,7 +746,7 @@ function renderShop(){
     row.innerHTML='<div class="sw" style="background:#'+c.shirt.toString(16).padStart(6,'0')+'"></div><div class="nm">'+c.name+'</div>';
     const b=document.createElement('button');
     b.textContent=sel?'Seçili ✓':has?'Seç':'🪙 '+c.price;
-    if(!has&&totalCoins<c.price)b.className='alt';
+    b.className=has?(sel?'alt':''):(totalCoins<c.price?'alt':'gold');
     b.onclick=()=>{
       if(has){selected=c.id;sv('tv_sel',selected);applyCostume(selected)}
       else if(totalCoins>=c.price){totalCoins-=c.price;owned.push(c.id);selected=c.id;sv('tv_coins',totalCoins);sv('tv_owned',owned);sv('tv_sel',selected);applyCostume(selected);toast('Satın alındı!');checkAch()}
@@ -708,7 +767,7 @@ function renderPets(list){
     row.innerHTML='<div class="sw" style="background:#'+c.color.toString(16).padStart(6,'0')+'"></div><div class="tx">'+c.name+'<small>'+c.desc+'</small></div>';
     const b=document.createElement('button');
     b.textContent=sel?'Seçili ✓':has?'Seç':'🪙 '+c.price;
-    if(!has&&totalCoins<c.price)b.className='alt';
+    b.className=has?(sel?'alt':''):(totalCoins<c.price?'alt':'gold');
     b.onclick=()=>{
       if(has){petSel=c.id;sv('tv_pet',petSel);applyPet(petSel)}
       else if(totalCoins>=c.price){totalCoins-=c.price;pets.push(c.id);petSel=c.id;sv('tv_coins',totalCoins);sv('tv_pets',pets);sv('tv_pet',petSel);applyPet(petSel);toast('Yeni arkadaşın geldi!');checkAch()}
@@ -720,7 +779,8 @@ function renderPets(list){
 }
 $('tabCos').onclick=()=>{shopTab='cos';renderShop()};$('tabPet').onclick=()=>{shopTab='pet';renderShop()};
 $('play').onclick=start;$('again').onclick=start;$('toMenu').onclick=toMenu;
-$('shopBtn').onclick=()=>{shopOpen=true;show('menu',false);show('shop',true);renderShop()};
+const openShop=t=>{shopTab=t;shopOpen=true;show('menu',false);show('shop',true);renderShop()};
+$('shopBtn').onclick=()=>openShop('cos');$('petBtn').onclick=()=>openShop('pet');
 $('back').onclick=()=>{shopOpen=false;show('shop',false);show('menu',true)};
 $('questBtn').onclick=()=>{show('menu',false);show('quests',true);renderQuests()};
 $('qback').onclick=()=>{show('quests',false);show('menu',true);updateBadge()};
@@ -856,7 +916,7 @@ function frame(now){
       }
     }
     // ekran üstü güçlendirme göstergesi
-    const hs=(pw.magnet>0?'🧲 '+Math.ceil(pw.magnet)+'<br>':'')+(pw.shield>0?'🛡️ '+Math.ceil(pw.shield)+'<br>':'')+(pw.x2>0?'✖2 '+Math.ceil(pw.x2):'');
+    const ch=(t)=>'<div class="pill">'+t+'</div>';const hs=(pw.magnet>0?ch('🧲 '+Math.ceil(pw.magnet)):'')+(pw.shield>0?ch('🛡️ '+Math.ceil(pw.shield)):'')+(pw.x2>0?ch('✖2 '+Math.ceil(pw.x2)):'');
     if(hs!==hudStr){hudStr=hs;$('pw').innerHTML=hs}
     scoreEl.textContent=Math.floor(score);
     const wi=Math.floor(score/1000)%4;
@@ -981,7 +1041,7 @@ function refreshOver(){
   const d=$('dbl');d.classList.toggle('hidden',dblUsed||runCoins<=0);d.textContent='📺 Altınları 2 kat yap (+'+runCoins+')';
 }
 function revive(){
-  state='run';show('over',false);$('coinhud').style.display='block';
+  state='run';show('over',false);$('coinhud').style.display='inline-flex';
   obstacles=obstacles.filter(o=>{if(o.position.z>-45){scene.remove(o);return false}return true});
   y=0;vy=0;sliding=0;player.position.y=0;player.visible=true;invuln=2.5;speedMul=0.6;mTarget=12;monTimer=0;
   last=performance.now();sfx.power();startMusic();
