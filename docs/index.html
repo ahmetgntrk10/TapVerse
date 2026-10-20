@@ -313,7 +313,7 @@ function makeArch(){
   const g=new THREE.Group();
   for(const x of[-1.0,1.0]){g.add(bx(0.4,2.5,0.55,STONE,x,1.25,0));g.add(bx(0.5,0.2,0.65,0x6d7289,x,0.1,0));g.add(bx(0.5,0.2,0.65,0x6d7289,x,2.5,0))}
   g.add(bx(2.4,0.45,0.55,STONE,0,2.55,0));
-  const rune=new THREE.Mesh(new THREE.BoxGeometry(1.7,0.55,0.18),new THREE.MeshLambertMaterial({color:0x4dd0e1,emissive:0x00acc1}));
+  const rune=new THREE.Mesh(new THREE.BoxGeometry(1.7,0.55,0.18),new THREE.MeshLambertMaterial({color:0xffd54f,emissive:0x00acc1}));
   rune.position.set(0,1.85,0);g.add(rune);
   for(const x of[-0.6,0.6])g.add(cyl(0.02,0.3,0x424242,x,2.2,0));
   for(let k=0;k<3;k++)g.add(bx(0.12,0.3,0.2,0xe0f7fa,-0.5+k*0.5,1.85,0.01));
@@ -344,7 +344,7 @@ function spawnCoins(l,z){
 }
 let pws=[];
 const pw={magnet:0,shield:0,x2:0};
-const PW_INFO={magnet:{c:0xff5252,t:8},shield:{c:0x4dd0e1,t:12},x2:{c:0xe040fb,t:10}};
+const PW_INFO={magnet:{c:0xff5252,t:8},shield:{c:0xffd54f,t:12},x2:{c:0xe040fb,t:10}};
 function spawnPower(l,z){
   const kinds=['magnet','shield','x2'],kind=kinds[Math.floor(Math.random()*3)];
   const g=new THREE.Group(),col=PW_INFO[kind].c;
@@ -352,7 +352,12 @@ function spawnPower(l,z){
     const arc=cast(new THREE.Mesh(new THREE.TorusGeometry(0.26,0.09,10,18,Math.PI),mat(0xe53935,{emissive:0x7f0000})));arc.position.y=0.05;g.add(arc);
     for(const x of[-0.26,0.26])g.add(bx(0.18,0.2,0.18,0xeceff1,x,-0.08,0));
   }else if(kind==='shield'){
-    g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.3,0),new THREE.MeshLambertMaterial({color:0x4dd0e1,emissive:0x0097a7,flatShading:true})));
+    const sh=new THREE.Shape();sh.moveTo(-0.3,0.32);sh.lineTo(0.3,0.32);sh.lineTo(0.3,0.02);sh.quadraticCurveTo(0.3,-0.24,0,-0.42);sh.quadraticCurveTo(-0.3,-0.24,-0.3,0.02);sh.lineTo(-0.3,0.32);
+    const gm=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:0.1,bevelEnabled:true,bevelSize:0.03,bevelThickness:0.03,bevelSegments:2}),new THREE.MeshLambertMaterial({color:0xffc107,emissive:0x7a5200}));
+    gm.position.z=-0.05;g.add(gm);
+    const em=new THREE.Shape();em.moveTo(-0.17,0.2);em.lineTo(0.17,0.2);em.lineTo(0.17,0.02);em.quadraticCurveTo(0.17,-0.12,0,-0.25);em.quadraticCurveTo(-0.17,-0.12,-0.17,0.02);em.lineTo(-0.17,0.2);
+    const em2=new THREE.Mesh(new THREE.ExtrudeGeometry(em,{depth:0.02,bevelEnabled:false}),new THREE.MeshLambertMaterial({color:0xfff8e1,emissive:0x8d6e00}));
+    em2.position.z=0.1;g.add(em2);
   }else{
     g.add(new THREE.Mesh(new THREE.OctahedronGeometry(0.36),new THREE.MeshLambertMaterial({color:0xe040fb,emissive:0x8e24aa,flatShading:true})));
   }
@@ -499,7 +504,7 @@ function frame(now){
     wasAir=y>0.001;
     player.position.y=y;
     dustT-=dt;if(y<=0.001&&dustT<=0){dustT=sliding>0?0.03:0.075;burst(player.position.x,0.08,0.2,sliding>0?0xffe082:0x9e9ab8,sliding>0?2:1,1.2,0.12,0.6,speed*0.8)}
-    for(const k in pw){if(pw[k]>0){pw[k]-=dt;if(pw[k]<=0){pw[k]=0;if(k==='shield'){burst(player.position.x,1.2,0,0x4dd0e1,12,5,0.14,2,speed*0.3)}}}}
+    for(const k in pw){if(pw[k]>0){pw[k]-=dt;if(pw[k]<=0){pw[k]=0;if(k==='shield'){burst(player.position.x,1.2,0,0xffd54f,12,5,0.14,2,speed*0.3)}}}}
     if(invuln>0){invuln-=dt;player.visible=Math.floor(invuln*14)%2===0;if(invuln<=0)player.visible=true}
     if(sliding>0)sliding-=dt;
     // dünya akışı
@@ -523,7 +528,7 @@ function frame(now){
       if(Math.abs(o.position.z)<u.d+0.25&&Math.abs(o.position.x-px)<u.hw-0.15){
         if(pBot<u.y1-0.05&&pTop>u.y0+0.05){
           if(invuln>0)continue;
-          if(pw.shield>0){pw.shield=0;invuln=1.4;shakeT=0.25;sfx.shield();burst(px,1.2,0,0x4dd0e1,22,7,0.16,3,speed*0.3);burst(px,1.2,0,0xffffff,8,5,0.1,3,speed*0.3)}
+          if(pw.shield>0){pw.shield=0;invuln=1.4;shakeT=0.25;sfx.shield();burst(px,1.2,0,0xffd54f,22,7,0.16,3,speed*0.3);burst(px,1.2,0,0xffffff,8,5,0.1,3,speed*0.3)}
           else{die()}
           break}
       }
@@ -556,7 +561,7 @@ function frame(now){
   const wspd=state==='run'?speed:(state==='menu'?3:0);
   flies.forEach(m=>{m.position.z+=wspd*dt;if(m.position.z>10)m.position.z-=105;m.position.y=m.userData.by+Math.sin(now/700+m.userData.ph)*0.35;m.position.x+=Math.sin(now/900+m.userData.ph)*0.004});
   streaks.forEach(m=>{m.visible=state==='run'&&speed>18;if(m.visible){m.position.z+=speed*1.8*dt;m.scale.z=0.8+(speed-18)*0.05;if(m.position.z>10){m.position.z-=70;m.position.x=(Math.random()-0.5)*12;m.position.y=0.4+Math.random()*4}}});
-  bubble.visible=pw.shield>0;if(bubble.visible)bubble.scale.setScalar(1+Math.sin(now/150)*0.04);
+  bubble.visible=bubbleWire.visible=pw.shield>0;if(bubble.visible){bubble.scale.setScalar(1+Math.sin(now/150)*0.04);bubbleWire.rotation.y=now/600;bubbleWire.rotation.x=now/900;bubbleWire.material.opacity=pw.shield<3?(Math.floor(now/120)%2?0.15:0.5):0.4}
   mring.visible=pw.magnet>0;if(mring.visible){mring.rotation.x=now/300;mring.rotation.y=now/450}
   animateRunner(dt,state==='run');
   // kamera
@@ -571,8 +576,10 @@ function frame(now){
   sun.position.set(player.position.x+5,12,6);sun.target.position.set(player.position.x,0,0);
   renderer.render(scene,camera);
 }
-const bubble=new THREE.Mesh(new THREE.SphereGeometry(1.25,20,14),new THREE.MeshLambertMaterial({color:0x4dd0e1,emissive:0x00838f,transparent:true,opacity:0.22}));
+const bubble=new THREE.Mesh(new THREE.SphereGeometry(1.25,24,16),new THREE.MeshBasicMaterial({color:0xffe082,transparent:true,opacity:0.11,blending:THREE.AdditiveBlending,depthWrite:false}));
 bubble.position.y=1.15;bubble.visible=false;player.add(bubble);
+const bubbleWire=new THREE.Mesh(new THREE.IcosahedronGeometry(1.32,1),new THREE.MeshBasicMaterial({color:0xfff3c4,wireframe:true,transparent:true,opacity:0.4}));
+bubbleWire.position.y=1.15;bubbleWire.visible=false;player.add(bubbleWire);
 const mring=new THREE.Mesh(new THREE.TorusGeometry(0.85,0.04,8,28),new THREE.MeshBasicMaterial({color:0xff5252}));
 mring.position.y=1.15;mring.visible=false;player.add(mring);
 let invuln=0,shakeT=0,wasAir=false,dustT=0,hudStr='';
