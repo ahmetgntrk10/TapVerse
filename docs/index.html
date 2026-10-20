@@ -8,20 +8,58 @@
 html,body{margin:0;height:100%;background:#0b0f1a;color:#fff;font-family:sans-serif;overflow:hidden;touch-action:none;user-select:none}
 canvas{display:block}
 #ui{position:fixed;top:12px;left:0;right:0;text-align:center;font-size:30px;font-weight:bold;pointer-events:none;text-shadow:0 2px 6px #000}
-#msg{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000a;font-size:22px;text-align:center;line-height:1.5}
-#msg b{font-size:42px;margin-bottom:10px}
+#coinhud{position:fixed;top:14px;right:14px;font-size:22px;font-weight:bold;pointer-events:none;text-shadow:0 2px 6px #000;display:none}
+.panel{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;line-height:1.5;font-size:20px}
+.panel.dim{background:#000b}
+.panel h1{font-size:48px;margin:0;text-shadow:0 3px 10px #000}
+.panel h2{font-size:40px;margin:0}
+.hidden{display:none!important}
+button{font:inherit;font-weight:bold;color:#fff;background:#7c4dff;border:0;border-radius:14px;padding:14px 28px;min-width:220px;font-size:20px;box-shadow:0 4px 0 #4527a0;touch-action:manipulation}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 #4527a0}
+button.alt{background:#37474f;box-shadow:0 4px 0 #1c262b}
+button:disabled{opacity:.5}
+.sheet{position:fixed;left:0;right:0;bottom:0;height:52vh;background:#141029f2;border-radius:22px 22px 0 0;padding:14px 14px 18px;box-sizing:border-box;display:flex;flex-direction:column}
+.sheet .top{display:flex;justify-content:space-between;align-items:center;font-size:22px;font-weight:bold;margin-bottom:10px}
+.sheet .top button{min-width:0;padding:8px 16px;font-size:16px}
+#list{overflow-y:auto;flex:1}
+.row{display:flex;align-items:center;gap:12px;background:#221b45;border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.sw{width:38px;height:38px;border-radius:50%;border:3px solid #fff3;flex:none}
+.row .nm{flex:1;font-size:18px;font-weight:bold}
+.row button{min-width:110px;padding:9px 12px;font-size:16px}
+.row.sel{outline:2px solid #69f0ae}
+#toast{position:fixed;left:0;right:0;top:20%;text-align:center;font-size:20px;font-weight:bold;pointer-events:none;opacity:0;transition:opacity .25s;text-shadow:0 2px 8px #000}
 </style>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}
 </script>
 </head>
 <body>
-<div id="ui">0</div>
-<div id="msg"><b>TapVerse</b>Başlamak için dokun<br><small>Sağa / sola kaydır: şerit değiştir<br>Yukarı kaydır: zıpla · Aşağı: kay</small></div>
+<div id="ui"><span id="score">0</span></div>
+<div id="coinhud">🪙 <span id="rc">0</span></div>
+<div id="menu" class="panel">
+  <h1>TapVerse</h1>
+  <div>🪙 <span class="tc">0</span></div>
+  <button id="play">▶ Oyna</button>
+  <button id="shopBtn" class="alt">👕 Kostümler</button>
+  <small>Sağa / sola kaydır: şerit değiştir<br>Yukarı: zıpla · Aşağı: kay</small>
+</div>
+<div id="over" class="panel dim hidden">
+  <h2>Bitti</h2>
+  <div>Puan: <b id="os">0</b> · En iyi: <b id="ob">0</b></div>
+  <div>🪙 Bu oyunda: <b id="oc">0</b> · Toplam: <b class="tc">0</b></div>
+  <button id="again">↻ Tekrar Oyna</button>
+  <button id="toMenu" class="alt">Menü</button>
+</div>
+<div id="shop" class="sheet hidden">
+  <div class="top"><span>Kostümler</span><span>🪙 <span class="tc">0</span></span><button id="back" class="alt">Geri</button></div>
+  <div id="list"></div>
+</div>
+<div id="toast"></div>
 <script type="module">
 import * as THREE from 'three';
 
-const ui=document.getElementById('ui'),msg=document.getElementById('msg');
+const $=id=>document.getElementById(id);
+const scoreEl=$('score');
 const LANES=[-2.2,0,2.2];
 const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -65,19 +103,20 @@ for(let i=0;i<24;i++){
 
 // ---- Karakter (daha insansı: yuvarlak uzuvlar, diz-dirsek, saç, yüz, çanta) ----
 const mat=(c,o={})=>new THREE.MeshLambertMaterial(Object.assign({color:c},o));
-const SKIN=0xf1c27d,SHIRT=0xff7043,JEANS=0x283593,SHOE=0xfafafa,HAIR=0x3e2723;
+const SKIN=mat(0xf1c27d),SHIRT=mat(0xff7043),JEANS=mat(0x283593),SHOE=mat(0xfafafa),HAIR=mat(0x3e2723),PACK=mat(0x1565c0),PACK2=mat(0x0d47a1),STRIPE=mat(0xffffff);
+const M=c=>typeof c==='number'?mat(c):c;
 const player=new THREE.Group();
 const rig=new THREE.Group();rig.position.y=0.95;player.add(rig);   // kalça noktası
 const cast=m=>{m.castShadow=true;return m};
-function cap(r,len,color){return cast(new THREE.Mesh(new THREE.CapsuleGeometry(r,len,6,12),mat(color)))}
-function ball(r,color){return cast(new THREE.Mesh(new THREE.SphereGeometry(r,16,12),mat(color)))}
+function cap(r,len,color){return cast(new THREE.Mesh(new THREE.CapsuleGeometry(r,len,6,12),M(color)))}
+function ball(r,color){return cast(new THREE.Mesh(new THREE.SphereGeometry(r,16,12),M(color)))}
 // gövde
 const torso=cap(0.27,0.42,SHIRT);torso.position.y=0.55;torso.scale.z=0.78;rig.add(torso);
-const stripe=cast(new THREE.Mesh(new THREE.CylinderGeometry(0.285,0.285,0.1,16),mat(0xffffff)));
+const stripe=cast(new THREE.Mesh(new THREE.CylinderGeometry(0.285,0.285,0.1,16),STRIPE));
 stripe.position.y=0.55;stripe.scale.z=0.78;rig.add(stripe);
 const hips=cap(0.25,0.06,JEANS);hips.position.y=0.06;hips.rotation.z=Math.PI/2;hips.scale.set(1,1,0.8);rig.add(hips);
 // boyun + kafa
-const neck=cast(new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.1,0.14,10),mat(SKIN)));neck.position.y=1.0;rig.add(neck);
+const neck=cast(new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.1,0.14,10),SKIN));neck.position.y=1.0;rig.add(neck);
 const headG=new THREE.Group();headG.position.y=1.28;rig.add(headG);
 const head=ball(0.26,SKIN);head.scale.set(0.95,1.05,1);headG.add(head);
 const hair=ball(0.275,HAIR);hair.scale.set(1,0.95,1);hair.position.set(0,0.06,-0.05);headG.add(hair);
@@ -86,8 +125,8 @@ for(const x of[-0.09,0.09]){const e=ball(0.035,0x111111);e.position.set(x,0.02,0
 const nose=ball(0.03,0xe0a96d);nose.position.set(0,-0.04,0.26);headG.add(nose);
 for(const x of[-0.27,0.27]){const ear=ball(0.055,SKIN);ear.position.set(x,0,0);headG.add(ear)}
 // sırt çantası (kamera arkadan gördüğü için güzel durur)
-const pack=cast(new THREE.Mesh(new THREE.BoxGeometry(0.42,0.55,0.22),mat(0x1565c0)));pack.position.set(0,0.55,-0.28);rig.add(pack);
-const packTop=cast(new THREE.Mesh(new THREE.BoxGeometry(0.34,0.14,0.2),mat(0x0d47a1)));packTop.position.set(0,0.88,-0.28);rig.add(packTop);
+const pack=cast(new THREE.Mesh(new THREE.BoxGeometry(0.42,0.55,0.22),PACK));pack.position.set(0,0.55,-0.28);rig.add(pack);
+const packTop=cast(new THREE.Mesh(new THREE.BoxGeometry(0.34,0.14,0.2),PACK2));packTop.position.set(0,0.88,-0.28);rig.add(packTop);
 // kol: omuz -> dirsek -> el
 function makeArm(x){
   const sh=new THREE.Group();sh.position.set(x,0.84,0);rig.add(sh);
@@ -104,7 +143,7 @@ function makeLeg(x){
   const th=cap(0.12,0.4,JEANS);th.position.y=-0.3;hip.add(th);
   const kn=new THREE.Group();kn.position.y=-0.6;hip.add(kn);
   const sh=cap(0.1,0.38,JEANS);sh.position.y=-0.27;kn.add(sh);
-  const shoe=cast(new THREE.Mesh(new THREE.BoxGeometry(0.2,0.14,0.36),mat(SHOE)));shoe.position.set(0,-0.55,0.06);kn.add(shoe);
+  const shoe=cast(new THREE.Mesh(new THREE.BoxGeometry(0.2,0.14,0.36),SHOE));shoe.position.set(0,-0.55,0.06);kn.add(shoe);
   const sole=cast(new THREE.Mesh(new THREE.BoxGeometry(0.21,0.05,0.37),mat(0xe53935)));sole.position.set(0,-0.63,0.06);kn.add(sole);
   return{hip,kn};
 }
@@ -112,14 +151,55 @@ const AL=makeArm(-0.33),AR=makeArm(0.33),LL=makeLeg(-0.16),LR=makeLeg(0.16);
 player.rotation.y=Math.PI; // yüz ileri baksın
 scene.add(player);
 
-// ---- Oyun durumu ----
-let state='menu',lane=1,targetX=0,vy=0,y=0,sliding=0,speed=14,score=0,spawnZ=0,t=0,best=+localStorage.getItem('tv_best3d')||0;
-let obstacles=[];
 const bx=(w,h,d,c,x=0,y=0,z=0)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x,y,z);m.castShadow=true;return m};
 const cyl=(r,h,c,x,y,z)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,12),mat(c));m.position.set(x,y,z);m.castShadow=true;return m};
 const sph=(r,c,x,y,z,emis)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(r,12,10),new THREE.MeshLambertMaterial({color:c,emissive:emis||0x000000}));m.position.set(x,y,z);return m};
 const STONE=0x8d93a8;
 const cone=(r,h,c,x,y,z)=>{const m=new THREE.Mesh(new THREE.ConeGeometry(r,h,6),mat(c));m.position.set(x,y,z);m.castShadow=true;return m};
+
+// ---- Kayıt ----
+const ld=(k,d)=>{try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+let totalCoins=ld('tv_coins',0),owned=ld('tv_owned',['klasik']),selected=ld('tv_sel','klasik');
+
+// ---- Kostümler ----
+const COSTUMES=[
+ {id:'klasik',name:'Klasik',price:0,shirt:0xff7043,jeans:0x283593,hair:0x3e2723,shoe:0xfafafa,pack:0x1565c0,stripe:0xffffff,acc:null},
+ {id:'kasif',name:'Kaşif',price:100,shirt:0x6d8b3a,jeans:0x8d6e4a,hair:0x5d4037,shoe:0x5d4037,pack:0xa1887f,stripe:0xffe082,acc:'hat'},
+ {id:'ninja',name:'Ninja',price:250,shirt:0x212121,jeans:0x1a1a1a,hair:0x111111,shoe:0x212121,pack:0x37474f,stripe:0xd32f2f,acc:'band'},
+ {id:'astro',name:'Astronot',price:500,shirt:0xeceff1,jeans:0xcfd8dc,hair:0x3e2723,shoe:0xff7043,pack:0x78909c,stripe:0xff7043,acc:'helmet'},
+ {id:'king',name:'Altın Kral',price:900,shirt:0xffc107,jeans:0xff8f00,hair:0x3e2723,shoe:0xb71c1c,pack:0xb71c1c,stripe:0xffffff,acc:'crown'}
+];
+const ACC={};
+{ // aksesuarlar
+  const hat=new THREE.Group();
+  const brim=cyl(0.42,0.04,0xa1887f,0,0.2,0);brim.geometry=new THREE.CylinderGeometry(0.42,0.42,0.04,20);
+  const top=cyl(0.25,0.22,0x8d6e63,0,0.32,0);top.geometry=new THREE.CylinderGeometry(0.22,0.26,0.22,16);
+  const hb=cyl(0.27,0.06,0x4e342e,0,0.26,0);hb.geometry=new THREE.CylinderGeometry(0.265,0.265,0.06,16);
+  hat.add(brim,top,hb);
+  const band=new THREE.Group();
+  const ring=cast(new THREE.Mesh(new THREE.TorusGeometry(0.265,0.035,8,20),mat(0xd32f2f)));ring.rotation.x=Math.PI/2;ring.position.y=0.1;
+  const k1=bx(0.06,0.3,0.04,0xd32f2f,0.05,-0.05,-0.3);k1.rotation.z=0.3;
+  const k2=bx(0.06,0.3,0.04,0xd32f2f,-0.05,-0.08,-0.3);k2.rotation.z=-0.2;
+  band.add(ring,k1,k2);
+  const helmet=new THREE.Mesh(new THREE.SphereGeometry(0.37,20,16),new THREE.MeshLambertMaterial({color:0xb3e5fc,transparent:true,opacity:0.28}));
+  const crown=new THREE.Group();
+  const cb=cyl(0.25,0.12,0xffd54f,0,0.31,0);cb.geometry=new THREE.CylinderGeometry(0.25,0.27,0.12,5);crown.add(cb);
+  for(let i=0;i<5;i++){const a=i/5*Math.PI*2;const c=cone(0.06,0.2,0xffd54f,Math.cos(a)*0.22,0.47,Math.sin(a)*0.22);crown.add(c)}
+  crown.add(sph(0.045,0xe53935,0,0.32,0.27,0xb71c1c));
+  Object.assign(ACC,{hat,band,helmet,crown});
+  for(const k in ACC){ACC[k].visible=false;headG.add(ACC[k])}
+}
+function applyCostume(id){
+  const c=COSTUMES.find(x=>x.id===id)||COSTUMES[0];
+  SHIRT.color.setHex(c.shirt);JEANS.color.setHex(c.jeans);HAIR.color.setHex(c.hair);SHOE.color.setHex(c.shoe);
+  PACK.color.setHex(c.pack);PACK2.color.setHex(c.pack).multiplyScalar(0.75);STRIPE.color.setHex(c.stripe);
+  for(const k in ACC)ACC[k].visible=(k===c.acc);
+}
+
+// ---- Oyun durumu ----
+let state='menu',lane=1,targetX=0,vy=0,y=0,sliding=0,speed=14,score=0,spawnZ=0,t=0,best=ld('tv_best3d',0),runCoins=0,shopOpen=false;
+let obstacles=[],coins=[];
 // Diken tuzağı (zıpla)
 function makeSpikes(){
   const g=new THREE.Group();
@@ -165,8 +245,26 @@ function makeCrystal(){
   g.userData={hw:0.95,d:0.8,y0:0,y1:3.2};return g;
 }
 const MAKERS=[makeSpikes,makeLog,makeArch,makeCrystal];
+const coinGeo=new THREE.CylinderGeometry(0.28,0.28,0.07,20);coinGeo.rotateX(Math.PI/2);
+const coinMat=new THREE.MeshLambertMaterial({color:0xffc107,emissive:0xb8860b});
+function spawnCoins(l,z){
+  for(let i=0;i<4;i++){
+    const c=new THREE.Mesh(coinGeo,coinMat);
+    c.position.set(LANES[l],1.0,z-3.5-i*1.2);c.castShadow=true;
+    scene.add(c);coins.push(c);
+  }
+}
+let actx=null;
+function beep(){try{
+  actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  const o=actx.createOscillator(),g=actx.createGain();
+  o.type='sine';o.frequency.setValueAtTime(880,actx.currentTime);o.frequency.exponentialRampToValueAtTime(1500,actx.currentTime+0.08);
+  g.gain.setValueAtTime(0.12,actx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,actx.currentTime+0.12);
+  o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+0.13);
+}catch(e){}}
 function spawnRow(z){
   const free=Math.floor(Math.random()*3);
+  if(Math.random()<0.28)spawnCoins(free,z);
   for(let l=0;l<3;l++){
     if(l===free||Math.random()<0.35)continue;
     const r=Math.random();
@@ -178,16 +276,53 @@ function spawnRow(z){
 }
 function reset(){
   obstacles.forEach(o=>scene.remove(o));obstacles=[];
-  lane=1;targetX=0;player.position.set(0,0,0);y=0;vy=0;sliding=0;speed=14;score=0;spawnZ=-30;
+  coins.forEach(o=>scene.remove(o));coins=[];
+  lane=1;targetX=0;player.position.set(0,0,0);y=0;vy=0;sliding=0;speed=14;score=0;runCoins=0;spawnZ=-30;
   for(let i=0;i<6;i++){spawnRow(spawnZ);spawnZ-=16}
 }
-function start(){reset();state='run';msg.style.display='none';last=performance.now()}
+const show=(id,v)=>$(id).classList.toggle('hidden',!v);
+function refreshCoins(){document.querySelectorAll('.tc').forEach(e=>e.textContent=totalCoins)}
+function toast(t){const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.opacity=0,1400)}
+function start(){
+  reset();state='run';player.rotation.y=Math.PI;
+  show('menu',false);show('over',false);show('shop',false);$('coinhud').style.display='block';
+  $('rc').textContent=0;scoreEl.textContent=0;last=performance.now();
+  try{beep()}catch(e){}
+}
+function toMenu(){
+  reset();state='menu';shopOpen=false;
+  show('over',false);show('shop',false);show('menu',true);$('coinhud').style.display='none';scoreEl.textContent='';refreshCoins();
+}
 function die(){
   state='over';const s=Math.floor(score);
-  if(s>best){best=s;try{localStorage.setItem('tv_best3d',best)}catch(e){}}
-  msg.innerHTML='<b>Bitti</b>Puan: '+s+'<br>En iyi: '+best+'<br><br><small>Tekrar için dokun</small>';
-  msg.style.display='flex';
+  if(s>best){best=s;sv('tv_best3d',best)}
+  sv('tv_coins',totalCoins);
+  $('os').textContent=s;$('ob').textContent=best;$('oc').textContent=runCoins;refreshCoins();
+  const o=$('over');o.style.pointerEvents='none';show('over',true);
+  setTimeout(()=>o.style.pointerEvents='',500);   // yanlışlıkla basmayı önler
 }
+// ---- Mağaza ----
+function renderShop(){
+  const list=$('list');list.innerHTML='';
+  for(const c of COSTUMES){
+    const has=owned.includes(c.id),sel=selected===c.id;
+    const row=document.createElement('div');row.className='row'+(sel?' sel':'');
+    row.innerHTML='<div class="sw" style="background:#'+c.shirt.toString(16).padStart(6,'0')+'"></div><div class="nm">'+c.name+'</div>';
+    const b=document.createElement('button');
+    b.textContent=sel?'Seçili ✓':has?'Seç':'🪙 '+c.price;
+    if(!has&&totalCoins<c.price)b.className='alt';
+    b.onclick=()=>{
+      if(has){selected=c.id;sv('tv_sel',selected);applyCostume(selected)}
+      else if(totalCoins>=c.price){totalCoins-=c.price;owned.push(c.id);selected=c.id;sv('tv_coins',totalCoins);sv('tv_owned',owned);sv('tv_sel',selected);applyCostume(selected);toast('Satın alındı!')}
+      else{toast('Yeterli altın yok · '+(c.price-totalCoins)+' altın daha lazım');return}
+      refreshCoins();renderShop();
+    };
+    row.appendChild(b);list.appendChild(row);
+  }
+}
+$('play').onclick=start;$('again').onclick=start;$('toMenu').onclick=toMenu;
+$('shopBtn').onclick=()=>{shopOpen=true;show('menu',false);show('shop',true);renderShop()};
+$('back').onclick=()=>{shopOpen=false;show('shop',false);show('menu',true)};
 
 // ---- Kontroller ----
 function moveLane(d){if(state!=='run')return;lane=Math.max(0,Math.min(2,lane+d));targetX=LANES[lane]}
@@ -195,7 +330,7 @@ function jump(){if(state==='run'&&y<=0.001){vy=9;sliding=0}}
 function slide(){if(state==='run'){sliding=0.7;if(y>0)vy=-14}}
 let sx=0,sy=0,sdone=false;
 addEventListener('pointerdown',e=>{
-  if(state!=='run'){if(state==='menu'||state==='over'){start()}return}
+  if(state!=='run')return;
   sx=e.clientX;sy=e.clientY;sdone=false;
 });
 addEventListener('pointermove',e=>{
@@ -207,7 +342,7 @@ addEventListener('pointermove',e=>{
   else if(dy<0)jump();else slide();
 });
 addEventListener('keydown',e=>{
-  if(state!=='run'){if(e.code==='Space'||e.code==='Enter')start();return}
+  if(state!=='run'){if(e.code==='Enter'&&state==='menu'&&!shopOpen)start();return}
   if(e.code==='ArrowLeft'||e.code==='KeyA')moveLane(-1);
   if(e.code==='ArrowRight'||e.code==='KeyD')moveLane(1);
   if(e.code==='ArrowUp'||e.code==='Space'||e.code==='KeyW')jump();
@@ -240,6 +375,7 @@ function animateRunner(dt,running){
   // kayarken biraz alçal
   rig.position.y=sl?0.4:rig.position.y;
 }
+const cP=new THREE.Vector3(0,1.7,4.4),cL=new THREE.Vector3(0,0.8,0),dP=new THREE.Vector3(),dL=new THREE.Vector3();
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min((now-last)/1000,0.05);last=now;
@@ -256,6 +392,8 @@ function frame(now){
     const dz=speed*dt;
     obstacles.forEach(o=>o.position.z+=dz);
     obstacles=obstacles.filter(o=>{if(o.position.z>8){scene.remove(o);return false}return true});
+    coins.forEach(c=>{c.position.z+=dz;c.rotation.y+=dt*4});
+    coins=coins.filter(c=>{if(c.position.z>8){scene.remove(c);return false}return true});
     spawnZ+=dz;
     while(spawnZ>-90){spawnZ-=Math.max(11,18-speed*0.15);spawnRow(spawnZ+0)}
     dashes.forEach(d=>{d.position.z+=dz;if(d.position.z>12)d.position.z-=120});
@@ -268,17 +406,28 @@ function frame(now){
         if(pBot<u.y1-0.05&&pTop>u.y0+0.05){die();break}
       }
     }
-    ui.textContent=Math.floor(score);
+    // altın topla
+    for(let i=coins.length-1;i>=0;i--){
+      const c=coins[i];
+      if(Math.abs(c.position.z)<0.8&&Math.abs(c.position.x-px)<0.9&&pBot<1.35&&pTop>0.65){
+        scene.remove(c);coins.splice(i,1);runCoins++;totalCoins++;sv('tv_coins',totalCoins);beep();
+        $('rc').textContent=runCoins;
+      }
+    }
+    scoreEl.textContent=Math.floor(score);
   }
+  if(state==='menu'){player.rotation.y+=dt*0.9}
   animateRunner(dt,state==='run');
   // kamera
-  camera.position.x+=((player.position.x*0.6)-camera.position.x)*Math.min(1,dt*6);
-  camera.position.y=4.2;camera.position.z=7;
-  camera.lookAt(camera.position.x*0.5,1.5,-6);
+  const f=1-Math.exp(-dt*6);
+  if(state==='menu'){dP.set(0,1.7,4.4);dL.set(0,shopOpen?0.1:0.8,0)}
+  else{dP.set(player.position.x*0.6,4.2,7);dL.set(player.position.x*0.3,1.5,-6)}
+  cP.lerp(dP,f);cL.lerp(dL,f);camera.position.copy(cP);camera.lookAt(cL);
   sun.position.set(player.position.x+5,12,6);sun.target.position.set(player.position.x,0,0);
   renderer.render(scene,camera);
 }
-reset();
+applyCostume(selected);reset();refreshCoins();
+player.rotation.y=0;
 requestAnimationFrame(frame);
 </script>
 </body>
