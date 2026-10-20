@@ -51,9 +51,12 @@ button:disabled{opacity:.5}
   <small>Sağa / sola kaydır: şerit değiştir<br>Yukarı: zıpla · Aşağı: kay</small>
 </div>
 <div id="over" class="panel dim hidden">
-  <h2>Bitti</h2>
+  <h2 id="ot">Yakalandın!</h2>
   <div>Puan: <b id="os">0</b> · En iyi: <b id="ob">0</b></div>
   <div>🪙 Bu oyunda: <b id="oc">0</b> · Toplam: <b class="tc">0</b></div>
+  <button id="reviveCoin">🪙 100 ile devam et</button>
+  <button id="reviveAd">📺 Reklam izle · Devam et</button>
+  <button id="dbl" class="alt">📺 Altınları 2 kat yap</button>
   <button id="again">↻ Tekrar Oyna</button>
   <button id="toMenu" class="alt">Menü</button>
 </div>
@@ -62,6 +65,7 @@ button:disabled{opacity:.5}
   <div id="list"></div>
 </div>
 <div id="toast"></div>
+<div id="ad" class="panel hidden" style="z-index:9;background:#000e"><h2>📺 Reklam</h2><div>(test reklamı: gerçek reklam sonra bağlanacak)</div><button id="adClose" disabled>Reklam... 3</button></div>
 <div id="banner"></div>
 <div id="quests" class="sheet hidden" style="height:62vh">
   <div class="top"><span>Görevler</span><span>🪙 <span class="tc">0</span></span><button id="qback" class="alt">Geri</button></div>
@@ -491,6 +495,7 @@ function reset(){
   coins.forEach(o=>scene.remove(o));coins=[];
   pws.forEach(o=>scene.remove(o));pws=[];pw.magnet=pw.shield=pw.x2=0;invuln=0;
   parts.forEach(o=>scene.remove(o.m));parts=[];
+  mTarget=12;monTimer=0;speedMul=1;reviveCount=0;adRevived=false;dblUsed=false;monster.position.z=12;monster.visible=false;
   lane=1;targetX=0;player.position.set(0,0,0);y=0;vy=0;sliding=0;speed=14;score=0;runCoins=0;spawnZ=-30;
   for(let i=0;i<6;i++){spawnRow(spawnZ);spawnZ-=16}
 }
@@ -508,8 +513,8 @@ function toMenu(){
   reset();worldIdx=0;worldStep(1);updateBadge();state='menu';shopOpen=false;
   show('over',false);show('shop',false);show('quests',false);show('menu',true);$('coinhud').style.display='none';scoreEl.textContent='';refreshCoins();
 }
-function die(){
-  state='over';const s=Math.floor(score);
+function die(cause){
+  state='over';mTarget=0.8;$('ot').textContent=cause||'Yakalandın!';const s=Math.floor(score);
   if(s>best){best=s;sv('tv_best3d',best)}
   addProg('score',s,'max');addProg('world',Math.floor(score/1000)+1,'max');saveDaily();
   sv('tv_coins',totalCoins);
@@ -517,7 +522,7 @@ function die(){
   burst(player.position.x,1.2,0,0xff7043,26,7,0.2,4,speed*0.4);burst(player.position.x,1.2,0,0xffd54f,14,6,0.15,5,speed*0.4);
   const fl=$('flash');fl.style.transition='none';fl.style.opacity=1;setTimeout(()=>{fl.style.transition='';fl.style.opacity=0},60);
   $('coinhud').style.display='none';$('pw').textContent='';
-  $('os').textContent=s;$('ob').textContent=best;$('oc').textContent=runCoins;refreshCoins();
+  $('os').textContent=s;$('ob').textContent=best;$('oc').textContent=runCoins;refreshCoins();refreshOver();gamesPlayed++;if(gamesPlayed%3===0)Ads.interstitial();
   const o=$('over');o.style.pointerEvents='none';show('over',true);
   setTimeout(()=>o.style.pointerEvents='',500);   // yanlışlıkla basmayı önler
 }
@@ -604,7 +609,8 @@ function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min((now-last)/1000,0.05);last=now;
   if(state==='run'){
-    speed=Math.min(14+score*0.02,40);   // zamanla hızlanır
+    speedMul+=(1-speedMul)*Math.min(1,dt*0.45);
+    speed=Math.min(14+score*0.02,40)*speedMul;   // zamanla hızlanır
     score+=speed*dt*0.7;                // hız arttıkça puan da artar
     // yatay hareket
     player.position.x+=(targetX-player.position.x)*Math.min(1,dt*14);
@@ -639,7 +645,8 @@ function frame(now){
         if(pBot<u.y1-0.05&&pTop>u.y0+0.05){
           if(invuln>0)continue;
           if(pw.shield>0){pw.shield=0;invuln=1.4;shakeT=0.25;sfx.shield();burst(px,1.2,0,0xffd54f,22,7,0.16,3,speed*0.3);burst(px,1.2,0,0xffffff,8,5,0.1,3,speed*0.3)}
-          else{die()}
+          else if(mTarget<6){die('Yakalandın!')}
+          else{stumble()}
           break}
       }
     }
@@ -671,6 +678,12 @@ function frame(now){
   if(state==='menu'){player.rotation.y+=dt*0.9}
   // görsel efektler
   updateParts(dt);
+  if(state==='run'&&monTimer>0){monTimer-=dt;if(monTimer<=0)mTarget=12}
+  monster.position.z+=(mTarget-monster.position.z)*Math.min(1,dt*3);
+  monster.position.x+=(player.position.x-monster.position.x)*Math.min(1,dt*5);
+  monster.visible=monster.position.z<10;
+  if(monster.visible){const mt=now/110;monster.position.y=state==='over'?0:Math.abs(Math.sin(mt))*0.3;
+    mLegL.rotation.x=Math.sin(mt)*0.8;mLegR.rotation.x=-Math.sin(mt)*0.8;mArmL.rotation.x=-1.1+Math.sin(mt)*0.3;mArmR.rotation.x=-1.1-Math.sin(mt)*0.3}
   const wspd=state==='run'?speed:(state==='menu'?3:0);
   flies.forEach(m=>{m.position.z+=wspd*dt;if(m.position.z>10)m.position.z-=105;m.position.y=m.userData.by+Math.sin(now/700+m.userData.ph)*0.35;m.position.x+=Math.sin(now/900+m.userData.ph)*0.004});
   streaks.forEach(m=>{m.visible=state==='run'&&speed>18;if(m.visible){m.position.z+=speed*1.8*dt;m.scale.z=0.8+(speed-18)*0.05;if(m.position.z>10){m.position.z-=70;m.position.x=(Math.random()-0.5)*12;m.position.y=0.4+Math.random()*4}}});
@@ -688,6 +701,56 @@ function frame(now){
   if(Math.abs(camera.fov-tf)>0.05){camera.fov+=(tf-camera.fov)*f;camera.updateProjectionMatrix()}
   sun.position.set(player.position.x+5,12,6);sun.target.position.set(player.position.x,0,0);
   renderer.render(scene,camera);
+}
+// ---- Canavar (ilk hatada yaklaşır, ikinci hatada yakalar) ----
+let mTarget=12,monTimer=0,speedMul=1,reviveCount=0,adRevived=false,dblUsed=false,gamesPlayed=0;
+const monster=new THREE.Group();
+const mmat=(c,e)=>new THREE.MeshLambertMaterial({color:c,emissive:e||0x000000});
+const mball=(r,c,e,x,y,z,sx,sy,sz)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(r,16,12),mmat(c,e));m.position.set(x,y,z);m.scale.set(sx||1,sy||1,sz||1);m.castShadow=true;return m};
+const mcone=(r,h,c,x,y,z,rx,rz)=>{const m=new THREE.Mesh(new THREE.ConeGeometry(r,h,6),mmat(c));m.position.set(x,y,z);m.rotation.x=rx||0;m.rotation.z=rz||0;return m};
+monster.add(mball(1.0,0x3b2160,0x1a0b33,0,1.3,0,1.25,1.0,1.1));
+for(const sx of[-1,1]){
+  monster.add(mcone(0.17,0.8,0xe0d4b8,sx*0.6,2.35,-0.05,0,-sx*0.35));
+  monster.add(mball(0.23,0xfff176,0xffea00,sx*0.4,1.62,-0.95));
+  monster.add(mball(0.09,0x000000,0,sx*0.4,1.62,-1.15));
+}
+monster.add(mball(0.5,0x120418,0,0,1.0,-0.98,1.3,0.55,0.35));
+for(let i=0;i<6;i++){const x=-0.4+i*0.16;monster.add(mcone(0.065,0.22,0xffffff,x,1.2,-1.12,0,Math.PI),mcone(0.065,0.2,0xffffff,x,0.82,-1.12,0,0))}
+for(let i=0;i<5;i++)monster.add(mcone(0.2,0.6,0x7e57c2,(i-2)*0.4,2.2-Math.abs(i-2)*0.2,0.5,0.4,0));
+function mlimb(x,y,len,r,col){const g=new THREE.Group();g.position.set(x,y,0);const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r*0.85,len,8),mmat(col));m.position.y=-len/2;m.castShadow=true;g.add(m);monster.add(g);return g}
+const mLegL=mlimb(-0.55,0.55,0.6,0.2,0x2a1648),mLegR=mlimb(0.55,0.55,0.6,0.2,0x2a1648);
+const mArmL=mlimb(-1.25,1.2,0.9,0.16,0x2a1648),mArmR=mlimb(1.25,1.2,0.9,0.16,0x2a1648);
+for(const g of[mArmL,mArmR])g.add(mcone(0.13,0.35,0xe0d4b8,0,-0.95,0,Math.PI,0));
+monster.scale.setScalar(1.25);monster.position.set(0,0,12);monster.visible=false;scene.add(monster);
+
+// ---- Reklam (şimdilik test; gerçek reklam bağlanınca sadece bu bölüm değişir) ----
+const Ads={
+  rewarded(done){
+    const ad=$('ad'),b=$('adClose');ad.classList.remove('hidden');let n=3;b.disabled=true;b.textContent='Reklam... '+n;
+    const iv=setInterval(()=>{n--;if(n>0)b.textContent='Reklam... '+n;else{clearInterval(iv);b.disabled=false;b.textContent='Ödülü Al ✓'}},1000);
+    b.onclick=()=>{ad.classList.add('hidden');done(true)};
+  },
+  interstitial(){/* ileride: oyunlar arası tam ekran reklam */}
+};
+function refreshOver(){
+  const cost=100*(reviveCount+1),rc=$('reviveCoin');
+  rc.textContent='🪙 '+cost+' ile devam et';rc.classList.toggle('hidden',reviveCount>=2);rc.classList.toggle('alt',totalCoins<cost);
+  $('reviveAd').classList.toggle('hidden',adRevived);
+  const d=$('dbl');d.classList.toggle('hidden',dblUsed||runCoins<=0);d.textContent='📺 Altınları 2 kat yap (+'+runCoins+')';
+}
+function revive(){
+  state='run';show('over',false);$('coinhud').style.display='block';
+  obstacles=obstacles.filter(o=>{if(o.position.z>-45){scene.remove(o);return false}return true});
+  y=0;vy=0;sliding=0;player.position.y=0;player.visible=true;invuln=2.5;speedMul=0.6;mTarget=12;monTimer=0;
+  last=performance.now();sfx.power();startMusic();
+}
+$('reviveCoin').onclick=()=>{const c=100*(reviveCount+1);if(totalCoins<c){toast('Yeterli altın yok');return}totalCoins-=c;sv('tv_coins',totalCoins);reviveCount++;refreshCoins();revive()};
+$('reviveAd').onclick=()=>Ads.rewarded(()=>{adRevived=true;revive()});
+$('dbl').onclick=()=>Ads.rewarded(()=>{totalCoins+=runCoins;dblUsed=true;sv('tv_coins',totalCoins);$('oc').textContent=runCoins*2;refreshCoins();refreshOver()});
+function stumble(){
+  invuln=1.6;speedMul=0.55;mTarget=4.3;monTimer=10;shakeT=0.4;sfx.hit();
+  burst(player.position.x,1.0,0,0xff7043,14,6,0.16,3,speed*0.4);
+  const fl=$('flash');fl.style.transition='none';fl.style.opacity=0.6;setTimeout(()=>{fl.style.transition='';fl.style.opacity=0},60);
 }
 const bubble=new THREE.Mesh(new THREE.SphereGeometry(1.25,24,16),new THREE.MeshBasicMaterial({color:0xffe082,transparent:true,opacity:0.11,blending:THREE.AdditiveBlending,depthWrite:false}));
 bubble.position.y=1.15;bubble.visible=false;player.add(bubble);
