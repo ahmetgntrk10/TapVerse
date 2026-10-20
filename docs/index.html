@@ -304,17 +304,17 @@ function showBanner(txt){const e=$('banner');e.textContent=txt;e.style.opacity=1
 const todayStr=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
 const yestStr=()=>{const d=new Date(Date.now()-864e5);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
 const QPOOL=[
- {type:'coins',target:80,text:'Bugün 80 altın topla',reward:60},
- {type:'coins',target:200,text:'Bugün 200 altın topla',reward:120},
- {type:'score',target:1200,text:'Tek oyunda 1200 puan yap',reward:80},
+ {type:'coins',target:200,text:'Bugün 200 altın topla',reward:100},
+ {type:'coins',target:500,text:'Bugün 500 altın topla',reward:250},
  {type:'score',target:2500,text:'Tek oyunda 2500 puan yap',reward:150},
- {type:'runcoins',target:40,text:'Tek oyunda 40 altın topla',reward:70},
- {type:'play',target:4,text:'4 oyun oyna',reward:50},
- {type:'jump',target:40,text:'40 kez zıpla',reward:50},
- {type:'slide',target:25,text:'25 kez kay',reward:50},
- {type:'power',target:3,text:'3 güçlendirme topla',reward:70},
- {type:'world',target:2,text:"Buz Dünyası'na ulaş",reward:80},
- {type:'world',target:3,text:"Çöl Dünyası'na ulaş",reward:120}
+ {type:'score',target:5000,text:'Tek oyunda 5000 puan yap',reward:300},
+ {type:'runcoins',target:80,text:'Tek oyunda 80 altın topla',reward:150},
+ {type:'play',target:8,text:'8 oyun oyna',reward:100},
+ {type:'jump',target:100,text:'100 kez zıpla',reward:100},
+ {type:'slide',target:60,text:'60 kez kay',reward:100},
+ {type:'power',target:6,text:'6 güçlendirme topla',reward:150},
+ {type:'world',target:3,text:"Çöl Dünyası'na ulaş",reward:150},
+ {type:'world',target:4,text:"Lav Dünyası'na ulaş",reward:250}
 ];
 const GIFTS=[30,40,50,60,80,100,150];
 let daily=ld('tv_daily',null),streak=ld('tv_streak',{last:'',count:0});
@@ -326,7 +326,7 @@ function pickQuests(){
   for(const q of pool){if(out.length>=3)break;if(types[q.type])continue;types[q.type]=1;out.push(Object.assign({p:0,claimed:false},q))}
   return out;
 }
-function ensureDaily(){if(!daily||daily.date!==todayStr()){daily={date:todayStr(),quests:pickQuests()};sv('tv_daily',daily)}}
+function ensureDaily(){if(!daily||daily.date!==todayStr()||daily.v!==2){daily={date:todayStr(),v:2,quests:pickQuests()};sv('tv_daily',daily)}}
 function saveDaily(){sv('tv_daily',daily);sv('tv_streak',streak)}
 function addProg(type,n,mode){
   ensureDaily();
