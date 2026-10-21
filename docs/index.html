@@ -2300,10 +2300,10 @@ let arLevel=ld('tv_arlevel',1),arOwn=ld('tv_arown',['neon']),arSkin=ld('tv_arski
 const AR_D=[[0,1],[1,0],[0,-1],[-1,0]];
 function arGen(level){
   let seed=(level*7919+13)>>>0;const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
-  const cols=Math.min(11,5+Math.floor((level-1)/3)),rows=Math.round(cols*1.35);
+  const e=Math.max(1,level+(level%5===0?7:level%5===1&&level>1?-4:0)),cols=Math.min(11,5+Math.floor((e-1)/3)),rows=Math.round(cols*1.35);
   const occ=Array.from({length:rows},()=>new Array(cols).fill(0)),pcs=[];
-  const target=Math.min(0.72,0.5+level*0.006)*cols*rows;let filled=0;
-  const maxLen=3+Math.min(5,Math.floor(level/4));
+  const target=Math.min(0.74,0.5+e*0.006)*cols*rows;let filled=0;
+  const maxLen=3+Math.min(5,Math.floor(e/4));
   for(let att=0;att<8000&&filled<target;att++){
     const r0=Math.floor(rnd()*rows),c0=Math.floor(rnd()*cols);if(occ[r0][c0])continue;
     const len=2+Math.floor(rnd()*(maxLen-1)),path=[[r0,c0]],own=new Set([r0*100+c0]);let last=null;
@@ -2330,10 +2330,10 @@ function arRay(G,p){ // yoldaki ilk engel
 }
 document.body.insertAdjacentHTML('beforeend','<div id="arrows" class="hidden mgscr"><canvas id="c_ar"></canvas>'
  +'<div class="mtop"><button id="ar_back" class="ibtn alt">‹</button><div class="pill" id="ar_lv">Seviye 1</div><div class="pill" id="ar_hp">❤️❤️❤️</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
- +'<div style="position:absolute;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center"><button id="ar_hint" class="alt">💡 İpucu 📺</button><button id="ar_skin" class="alt">🎨 Renkler</button></div>'
+ +'<div style="position:absolute;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center"><button id="ar_hint" class="alt">💡 İpucu 📺</button><button id="ar_lvs" class="alt">📋 Seviyeler</button><button id="ar_skin" class="alt">🎨 Renkler</button></div>'
  +'<div id="ar_win" class="overlay hidden"><div class="card"><div class="ttl" id="ar_wt" style="color:var(--gold)">Tamam!</div><div id="ar_wi" style="color:var(--mute)"></div><button id="ar_next" class="gold">▶ Sonraki Seviye</button><button id="ar_dbl" class="alt">📺 Altını 2 kat yap</button><button id="ar_wh" class="alt">🎮 Oyunlar</button></div></div>'
  +'<div id="ar_lose" class="overlay hidden"><div class="card"><div class="ttl" style="color:var(--gold)">Canların bitti</div><div style="color:var(--mute)">Tıkalı oka dokunma!</div><button id="ar_rev" class="gold">📺 Reklam izle, +1 can</button><button id="ar_again" class="alt">↻ Tekrar dene</button><button id="ar_lh" class="alt">🎮 Oyunlar</button></div></div>'
- +'<div id="ar_shop" class="overlay hidden"><div class="card"><div class="ttl">🎨 Ok Renkleri</div><div id="ar_list"></div><button id="ar_sx" class="alt">Kapat</button></div></div></div>');
+ +'<div id="ar_sel" class="overlay hidden"><div class="card"><div class="ttl">📋 Seviyeler</div><div id="ar_grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-height:46vh;overflow:auto"></div><button id="ar_selx" class="alt">Kapat</button></div></div><div id="ar_shop" class="overlay hidden"><div class="card"><div class="ttl">🎨 Ok Renkleri</div><div id="ar_list"></div><button id="ar_sx" class="alt">Kapat</button></div></div></div>');
 SCR.push('arrows');WKEYS.push('arrows');
 $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardAr" style="background:linear-gradient(135deg,#0ea5e9,#6366f1 60%,#d946ef)"><div class="gicon">🎯</div><div class="gtx"><b>Ok Kaçışı</b><small>Oklara dokun, yönüne kayıp çıksınlar. Yolu tıkalıysa çıkmaz!</small><span class="gtag" id="hsAr">Seviye 1</span></div><div class="gplay" style="color:#6366f1">▶</div></div>');
 ACH.push({id:'ar1',name:'Ok Avcısı',text:'Ok Kaçışı: 10. seviyeye ulaş',get:()=>arLevel-1,target:10,reward:200},{id:'ar2',name:'Ok Ustası',text:'Ok Kaçışı: 40. seviyeye ulaş',get:()=>arLevel-1,target:40,reward:600});
@@ -2346,13 +2346,14 @@ function arLayout(G){
   const aw=W-24,ah=H-90-84;G.cell=Math.floor(Math.min(aw/G.cols,ah/G.rows));
   G.ox=Math.round((W-G.cell*G.cols)/2);G.oy=Math.round(90+(ah-G.cell*G.rows)/2);
 }
-function arStart(){
-  const g=arGen(arLevel);const G=Object.assign(g,{hearts:3,left:g.pcs.length,t:0,hintId:0,done:false,lost:false,revived:false,hint:!ld('tv_arhint',0),parts:[],shake:0});
+let arCur=1;
+function arStart(lv){
+  arCur=lv||arLevel;const g=arGen(arCur);const G=Object.assign(g,{hearts:3,left:g.pcs.length,t:0,hintId:0,done:false,lost:false,revived:false,hint:!ld('tv_arhint',0),parts:[],shake:0});
   ar.G=G;arLayout(G);
   show('ar_win',false);show('ar_lose',false);show('ar_shop',false);arHud();
   if(!ar.raf){ar.raf=true;ar.last=performance.now();requestAnimationFrame(arFrame)}
 }
-function arHud(){const G=ar.G;$('ar_lv').textContent='Seviye '+arLevel;$('ar_hp').textContent=G.hearts>0?'❤️'.repeat(G.hearts):'💔'}
+function arHud(){const G=ar.G;$('ar_lv').textContent='Seviye '+arCur+(arCur%5===0?' 🔥 Zor':arCur%5===1&&arCur>1?' 😌 Kolay':'');$('ar_hp').textContent=G.hearts>0?'❤️'.repeat(G.hearts):'💔'}
 function openArrows(){state='arrows';useW('arrows');stopMusic();hideAll();show('arrows',true);arStart()}
 function arPt(G,cell){return [G.ox+(cell[1]+0.5)*G.cell,G.oy+(cell[0]+0.5)*G.cell]}
 function arPath(G,p){ // gövde noktaları + çıkış yolu
@@ -2394,10 +2395,10 @@ function arTap(x,y){
   }
 }
 function arWin(){
-  const G=ar.G;G.done=true;const coins=8+Math.min(arLevel,40)*2;G.reward=coins;
-  credit('arrows',coins);stats.coins+=coins;addProg('arrows',1);addProg('coins',coins);
-  arLevel++;sv('tv_arlevel',arLevel);saveDaily();checkAch();sfx.power();buzz(30);refreshCoins();
-  $('ar_wt').textContent='Seviye tamam! 🎉';$('ar_wi').textContent='🪙 +'+coins;$('ar_dbl').classList.remove('hidden');
+  const G=ar.G;G.done=true;const fresh=arCur===arLevel,coins=fresh?8+Math.min(arCur,40)*2+(arCur%5===0?20:0):0;G.reward=coins;
+  if(fresh){credit('arrows',coins);stats.coins+=coins;addProg('arrows',1);addProg('coins',coins);arLevel++;sv('tv_arlevel',arLevel);saveDaily();checkAch();refreshCoins()}
+  sfx.power();buzz(30);
+  $('ar_wt').textContent='Seviye tamam! 🎉';$('ar_wi').textContent=fresh?'🪙 +'+coins:'Tekrar oynadın (altın yok)';$('ar_dbl').classList.toggle('hidden',!fresh);
   setTimeout(()=>{show('ar_win',true);if((ar.wins=(ar.wins||0)+1)%3===0)Ads.interstitial()},500);
 }
 function arFrame(now){
@@ -2457,10 +2458,11 @@ function arSkins(){
 }
 $('cardAr').onclick=()=>openArrows();
 $('ar_back').onclick=()=>openHub();$('ar_wh').onclick=()=>openHub();$('ar_lh').onclick=()=>openHub();
-$('ar_next').onclick=()=>arStart();$('ar_again').onclick=()=>arStart();
+$('ar_next').onclick=()=>arStart(Math.min(arCur+1,arLevel));$('ar_again').onclick=()=>arStart(arCur);
 $('ar_dbl').onclick=()=>Ads.rewarded(()=>{const G=ar.G;credit('arrows',G.reward);refreshCoins();$('ar_dbl').classList.add('hidden');$('ar_wi').textContent+=' · 2 kat yapıldı!'});
 $('ar_rev').onclick=()=>Ads.rewarded(()=>{const G=ar.G;G.revived=true;G.lost=false;G.hearts=1;arHud();show('ar_lose',false)});
 $('ar_hint').onclick=()=>{const G=ar.G;if(!G||G.done||G.lost)return;Ads.rewarded(()=>{const c=G.pcs.filter(p=>p.alive&&p.s<0&&!arRay(G,p));if(c.length)G.hintId=c[Math.floor(Math.random()*c.length)].id})};
+$('ar_lvs').onclick=()=>{const g=$('ar_grid');g.innerHTML='';for(let i=1;i<=arLevel;i++){const b=document.createElement('button');b.textContent=i<arLevel?i+(i%5===0?'🔥':''):i+'▶';b.className=i===arLevel?'gold':'alt';b.onclick=()=>{show('ar_sel',false);arStart(i)};g.appendChild(b)}show('ar_sel',true);g.scrollTop=g.scrollHeight};$('ar_selx').onclick=()=>show('ar_sel',false);
 $('ar_skin').onclick=()=>{arSkins();show('ar_shop',true)};$('ar_sx').onclick=()=>show('ar_shop',false);
 $('arrows').addEventListener('pointerdown',e=>{if(state!=='arrows'||e.target.closest('button')||e.target.closest('.overlay'))return;arTap(e.clientX,e.clientY)});
 
