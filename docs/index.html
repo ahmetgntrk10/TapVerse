@@ -86,7 +86,7 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
 .row button{min-width:98px;padding:9px 12px;font-size:15px}
 .bar{height:8px;background:rgba(0,0,0,.35);border-radius:5px;margin-top:7px;overflow:hidden}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--green));border-radius:5px}
-#hub,#maze,#city{position:fixed;inset:0;background:radial-gradient(circle at 50% 22%,#33267a,#140d34 62%,#0b0720)}
+#hub,#maze,#city,#rhy{position:fixed;inset:0;background:radial-gradient(circle at 50% 22%,#33267a,#140d34 62%,#0b0720)}
 #hub{display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom))}
 #hub .cards{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:6px 2px 18px;touch-action:pan-y;-webkit-overflow-scrolling:touch}
 .gcard{position:relative;display:flex;align-items:center;gap:14px;padding:16px;min-height:132px;border-radius:26px;border:1px solid var(--line);overflow:hidden;cursor:pointer;box-shadow:0 10px 26px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.18);transition:transform .1s}
@@ -106,7 +106,10 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
 .htitle{text-align:center;margin:10px 0 8px;pointer-events:none}
 .htitle .logo{margin:0}
 .htitle .sub{margin-top:10px;font-size:15px;letter-spacing:3px;color:var(--mute)}
-#maze,#city{touch-action:none}
+#maze,#city,#rhy{touch-action:none}
+#rcv{display:block}
+.gcard.g4{background:linear-gradient(135deg,#06b6d4,#8b5cf6 60%,#ec4899)}
+.gcard.g4 .gplay{color:#8b5cf6}
 #ccv{display:block}
 .gcard.g3{background:linear-gradient(135deg,#f97316,#ec4899 65%,#8b5cf6)}
 .gcard.g3 .gplay{color:#ec4899}
@@ -162,13 +165,33 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
     <div class="gcard g1" id="cardRun"><div class="gicon">🏃</div><div class="gtx"><b>Sonsuz Koşu</b><small>3 şeritte koş, engellerden kaç, altın topla.</small><span class="gtag" id="hsRun">En iyi: 0</span></div><div class="gplay">▶</div></div>
     <div class="gcard g2" id="cardMaze"><div class="gicon">🌀</div><div class="gtx"><b>Tek Parmak Labirent</b><small>Parmağınla topu yönlendir, çıkışı bul.</small><span class="gtag" id="hsMaze">Seviye 1</span></div><div class="gplay">▶</div></div>
     <div class="gcard g3" id="cardCity"><div class="gicon">🏙️</div><div class="gtx"><b>Tek Tuş Şehir</b><small>Basılı tut, çatıdan çatıya zıpla.</small><span class="gtag" id="hsCity">Rekor: 0</span></div><div class="gplay">▶</div></div>
-    <div class="gcard lock"><div class="gicon">🎵</div><div class="gtx"><b>Sessiz Ritim</b><span class="gtag">YAKINDA</span></div></div>
+    <div class="gcard g4" id="cardRhy"><div class="gicon">🎵</div><div class="gtx"><b>Sessiz Ritim</b><small>Ritmi izle, sonra sessizce tekrarla.</small><span class="gtag" id="hsRhy">Rekor: 0</span></div><div class="gplay">▶</div></div>
   </div>
   <div class="nav">
     <button id="hubDaily" class="n"><span class="ic">📆</span>Günlük<span class="dot" id="hddot"></span></button>
     <button id="hubBall" class="n"><span class="ic">🎨</span>Top</button>
     <button id="hubWheel" class="n"><span class="ic">🎡</span>Çark<span class="dot" id="hwdot"></span></button>
     <button id="hubAch" class="n"><span class="ic">🏆</span>Başarım<span class="dot" id="hadot"></span></button>
+  </div>
+</div>
+<div id="rhy" class="hidden">
+  <canvas id="rcv"></canvas>
+  <div class="mtop">
+    <button id="rBack" class="ibtn alt">‹</button>
+    <div class="pill" id="rScore">0</div>
+    <div class="pill sm">🏅 <span id="rBest">0</span></div>
+    <div class="sp"></div>
+    <div class="pill" id="rLives">❤️❤️❤️</div>
+  </div>
+  <div id="rOver" class="overlay hidden">
+    <div class="card">
+      <div class="ttl" style="color:var(--gold)">Ritim bozuldu!</div>
+      <div class="bigscore"><span id="roScore">0</span><small>PUAN</small></div>
+      <div id="roInfo" style="color:var(--mute)"></div>
+      <button id="rAgain" class="gold">▶ Tekrar Oyna</button>
+      <button id="rDbl" class="alt">📺 Altınları 2 kat yap</button>
+      <button id="rHub" class="alt">🎮 Oyunlar</button>
+    </div>
   </div>
 </div>
 <div id="city" class="hidden">
@@ -500,7 +523,7 @@ function ballCfg(i,n){
   const h=(performance.now()/9+(i||0)*14)%360;
   return {l:`hsl(${h},100%,88%)`,m:`hsl(${h},95%,60%)`,d:`hsl(${(h+50)%360},90%,45%)`,t:`hsl(${h},100%,60%)`,g:`hsl(${h},100%,55%)`};
 }
-let cityBest=ld('tv_bestcity',0);
+let cityBest=ld('tv_bestcity',0),rhythmBest=ld('tv_bestrhythm',0);
 const stats=Object.assign({games:0,coins:0,powers:0,worldMax:1,escapes:0,bosses:0,mazeLevels:0},ld('tv_stats',{}));
 let achClaimed=ld('tv_ach',[]),achSeen=ld('tv_achseen',[]);
 
@@ -537,6 +560,8 @@ const QPOOL=[
  {type:'score',target:5000,text:'Tek oyunda 5000 puan yap',reward:300},
  {type:'runcoins',target:80,text:'Tek oyunda 80 altın topla',reward:150},
  {type:'play',target:8,text:'8 oyun oyna',reward:100},
+ {type:'rhythm',target:6000,text:'Ritimde 6000 puan yap',reward:150},
+ {type:'rhit',target:80,text:'Ritimde 80 vuruş yap',reward:100},
  {type:'city',target:30,text:'Şehir oyununda 30 puan yap',reward:150},
  {type:'cjump',target:60,text:'Şehir oyununda 60 kez zıpla',reward:100},
  {type:'jump',target:100,text:'100 kez zıpla',reward:100},
@@ -636,7 +661,9 @@ const ACH=[
  {id:'maze10',name:'Yol Bulucu',text:'10 labirent seviyesi bitir',get:()=>stats.mazeLevels,target:10,reward:200},
  {id:'maze30',name:'Labirent Ustası',text:'30 labirent seviyesi bitir',get:()=>stats.mazeLevels,target:30,reward:600},
  {id:'city10',name:'Çatı Atlayıcı',text:'Şehirde tek oyunda 25 puan yap',get:()=>cityBest,target:25,reward:150},
- {id:'city40',name:'Şehir Efsanesi',text:'Şehirde tek oyunda 100 puan yap',get:()=>cityBest,target:100,reward:500}
+ {id:'city40',name:'Şehir Efsanesi',text:'Şehirde tek oyunda 100 puan yap',get:()=>cityBest,target:100,reward:500},
+ {id:'rit1',name:'Ritim Çırağı',text:'Ritimde tek oyunda 5000 puan yap',get:()=>rhythmBest,target:5000,reward:150},
+ {id:'rit2',name:'Ritim Ustası',text:'Ritimde tek oyunda 30000 puan yap',get:()=>rhythmBest,target:30000,reward:500}
 ];
 function checkAch(){
   for(const a of ACH)if(a.get()>=a.target&&!achSeen.includes(a.id)){achSeen.push(a.id);showBanner('🏆 '+a.name);sfx.power()}
@@ -949,16 +976,17 @@ $('qback').onclick=()=>{show('quests',false);goHome();updateBadge()};
 let curHome='hub';
 function leaveHome(){show('menu',false);show('hub',false)}
 function goHome(){show(curHome==='hub'?'hub':'menu',true)}
-function refreshHub(){$('hsCity').textContent='Rekor: '+cityBest;$('hsRun').textContent='En iyi: '+best;$('hsMaze').textContent='Seviye '+mz.best}
+function refreshHub(){$('hsRhy').textContent='Rekor: '+rhythmBest;$('hsCity').textContent='Rekor: '+cityBest;$('hsRun').textContent='En iyi: '+best;$('hsMaze').textContent='Seviye '+mz.best}
 function openHub(){
   state='hub';curHome='hub';stopMusic();
-  ['menu','over','shop','maze','city'].forEach(i=>show(i,false));
+  ['menu','over','shop','maze','city','rhy'].forEach(i=>show(i,false));
   $('coinhud').style.display='none';$('pw').textContent='';scoreEl.textContent='';
   show('hub',true);refreshCoins();updateBadge();refreshHub();
 }
 $('cardRun').onclick=()=>{show('hub',false);toMenu()};
 $('cardMaze').onclick=()=>openMaze();
 $('cardCity').onclick=()=>openCity();
+$('cardRhy').onclick=()=>openRhythm();
 $('hubBall').onclick=()=>openShop('ball');
 $('hubDaily').onclick=()=>openMaze(true);
 $('hubBtn').onclick=()=>openHub();
@@ -1046,7 +1074,7 @@ function mzStart(){
 }
 function openMaze(daily){
   state='maze';stopMusic();mz.cur=mz.best;mz.daily=daily===true;
-  ['hub','menu','over','shop','city'].forEach(i=>show(i,false));show('maze',true);
+  ['hub','menu','over','shop','city','rhy'].forEach(i=>show(i,false));show('maze',true);
   mzStart();
 }
 function mzSpark(x,y,n,color,sp){for(let i=0;i<n;i++){const a=Math.random()*6.283,v=(0.3+Math.random())*sp;mzG.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:0.6+Math.random()*0.5,max:1.1,c:color})}}
@@ -1209,7 +1237,7 @@ function ctStart(){
 }
 function openCity(){
   state='city';stopMusic();
-  ['hub','menu','over','shop','maze'].forEach(i=>show(i,false));show('city',true);
+  ['hub','menu','over','shop','maze','rhy'].forEach(i=>show(i,false));show('city',true);
   ctStart();
 }
 function ctSpark(x,y,n,col,sp){const G=ct.G;for(let i=0;i<n;i++){const a=Math.random()*6.283,v=(0.3+Math.random())*sp;G.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-sp*0.3,life:0.5+Math.random()*0.5,max:1,c:col,s:2+Math.random()*2})}}
@@ -1385,6 +1413,183 @@ addEventListener('pointercancel',()=>ctRelease());
 addEventListener('keydown',e=>{if(state==='city'&&e.code==='Space'){e.preventDefault();ctPress()}});
 addEventListener('keyup',e=>{if(state==='city'&&e.code==='Space')ctRelease()});
 
+// ---- Oyun 4: Sessiz Ritim ----
+const rcv=$('rcv'),rctx=rcv.getContext?rcv.getContext('2d'):null;
+const rt={raf:false,G:null,games:0,hint:!ld('tv_rthint',0),clock:()=>performance.now()/1000};
+const RT_R=54;
+function rtPattern(d){
+  const n=Math.min(2+Math.floor(d/2),6),set=new Set([0]);let tries=0;
+  while(set.size<n&&tries++<80){
+    let s=1+Math.floor(Math.random()*7);
+    if(d<2&&s%2)continue;
+    if(d<4&&(set.has(s-1)||set.has(s+1)))continue;
+    set.add(s);
+  }
+  return [...set].sort((a,b)=>a-b);
+}
+function rtMeasure(G,echo,pat,label,nb){
+  nb=nb||4;const beat=60/G.bpm,t0=G.genT;
+  for(let b=0;b<nb;b++)G.beats.push({t:t0+b*beat,echo,idx:b,ticked:false,len:beat});
+  if(pat)for(const s of pat)G.notes.push({t:t0+s*beat/2,echo,done:false,ap:beat*2});
+  G.meas.push({t0,t1:t0+nb*beat,echo,label});
+  G.genT+=nb*beat;
+}
+function rtPair(G){
+  G.bpm=Math.min(150,80+G.pair*4);
+  const pat=rtPattern(G.pair);
+  rtMeasure(G,false,pat,'İZLE');
+  rtMeasure(G,true,pat,'TEKRARLA!');
+  rtMeasure(G,false,null,'HAZIR',2);
+  G.pair++;
+}
+function rtBuild(){
+  const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
+  rcv.width=Math.round(W*dpr);rcv.height=Math.round(H*dpr);rcv.style.width=W+'px';rcv.style.height=H+'px';
+  const G={W,H,dpr,cx:W/2,cy:H*0.44,notes:[],beats:[],meas:[],genT:1.0,pair:0,bpm:80,score:0,combo:0,maxCombo:0,lives:3,hits:0,perfects:0,
+    parts:[],pops:[],t0:rt.clock(),now:0,pulse:0,pulseEcho:false,tapPop:0,missFlash:0,over:false,shown:false,overT:0,newBest:false,coins:0,paused:false};
+  rtMeasure(G,false,null,'HAZIR');
+  rtPair(G);
+  return G;
+}
+function rtHud(){
+  const G=rt.G;$('rScore').textContent=G.score;$('rLives').textContent='❤️'.repeat(G.lives)+'🖤'.repeat(3-G.lives);
+}
+function rtStart(){
+  rt.G=rtBuild();$('rBest').textContent=rhythmBest;rtHud();show('rOver',false);
+  if(!rt.raf){rt.raf=true;requestAnimationFrame(rtFrame)}
+}
+function openRhythm(){
+  state='rhythm';stopMusic();
+  ['hub','menu','over','shop','maze','city'].forEach(i=>show(i,false));show('rhy',true);
+  rtStart();
+}
+function rtPop(t,col,y){rt.G.pops.push({t,col,y:y||rt.G.cy+RT_R+34,life:0.8})}
+function rtBurst(n,col,sp){const G=rt.G;for(let i=0;i<n;i++){const a=Math.random()*6.283,v=(0.4+Math.random())*sp;G.parts.push({x:G.cx+Math.cos(a)*RT_R,y:G.cy+Math.sin(a)*RT_R,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:0.5+Math.random()*0.4,max:0.9,c:col,s:2+Math.random()*2.5})}}
+function rtTap(){
+  const G=rt.G;if(!G||state!=='rhythm'||G.over||G.paused)return;
+  const now=rt.clock()-G.t0;G.tapPop=1;
+  let best=null,bd=9;
+  for(const n of G.notes)if(!n.done){const d=Math.abs(now-n.t);if(d<bd){bd=d;best=n}}
+  if(!best||bd>0.2){G.combo=0;rtPop('Boş','#a9a1d8');tone(220,200,0.05,'sine',0.05);return}
+  best.done=true;
+  const q=bd<0.07?0:bd<0.13?1:2,pts=[100,60,30][q];
+  const mult=1+Math.min(2,Math.floor(G.combo/8)*0.5)+0,echo=best.echo?2:1;
+  const add=Math.round(pts*mult*echo);
+  G.score+=add;G.combo++;G.maxCombo=Math.max(G.maxCombo,G.combo);G.hits++;if(q===0)G.perfects++;
+  rtPop(['Mükemmel!','İyi','Biraz geç/erken'][q]+(echo>1?' ×2':''),['#ffd34d','#2ee6c5','#a9a1d8'][q]);
+  rtBurst(q===0?18:8,['#ffd34d','#2ee6c5','#ffffff'][q],q===0?200:120);
+  tone([1200,900,600][q],[1800,1200,700][q],0.09,'sine',0.1);
+  if(q===0)buzz(18);
+  if(G.combo%20===0&&G.lives<3){G.lives++;rtPop('+❤️','#ff6fb1',G.cy-RT_R-70)}
+  addProg('rhit',1);
+  rtHud();
+}
+function rtMiss(G){
+  G.lives--;G.combo=0;G.missFlash=1;rtPop('Kaçtı','#ff4d6d');tone(180,80,0.25,'sawtooth',0.08);buzz(60);rtHud();
+  if(G.lives<=0)rtEnd();
+}
+function rtEnd(){
+  const G=rt.G;if(G.over)return;
+  G.over=true;G.overT=0;
+  G.coins=Math.floor(G.hits/3)+Math.floor(G.perfects/5);
+  totalCoins+=G.coins;stats.coins+=G.coins;addProg('coins',G.coins);addProg('rhythm',G.score,'max');
+  if(G.score>rhythmBest){rhythmBest=G.score;sv('tv_bestrhythm',rhythmBest);G.newBest=true}
+  sv('tv_coins',totalCoins);saveDaily();checkAch();refreshCoins();rt.games++;
+  if(rt.hint){rt.hint=false;sv('tv_rthint',1)}
+}
+function rtUpdate(dt){
+  const G=rt.G;if(G.paused)return;
+  const now=rt.clock()-G.t0;G.now=now;
+  if(!G.over){
+    while(G.genT<now+10)rtPair(G);
+    for(const n of G.notes)if(!n.done&&now>n.t+0.2){n.done=true;rtMiss(G);if(G.over)break}
+    for(const b of G.beats)if(!b.ticked&&now>=b.t){b.ticked=true;G.pulse=1;G.pulseEcho=b.echo;
+      tone(b.idx===0?1100:820,b.idx===0?1000:760,0.04,'square',b.echo?0.012:0.035)}
+  }
+  while(G.notes.length&&G.notes[0].t<now-1.5&&G.notes[0].done)G.notes.shift();
+  while(G.beats.length>8&&G.beats[0].t<now-2)G.beats.shift();
+  while(G.meas.length>4&&G.meas[0].t1<now-2)G.meas.shift();
+  G.pulse=Math.max(0,G.pulse-dt*3.2);G.tapPop=Math.max(0,G.tapPop-dt*6);G.missFlash=Math.max(0,G.missFlash-dt*2.5);
+  for(let i=G.parts.length-1;i>=0;i--){const q=G.parts[i];q.life-=dt;if(q.life<=0){G.parts.splice(i,1);continue}q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=0.96;q.vy*=0.96}
+  for(let i=G.pops.length-1;i>=0;i--){const q=G.pops[i];q.life-=dt;q.y-=30*dt;if(q.life<=0)G.pops.splice(i,1)}
+  if(G.over){
+    G.overT+=dt;
+    if(G.overT>0.8&&!G.shown){
+      G.shown=true;
+      $('roScore').textContent=G.score;
+      $('roInfo').textContent=(G.newBest?'🎉 Yeni rekor! ':'Rekor: '+rhythmBest+' · ')+G.hits+' vuruş · en iyi seri ×'+G.maxCombo+' · 🪙 +'+G.coins;
+      $('rDbl').classList.toggle('hidden',G.coins===0);
+      if(rt.games%3===0)Ads.interstitial();
+      show('rOver',true);
+    }
+  }
+}
+function rtDraw(){
+  const G=rt.G,c=rctx;if(!c||!G)return;
+  const W=G.W,H=G.H,cx=G.cx,cy=G.cy,now=G.now;
+  c.setTransform(G.dpr,0,0,G.dpr,0,0);
+  const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#0e0830');bg.addColorStop(1,'#1c0f4d');
+  c.fillStyle=bg;c.fillRect(0,0,W,H);
+  const meas=G.meas.find(m=>now>=m.t0&&now<m.t1)||G.meas[0];
+  const echo=!!(meas&&meas.echo),col=echo?'#ff6fb1':'#2ee6c5';
+  // atım parıltısı
+  if(G.pulse>0){const R=W*0.8,g=c.createRadialGradient(cx,cy,10,cx,cy,R);g.addColorStop(0,echo?'rgba(255,111,177,'+(0.28*G.pulse)+')':'rgba(46,230,197,'+(0.28*G.pulse)+')');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(0,0,W,H)}
+  if(G.missFlash>0){c.fillStyle='rgba(255,60,90,'+(0.22*G.missFlash)+')';c.fillRect(0,0,W,H)}
+  // halkalar
+  const R0=Math.min(W*0.46,260);
+  c.lineCap='round';
+  for(const n of G.notes){
+    if(n.done||n.echo)continue;
+    const tl=n.t-now;if(tl>n.ap||tl<-0.2)continue;
+    const k=Math.max(0,tl/n.ap),r=RT_R+(R0-RT_R)*k;
+    c.globalAlpha=Math.min(1,(1-k)*2.2+0.15);c.strokeStyle='#2ee6c5';c.lineWidth=5+4*(1-k);
+    c.shadowColor='#2ee6c5';c.shadowBlur=12;c.beginPath();c.arc(cx,cy,r,0,6.283);c.stroke();
+  }
+  c.shadowBlur=0;c.globalAlpha=1;
+  // hedef
+  const sc=1+0.1*G.pulse+0.14*G.tapPop;
+  c.save();c.translate(cx,cy);c.scale(sc,sc);
+  const fg=c.createRadialGradient(0,0,4,0,0,RT_R);fg.addColorStop(0,echo?'rgba(255,111,177,.35)':'rgba(46,230,197,.3)');fg.addColorStop(1,'rgba(255,255,255,.05)');
+  c.fillStyle=fg;c.beginPath();c.arc(0,0,RT_R,0,6.283);c.fill();
+  c.strokeStyle=G.tapPop>0.3?'#fff':col;c.lineWidth=5;c.shadowColor=col;c.shadowBlur=16;c.beginPath();c.arc(0,0,RT_R,0,6.283);c.stroke();
+  c.restore();c.shadowBlur=0;
+  // parçacıklar
+  for(const q of G.parts){c.globalAlpha=Math.max(0,q.life/q.max);c.fillStyle=q.c;c.beginPath();c.arc(q.x,q.y,q.s,0,6.283);c.fill()}
+  c.globalAlpha=1;c.textAlign='center';
+  // faz yazısı
+  if(meas){
+    c.font='700 34px Fredoka,sans-serif';c.fillStyle=meas.label==='HAZIR'?'#ffd34d':col;c.shadowColor=col;c.shadowBlur=14;
+    c.fillText(meas.label,cx,cy-R0-26);c.shadowBlur=0;
+    c.font='500 15px Fredoka,sans-serif';c.fillStyle='rgba(255,255,255,.6)';
+    c.fillText(echo?'Halka yok! Ritmi aklında tut · çift puan':meas.label==='HAZIR'?'Ritme hazırlan':'Halka merkeze gelince dokun',cx,cy-R0-4);
+  }
+  // seri
+  if(G.combo>=2){c.font='700 '+(40+8*G.tapPop)+'px Fredoka,sans-serif';c.fillStyle='#ffd34d';c.fillText('×'+G.combo,cx,cy+R0+10)}
+  for(const q of G.pops){c.globalAlpha=Math.min(1,q.life*2);c.font='700 22px Fredoka,sans-serif';c.fillStyle=q.col;c.strokeStyle='rgba(0,0,0,.5)';c.lineWidth=4;c.strokeText(q.t,cx,q.y);c.fillText(q.t,cx,q.y)}
+  c.globalAlpha=1;
+  // metronom noktaları
+  let cur=-1;for(const b of G.beats)if(now>=b.t&&now<b.t+b.len)cur=b.idx;
+  for(let i=0;i<4;i++){c.fillStyle=i===cur?col:'rgba(255,255,255,.2)';c.shadowColor=col;c.shadowBlur=i===cur?14:0;c.beginPath();c.arc(cx+(i-1.5)*40,H-64,i===cur?10:7,0,6.283);c.fill()}
+  c.shadowBlur=0;
+  if(rt.hint&&!G.over){c.font='600 16px Fredoka,sans-serif';c.fillStyle='rgba(255,255,255,.85)';c.fillText('Ekrana istediğin yere dokun',cx,H-24)}
+}
+function rtFrame(){
+  if(state!=='rhythm'){rt.raf=false;return}
+  requestAnimationFrame(rtFrame);
+  if(rt.G){rtUpdate(1/60);rtDraw()}
+}
+addEventListener('visibilitychange',()=>{
+  const G=rt.G;if(!G||state!=='rhythm'||G.over)return;
+  if(document.visibilityState==='hidden'){G.paused=true;G.pauseAt=rt.clock()}
+  else if(G.paused){G.t0+=rt.clock()-G.pauseAt;G.paused=false}
+});
+$('rAgain').onclick=()=>rtStart();
+$('rDbl').onclick=()=>Ads.rewarded(()=>{const g=rt.G;totalCoins+=g.coins;stats.coins+=g.coins;sv('tv_coins',totalCoins);refreshCoins();$('rDbl').classList.add('hidden');$('roInfo').textContent+=' · 2 kat yapıldı!'});
+$('rHub').onclick=()=>openHub();
+$('rBack').onclick=()=>openHub();
+$('rhy').addEventListener('pointerdown',e=>{if(state!=='rhythm'||e.target.closest('button')||e.target.closest('.overlay'))return;rtTap()});
+addEventListener('keydown',e=>{if(state==='rhythm'&&e.code==='Space'&&!e.repeat){e.preventDefault();rtTap()}});
+
 // ---- Kontroller ----
 function moveLane(d){if(state!=='run')return;lane=Math.max(0,Math.min(2,lane+d));targetX=LANES[lane]}
 function jump(){if(state==='run'&&y<=0.001){vy=9;sliding=0;sfx.jump();addProg('jump',1);burst(player.position.x,0.1,0,0xb39ddb,8,3,0.12,1,speed*0.6)}}
@@ -1442,7 +1647,7 @@ const cP=new THREE.Vector3(0,1.7,4.4),cL=new THREE.Vector3(0,0.8,0),dP=new THREE
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min((now-last)/1000,0.05);last=now;
-  if(state==='hub'||state==='maze'||state==='city')return;
+  if(state==='hub'||state==='maze'||state==='city'||state==='rhythm')return;
   if(state==='run'){
     speedMul+=(1-speedMul)*Math.min(1,dt*0.45);
     speed=Math.min(14+score*0.02,40)*speedMul;   // zamanla hızlanır
@@ -1695,7 +1900,8 @@ const TUT=[
   ['🏃','Sonsuz Koşu','Sağa / sola kaydır: şerit değiştir.\nYukarı kaydır: zıpla. Aşağı kaydır: kay.'],
   ['🪙','Altın ve canavar','Altın topla, kostüm ve hayvan al.\nEngele çarparsan canavar yaklaşır. Yakalanırsan oyun biter.'],
   ['🌀','Tek Parmak Labirent','Parmağını ekrana koy ve sürükle, top o yöne gider.\nÇıkışa en hızlı ulaş, 3 yıldız kazan.'],
-  ['🏙️','Tek Tuş Şehir','Ekrana basılı tut: güç dolar. Bırakınca zıplarsın.\nOrtadaki beyaz çizgiye inersen "Mükemmel" olur.']
+  ['🏙️','Tek Tuş Şehir','Ekrana basılı tut: güç dolar. Bırakınca zıplarsın.\nOrtadaki beyaz çizgiye inersen "Mükemmel" olur.'],
+  ['🎵','Sessiz Ritim','Halka merkeze gelince dokun. Sonra halkalar kaybolur:\nritmi aklında tut ve sessizce tekrarla, çift puan kazan!']
 ];
 let tutI=0;
 function tutShow(){
