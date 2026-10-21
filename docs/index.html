@@ -1462,7 +1462,7 @@ function mtBuild(song){
   mcv2.width=Math.round(W*dpr);mcv2.height=Math.round(H*dpr);mcv2.style.width=W+'px';mcv2.style.height=H+'px';
   const {tiles,ppb}=mtBuildTiles(song,H);
   const max=tiles.length*10+tiles.filter(t=>t.long).length*10;
-  return {W,H,dpr,song,tiles,ppb,speed:ppb*song.bpm/60,hitY:H*0.8,failY:H*0.97,scroll:0,started:false,over:false,win:false,shown:false,overT:0,
+  return {W,H,dpr,song,tiles,ppb,speed:ppb*song.bpm/60,hitY:H*0.8,failY:H*0.97,scroll:0,speedMul:1,started:false,over:false,win:false,shown:false,overT:0,milestone:0,
     score:0,combo:0,maxCombo:0,max,perfects:0,hitN:0,parts:[],pops:[],ripples:[],flash:[0,0,0,0],failFlash:0,failLane:-1,revived:false,coins:0,stars:0,msg:''};
 }
 function mtHud(){const G=mt.G;$('mtScore').textContent=G.score;$('mtName').textContent=G.song.name}
@@ -1489,7 +1489,7 @@ function mtTap(lane,pid){
   if(t.lane!==lane){mtFail('Yanlış karo!',lane);return}
   const yB=G.hitY-(t.d-G.scroll);
   if(yB<=0)return; // karo henüz görünmüyor
-  const dt=Math.abs(yB-G.hitY)/G.speed;
+  const dt=Math.abs(yB-G.hitY)/(G.speed*G.speedMul);
   const q=!G.started?0:dt<0.1?0:dt<0.2?1:2;
   G.started=true;
   t.hit=true;t.ht=0.3;
@@ -1501,14 +1501,14 @@ function mtTap(lane,pid){
   G.ripples.push({x,y:Math.min(G.hitY,yB-10),r:10,life:0.5});
   for(let i=0;i<(q===0?10:5);i++){const a=Math.random()*6.283,v=80+Math.random()*160;G.parts.push({x,y:G.hitY,vx:Math.cos(a)*v,vy:Math.sin(a)*v-80,life:0.5,max:0.5,c:['#ffd34d','#2ee6c5','#fff'][q]})}
   t.voice=pnote(t.midi);
-  if(t.long){t.hold=true;t.pid=pid}else if(t.voice){/* kısa karo: doğal sönüş */}
+  if(t.long){t.hold=true;t.pid=pid;t.hs=G.scroll}else if(t.voice){/* kısa karo: doğal sönüş */}
   addProg('tile',1);buzz(12);
   mtHud();
 }
 function mtRelease(pid){
   const G=mt.G;if(!G)return;
   for(const t of G.tiles)if(t.hold&&t.pid===pid){
-    const f=Math.max(0,Math.min(1,(G.scroll-t.d)/t.len));
+    const f=Math.max(0,Math.min(1,(G.scroll-t.hs)/(t.len*0.92)));
     t.hold=false;t.fin=true;if(t.voice)t.voice.stop();
     const bonus=Math.floor(10*f);G.score+=bonus;
     if(f<0.85){G.combo=0;mtPop('Erken bıraktın','#ff6fb1')}else mtPop('Süper!','#ffd34d');
@@ -1530,10 +1530,13 @@ function mtFinish(){
 function mtUpdate(dt){
   const G=mt.G;if(!G)return;
   if(G.started&&!G.over){
-    G.scroll+=G.speed*dt;
+    G.speedMul=1+0.4*Math.min(1,G.hitN/G.tiles.length);
+    G.scroll+=G.speed*G.speedMul*dt;
+    const ms=Math.floor(G.hitN/G.tiles.length*4);
+    if(ms>G.milestone&&ms<4){G.milestone=ms;mtPop('Hızlanıyor! ⚡','#ff6fb1')}
     const t=mtNext();
     if(t&&G.hitY-(t.d-G.scroll)>G.failY){mtFail('Karoyu kaçırdın!',t.lane)}
-    for(const h of G.tiles)if(h.hold&&G.scroll>=h.d+h.len){
+    for(const h of G.tiles)if(h.hold&&G.scroll-h.hs>=h.len*0.92){
       h.hold=false;h.fin=true;G.score+=10;mtPop('Süper!','#ffd34d');if(h.voice)h.voice.stop();mtHud();
     }
     if(!G.over&&!t&&!G.tiles.some(h=>h.hold)){G.fin=(G.fin||0)+dt;if(G.fin>0.5)mtFinish()}
@@ -1586,6 +1589,10 @@ function mtDraw(now){
     if(t.hold){ // basılı tutulan: üst kısım parlak
       const top=yT,bot=Math.min(yB,G.hitY);
       if(bot>top){const g=c.createLinearGradient(0,top,0,bot);g.addColorStop(0,'#a78bfa');g.addColorStop(1,'#2ee6c5');c.fillStyle=g;c.beginPath();c.roundRect?c.roundRect(x,top,w,bot-top,10):c.rect(x,top,w,bot-top);c.fill()}
+      const pr=Math.max(0,Math.min(1,(G.scroll-t.hs)/(t.len*0.92)));
+      c.fillStyle='rgba(0,0,0,.55)';c.fillRect(x,G.hitY+12,w,12);
+      const pg2=c.createLinearGradient(x,0,x+w,0);pg2.addColorStop(0,'#2ee6c5');pg2.addColorStop(1,'#ffd34d');c.fillStyle=pg2;c.fillRect(x,G.hitY+12,w*pr,12);
+      c.fillStyle='#fff';c.font='700 14px Fredoka,sans-serif';c.textAlign='center';c.fillText('BASILI TUT',x+w/2,G.hitY+44);
       continue;
     }
     const g=c.createLinearGradient(0,yT,0,yB);g.addColorStop(0,'#1a1448');g.addColorStop(1,'#07051c');
