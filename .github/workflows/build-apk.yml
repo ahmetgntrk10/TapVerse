@@ -46,6 +46,7 @@ jobs:
             cp icon/round-$l.png $R/mipmap-$n/ic_launcher_round.png
             cp icon/fg-$f.png $R/mipmap-$n/ic_launcher_foreground.png
           done
+          mkdir -p $R/drawable && cp icon/stat.png $R/drawable/ic_stat_tv.png
           printf '<?xml version="1.0" encoding="utf-8"?>\n<resources><color name="ic_launcher_background">#1B1045</color></resources>\n' > $R/values/ic_launcher_background.xml
           sed -i 's#<application#<uses-permission android:name="android.permission.VIBRATE"/><application#' android/app/src/main/AndroidManifest.xml
 
