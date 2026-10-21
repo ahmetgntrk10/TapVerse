@@ -2374,7 +2374,7 @@ function arStart(lv){
   if(!ar.raf){ar.raf=true;ar.last=performance.now();requestAnimationFrame(arFrame)}
 }
 function arHud(){const G=ar.G;$('ar_lv').textContent='Seviye '+arCur+(arCur%5===0?' 🔥 Zor':arCur%5===1&&arCur>1?' 😌 Kolay':'');$('ar_hp').textContent=G.hearts>0?'❤️'.repeat(G.hearts):'💔'}
-function openArrows(){state='arrows';useW('arrows');stopMusic();hideAll();show('arrows',true);arStart()}
+function openArrows(lv){state='arrows';useW('arrows');stopMusic();hideAll();show('arrows',true);arStart(lv)}
 function arPt(G,cell){return [G.ox+(cell[1]+0.5)*G.cell,G.oy+(cell[0]+0.5)*G.cell]}
 function arPath(G,p){ // gövde noktaları + çıkış yolu
   const pts=p.cells.map(c=>arPt(G,c)),h=pts[pts.length-1];let L=0;
@@ -2489,6 +2489,38 @@ $('ar_hint').onclick=()=>{const G=ar.G;if(!G||G.done||G.lost)return;Ads.rewarded
 $('ar_lvs').onclick=()=>{const g=$('ar_grid');g.innerHTML='';for(let i=1;i<=arLevel;i++){const b=document.createElement('button');b.textContent=i<arLevel?i+(i%5===0?'🔥':''):i+'▶';b.className=i===arLevel?'gold':'alt';b.onclick=()=>{show('ar_sel',false);arStart(i)};g.appendChild(b)}show('ar_sel',true);g.scrollTop=g.scrollHeight};$('ar_selx').onclick=()=>show('ar_sel',false);
 $('ar_skin').onclick=()=>{arSkins();show('ar_shop',true)};$('ar_sx').onclick=()=>show('ar_shop',false);
 $('arrows').addEventListener('pointerdown',e=>{if(state!=='arrows'||e.target.closest('button')||e.target.closest('.overlay'))return;arTap(e.clientX,e.clientY)});
+
+// ---- Oyun giriş ekranı (her oyun için) ----
+document.body.insertAdjacentHTML('beforeend','<div id="lobby" class="hidden mgscr" style="overflow:auto"><div class="mtop"><button id="lb_back" class="ibtn alt">‹</button><div class="sp"></div><div class="pill" id="lb_w" style="color:var(--gold)"></div></div>'
+ +'<div style="min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:84px 24px 28px;text-align:center">'
+ +'<div id="lb_emo" style="font-size:84px;line-height:1"></div><div id="lb_t" style="font-size:30px;font-weight:700"></div><div id="lb_d" style="color:var(--mute);max-width:300px"></div><div id="lb_i" style="font-size:18px;font-weight:600"></div>'
+ +'<button id="lb_play" class="gold" style="width:min(280px,80vw);font-size:22px;padding:16px">▶ OYNA</button><div id="lb_x" style="display:flex;flex-direction:column;gap:10px;width:min(280px,80vw)"></div>'
+ +'<div id="lb_lv" class="hidden" style="width:min(340px,92vw)"><div style="color:var(--mute);margin:6px 0">Seviyeler</div><div id="lb_grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px"></div></div></div></div>');
+SCR.push('lobby');
+let lbId=null;
+function lbCfg(id){
+  const wl=k=>'🪙 '+(k===curW?totalCoins:(WALLET[k]||0));
+  if(id==='maze')return{emo:'🌀',t:'Tek Parmak Labirent',d:'Parmağınla topu yönlendir, çıkışı bul.',i:'Seviye '+mz.best,w:wl('maze'),wk:'maze',play:()=>openMaze(),x:[['📅 Günlük Labirent',()=>openMaze(true)],['🎨 Top Renkleri',()=>openShop('ball')]]};
+  if(id==='city')return{emo:'🏙️',t:'Tek Tuş Şehir',d:'Basılı tut, çatıdan çatıya zıpla. Ne kadar uzun basarsan o kadar uzağa gidersin.',i:'🏅 Rekor: '+cityBest,play:()=>openCity(),x:[]};
+  if(id==='ar')return{emo:'🎯',t:'Ok Kaçışı',d:'Oklara dokun, yönüne kayıp çıksınlar. Yolu tıkalıysa çıkmaz!',i:'Seviye '+arLevel,w:wl('arrows'),wk:'arrows',play:()=>openArrows(arLevel),x:[['🎨 Ok Renkleri',()=>{openArrows(arLevel);arSkins();show('ar_shop',true)}]],levels:true};
+  const d=MG[id];return{emo:d.emo,t:d.title,d:d.desc,i:'🏅 Rekor: '+(mgBest[id]||0),play:()=>mgOpen(id),x:[]};
+}
+function openLobby(id){
+  lbId=id;const c=lbCfg(id);state='hub';curHome='hub';stopMusic();hideAll();show('lobby',true);
+  if(c.wk)useW(c.wk);
+  $('lb_emo').textContent=c.emo;$('lb_t').textContent=c.t;$('lb_d').textContent=c.d;$('lb_i').textContent=c.i;
+  $('lb_w').style.display=c.w?'':'none';$('lb_w').textContent=c.w||'';
+  $('lb_play').onclick=c.play;
+  const x=$('lb_x');x.innerHTML='';for(const [l,f] of c.x){const b=document.createElement('button');b.className='alt';b.textContent=l;b.onclick=f;x.appendChild(b)}
+  show('lb_lv',!!c.levels);
+  if(c.levels){const g=$('lb_grid');g.innerHTML='';for(let i=1;i<=arLevel+5;i++){const b=document.createElement('button');const lock=i>arLevel;b.textContent=lock?'🔒':i+(i%5===0?'🔥':'');b.className=i===arLevel?'gold':'alt';b.style.padding='10px 0';if(lock){b.disabled=true;b.style.opacity=.4}else b.onclick=()=>openArrows(i);g.appendChild(b)}}
+  $('lb_back').scrollIntoView&&0;$('lobby').scrollTop=0;
+}
+$('lb_back').onclick=()=>openHub();
+$('cardMaze').onclick=()=>openLobby('maze');$('cardCity').onclick=()=>openLobby('city');$('cardAr').onclick=()=>openLobby('ar');
+for(const k in MG)$('card_'+k).onclick=()=>openLobby(k);
+$('mBack').onclick=()=>openLobby('maze');$('cBack').onclick=()=>openLobby('city');$('ar_back').onclick=()=>openLobby('ar');
+for(const k in MG)$('b_'+k).onclick=()=>openLobby(k);
 
 // ---- Kontroller ----
 function moveLane(d){if(state!=='run')return;lane=Math.max(0,Math.min(2,lane+d));targetX=LANES[lane]}
