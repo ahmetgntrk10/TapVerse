@@ -1009,7 +1009,7 @@ $('qback').onclick=()=>{show('quests',false);goHome();updateBadge()};
 let curHome='hub';
 function leaveHome(){show('menu',false);show('hub',false)}
 function goHome(){show(curHome==='hub'?'hub':'menu',true)}
-function refreshHub(){for(const k in MG)$('tag_'+k).textContent='Rekor: '+(mgBest[k]||0);const wl=k=>' · 🪙 '+(k===curW?totalCoins:(WALLET[k]||0));$('hsMt').textContent='⭐ '+mtStarsTotal()+'/'+SONGS.length*3+wl('tiles');$('hsCity').textContent='Rekor: '+cityBest;$('hsRun').textContent='En iyi: '+best+wl('run');if($('hsSk'))$('hsSk').textContent='☁️ '+fmt(sk.c);if($('hsAr'))$('hsAr').textContent='Seviye '+arLevel+wl('arrows');$('hsMaze').textContent='Seviye '+mz.best+wl('maze')}
+function refreshHub(){for(const k in MG)$('tag_'+k).textContent='Rekor: '+(mgBest[k]||0);const wl=k=>' · 🪙 '+(k===curW?totalCoins:(WALLET[k]||0));$('hsMt').textContent='⭐ '+mtStarsTotal()+'/'+SONGS.length*3+wl('tiles');$('hsCity').textContent='Rekor: '+cityBest;$('hsRun').textContent='En iyi: '+best+wl('run');if($('hsSk'))$('hsSk').textContent='Dünya '+(sk.cur+1)+' · '+SK_T.c.cur+' '+fmt(sk.c);if($('hsAr'))$('hsAr').textContent='Seviye '+arLevel+wl('arrows');$('hsMaze').textContent='Seviye '+mz.best+wl('maze')}
 const SCR=['hub','menu','over','shop','maze','city','mt','mtsel'];
 function hideAll(){SCR.forEach(i=>show(i,false))}
 function openHub(){
@@ -2566,7 +2566,7 @@ let lbId=null;
 function lbCfg(id){
   const wl=k=>'🪙 '+(k===curW?totalCoins:(WALLET[k]||0));
   if(id==='maze')return{emo:'🌀',t:'Tek Parmak Labirent',d:'Parmağınla topu yönlendir, çıkışı bul.',i:'Seviye '+mz.best,w:wl('maze'),wk:'maze',play:()=>openMaze(),x:[['📅 Günlük Labirent',()=>openMaze(true)],['🎨 Top Renkleri',()=>openShop('ball')]]};
-  if(id==='sky')return{emo:'🏝️',t:'Gök Adaları',d:'Bulut, enerji ve kristal üret. Üçü birbirini güçlendirir. Sen yokken de kazanır!',i:'☁️ '+fmt(sk.c)+'  ⚡ '+fmt(sk.e)+'  💎 '+fmt(sk.k),play:()=>openSky(),x:[]};
+  if(id==='sky')return{emo:'🏝️',t:'Gök Adaları',d:'10 dünya, her birinin kendi parası var. Birinin parasıyla sıradakini açarsın. Sen yokken de kazanır!',i:SK_T.c.cur+' '+fmt(sk.c)+'  '+SK_T.e.cur+' '+fmt(sk.e)+'  '+SK_T.k.cur+' '+fmt(sk.k)+'  · Dünya '+(sk.cur+1),play:()=>openSky(),x:[]};
   if(id==='city')return{emo:'🏙️',t:'Tek Tuş Şehir',d:'Basılı tut, çatıdan çatıya zıpla. Ne kadar uzun basarsan o kadar uzağa gidersin.',i:'🏅 Rekor: '+cityBest,play:()=>openCity(),x:[]};
   if(id==='ar')return{emo:'🎯',t:'Ok Kaçışı',d:'Oklara dokun, yönüne kayıp çıksınlar. Yolu tıkalıysa çıkmaz!',i:'Seviye '+arLevel,w:wl('arrows'),wk:'arrows',play:()=>openArrows(arLevel),x:[['🎨 Ok Renkleri',()=>{openArrows(arLevel);arSkins();show('ar_shop',true)}]],levels:true};
   const d=MG[id];return{emo:d.emo,t:d.title,d:d.desc,i:'🏅 Rekor: '+(mgBest[id]||0),play:()=>mgOpen(id),x:[]};
@@ -2589,28 +2589,35 @@ $('mBack').onclick=()=>openLobby('maze');$('cBack').onclick=()=>openLobby('city'
 for(const k in MG)$('b_'+k).onclick=()=>openLobby(k);
 
 // ---- Gök Adaları (idle) ----
-const SK_L=[
- {n:'Gündoğumu',e:'🌅',s:1,u:0,sky:['#60a5fa','#fde68a'],g1:'#0ea5e9',g2:'#1e3a8a'},
- {n:'Fırtına',e:'⛈️',s:400,u:3e8,sky:['#334155','#94a3b8'],g1:'#475569',g2:'#0f172a'},
- {n:'Alacakaranlık',e:'🌆',s:1.6e5,u:2e11,sky:['#7c3aed','#fda4af'],g1:'#a855f7',g2:'#3b0764'},
- {n:'Aurora',e:'🌌',s:6.4e7,u:1e14,sky:['#0f766e','#4338ca'],g1:'#14b8a6',g2:'#1e1b4b'},
- {n:'Kozmos',e:'🪐',s:2.6e10,u:5e16,sky:['#0b0f2a','#5b21b6'],g1:'#6366f1',g2:'#0b0f2a'}];
+const SK_L=[{n:"Gündoğumu",e:"🌅",s:Math.pow(12,0),sky:["#60a5fa", "#fde68a"],gr:["#58e07e", "#3ccb6a"],t:{c:{n:"Bulut Çiftliği",cur:"☁️"},e:{n:"Fırtına Kulesi",cur:"⚡"},k:{n:"Kristal Kovanı",cur:"💎"}}},
+ {n:"Fırtına",e:"⛈️",s:Math.pow(12,1),sky:["#334155", "#94a3b8"],gr:["#5fae8a", "#3f8f6c"],t:{c:{n:"Yağmur Havuzu",cur:"🌧️"},e:{n:"Yıldırım Kulesi",cur:"🌩️"},k:{n:"Cam Kovanı",cur:"🔮"}}},
+ {n:"Vaha",e:"🏜️",s:Math.pow(12,2),sky:["#fb923c", "#fde68a"],gr:["#e6c46a", "#d4a94a"],t:{c:{n:"Vaha Kuyusu",cur:"🪨"},e:{n:"Güneş Kulesi",cur:"🔥"},k:{n:"Define Kazısı",cur:"🏺"}}},
+ {n:"Alacakaranlık",e:"🌆",s:Math.pow(12,3),sky:["#7c3aed", "#fda4af"],gr:["#6bc98f", "#4aae78"],t:{c:{n:"Ay Tarlası",cur:"🌙"},e:{n:"Işık Kulesi",cur:"✨"},k:{n:"Ametist Kovanı",cur:"🟣"}}},
+ {n:"Aurora",e:"🌌",s:Math.pow(12,4),sky:["#0f766e", "#4338ca"],gr:["#8fd9d0", "#6cc3ba"],t:{c:{n:"Buz Bahçesi",cur:"❄️"},e:{n:"Aurora Kulesi",cur:"🌈"},k:{n:"Buz Kovanı",cur:"🧊"}}},
+ {n:"Okyanus",e:"🌊",s:Math.pow(12,5),sky:["#0ea5e9", "#a5f3fc"],gr:["#7ee0c6", "#55c9ab"],t:{c:{n:"Mercan Çiftliği",cur:"🐚"},e:{n:"Dalga Kulesi",cur:"🌊"},k:{n:"İnci Kovanı",cur:"🪸"}}},
+ {n:"Volkan",e:"🌋",s:Math.pow(12,6),sky:["#7f1d1d", "#fb923c"],gr:["#8a7a6a", "#6e6055"],t:{c:{n:"Kül Tarlası",cur:"🪨"},e:{n:"Lav Kulesi",cur:"🌋"},k:{n:"Magma Kovanı",cur:"🔶"}}},
+ {n:"Çarklar",e:"🤖",s:Math.pow(12,7),sky:["#475569", "#cbd5e1"],gr:["#a3b0bf", "#8997a8"],t:{c:{n:"Çark Atölyesi",cur:"⚙️"},e:{n:"Tesla Kulesi",cur:"🔋"},k:{n:"Çekirdek Fabrikası",cur:"🔩"}}},
+ {n:"Kozmos",e:"🪐",s:Math.pow(12,8),sky:["#0b0f2a", "#5b21b6"],gr:["#7c6fd1", "#5f52b8"],t:{c:{n:"Asteroit Tarlası",cur:"☄️"},e:{n:"Pulsar Kulesi",cur:"🌠"},k:{n:"Yıldız Kovanı",cur:"🪐"}}},
+ {n:"Sonsuzluk",e:"♾️",s:Math.pow(12,9),sky:["#1e1b4b", "#f0abfc"],gr:["#c4b5fd", "#a78bfa"],t:{c:{n:"Sonsuz Bahçe",cur:"🌀"},e:{n:"Zaman Kulesi",cur:"♾️"},k:{n:"Taç Kovanı",cur:"👑"}}}];
+SK_L.forEach((x,i)=>x.u=i?1e5*SK_L[i-1].s*(1+0.4*(i-1)):0);
 const SK_T={
- c:{n:'Bulut Çiftliği',cur:'☁️',base:1,ub:8,mb:500,bb:60,prev:null,ico:'🐑'},
+ c:{n:'Bulut Çiftliği',cur:'☁️',base:0.4,ub:10,mb:700,bb:100,prev:null,ico:'🐑'},
  e:{n:'Fırtına Kulesi',cur:'⚡',base:0.6,ub:3,mb:300,bb:30,prev:'c',pr:6,unl:2000,ico:'🌀'},
  k:{n:'Kristal Kovanı',cur:'💎',base:0.25,ub:2,mb:200,bb:20,prev:'e',pr:6,unl:5000,ico:'💠'}};
 const SK_TT=['c','e','k'],SK_MAXI=3,SK_V={c:1,e:8,k:64};
 function fmt(n){if(!isFinite(n))return '∞';if(n<1000)return n<10?n.toFixed(1).replace(/\.0$/,''):String(Math.floor(n));const S=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc','Ud','Dd','Td','Qd'];let i=0;while(n>=1000&&i<S.length-1){n/=1000;i++}return (n<10?n.toFixed(2):n<100?n.toFixed(1):Math.floor(n))+S[i]}
 function skNewLayer(i){return{on:i===0,isl:{c:i===0?[{L:1,m:0,a:0}]:[],e:[],k:[]},inf:{c:{L:1,m:0},e:{L:1,m:0},k:{L:1,m:0}}}}
 let sk=ld('tv_sky',null);
-if(!sk||!sk.l)sk={c:150,e:0,k:0,stars:0,run:0,l:[0,1,2,3,4].map(skNewLayer),cur:0,last:Date.now(),boost:0,crateAt:0};
+if(!sk||!sk.l)sk={c:12,e:0,k:0,stars:0,run:0,l:[0,1,2,3,4,5,6,7,8,9].map(skNewLayer),cur:0,last:Date.now(),boost:0,crateAt:0};
+while(sk.l.length<10)sk.l.push(skNewLayer(sk.l.length));if(!sk.w||sk.w.length<10)sk.w=Array.from({length:10},()=>({c:0,e:0,k:0}));if(sk.cur>0&&!sk.l[sk.cur].on)sk.cur=0;
 let skMode=1,skRows=[],skPend=null;
 sk.l.forEach(l=>{if(!l.inf)l.inf={c:{L:1,m:0},e:{L:1,m:0},k:{L:1,m:0}};for(const t of SK_TT)if(l.isl[t].length>SK_MAXI)l.isl[t].length=SK_MAXI});
 const skMul=L=>L*Math.pow(2,Math.floor(L/25));
-const skLv=t=>{let s=0;for(const l of sk.l)for(const x of l.isl[t])s+=x.L;return s};
-const skM=t=>1+0.02*skLv(t==='c'?'e':t==='e'?'k':'c');
+const skLv=(t,li)=>{let s=0;for(const x of sk.l[li].isl[t])s+=x.L;return s};
+const skM=(t,li)=>1+0.02*skLv(t==='c'?'e':t==='e'?'k':'c',li);
+const skWb=()=>1+0.15*(sk.l.filter(l=>l.on).length-1);
 const skGm=()=>1+0.05*sk.stars;
-const skRate=(t,n,L,li)=>SK_T[t].base*Math.pow(3,n)*skMul(L)*SK_L[li].s*skM(t)*skGm();
+const skRate=(t,n,L,li)=>SK_T[t].base*Math.pow(3,n)*skMul(L)*SK_L[li].s*skM(t,li)*skGm()*skWb();
 const skUp=(t,n,L,li)=>{const T=SK_T[t],own=T.ub*Math.pow(3.6,n)*Math.pow(1.17,L-1)*SK_L[li].s;return{own,pre:T.prev?own*T.pr:0}};
 const skMgr=(t,n,li)=>SK_T[t].mb*Math.pow(4,n)*SK_L[li].s;
 const skBuy=(t,n,li)=>SK_T[t].bb*Math.pow(4.5,n)*SK_L[li].s;
@@ -2621,10 +2628,11 @@ const skInfUp=(t,L,li)=>{const own=SK_INF[t].cb*Math.pow(1.28,L-1)*SK_L[li].s;re
 const skInfMgr=(t,li)=>SK_INF[t].mb*SK_L[li].s;
 function skProd(li,t,onlyMgr){let p=0;sk.l[li].isl[t].forEach((x,n)=>{if(x.m||(!onlyMgr&&x.a>0))p+=skRate(t,n,x.L,li)});return p}
 const skFac=(li,t,onlyMgr)=>{const p=skProd(li,t,onlyMgr);return p>0?Math.min(1,skCap(t,li)/p):1};
-function skInc(){const o={c:0,e:0,k:0};sk.l.forEach((l,li)=>{if(!l.on)return;for(const t of SK_TT)l.isl[t].forEach((x,n)=>{if(x.m)o[t]+=skRate(t,n,x.L,li)*skFac(li,t,true)})});return o}
+function skInc(li){if(li==null)li=sk.cur;const o={c:0,e:0,k:0},l=sk.l[li];if(!l.on)return o;for(const t of SK_TT)l.isl[t].forEach((x,n)=>{if(x.m)o[t]+=skRate(t,n,x.L,li)*skFac(li,t,true)});return o}
+const skWal=li=>li===sk.cur?sk:sk.w[li];
 function skTick(dt){
   const f=Date.now()<sk.boost?2:1;
-  sk.l.forEach((l,li)=>{if(!l.on)return;for(const t of SK_TT){const fc=skFac(li,t);l.isl[t].forEach((x,n)=>{if(x.a>0)x.a-=dt;if(x.m||x.a>0){const g=skRate(t,n,x.L,li)*dt*f*fc;sk[t]+=g;sk.run+=g*SK_V[t]}})}});
+  sk.l.forEach((l,li)=>{if(!l.on)return;for(const t of SK_TT){const fc=skFac(li,t);l.isl[t].forEach((x,n)=>{if(x.a>0)x.a-=dt;if(x.m||x.a>0){const g=skRate(t,n,x.L,li)*dt*f*fc;skWal(li)[t]+=g;sk.run+=g*SK_V[t]/SK_L[li].s*Math.pow(3,li)}})}});
 }
 function skBulk(t,n,L,li){
   let c=0,p=0,k=0;const lim=skMode==='max'?400:skMode;
@@ -2634,7 +2642,7 @@ function skBulk(t,n,L,li){
 }
 function skBulkI(t,L,li){let c=0,p=0,k=0;const lim=skMode==='max'?400:skMode;for(;k<lim;k++){const u=skInfUp(t,L+k,li);if(skMode==='max'&&(c+u.own>sk[t]||(SK_T[t].prev&&p+u.pre>sk[SK_T[t].prev])))break;c+=u.own;p+=u.pre}if(k===0){const u=skInfUp(t,L,li);return{n:1,own:u.own,pre:u.pre}}return{n:k,own:c,pre:p}}
 const skAfford=(t,b)=>sk[t]>=b.own&&(!SK_T[t].prev||sk[SK_T[t].prev]>=b.pre);
-document.body.insertAdjacentHTML('beforeend','<div id="sky" class="hidden mgscr"><canvas id="sk_cv" style="position:absolute;inset:0;touch-action:none"></canvas><div class="mtop"><button id="sk_back" class="ibtn alt">‹</button><div class="pill" style="font-size:14px">☁️ <span id="sk_c">0</span></div><div class="pill" style="font-size:14px">⚡ <span id="sk_e">0</span></div><div class="pill" style="font-size:14px">💎 <span id="sk_k">0</span></div></div>'
+document.body.insertAdjacentHTML('beforeend','<div id="sky" class="hidden mgscr"><canvas id="sk_cv" style="position:absolute;inset:0;touch-action:none"></canvas><div class="mtop"><button id="sk_back" class="ibtn alt">‹</button><div class="pill" style="font-size:14px"><span id="pe_c">☁️</span> <span id="sk_c">0</span></div><div class="pill" style="font-size:14px"><span id="pe_e">⚡</span> <span id="sk_e">0</span></div><div class="pill" style="font-size:14px"><span id="pe_k">💎</span> <span id="sk_k">0</span></div></div>'
  +'<div id="sk_tabs" style="position:absolute;left:0;right:0;top:calc(62px + env(safe-area-inset-top));display:flex;gap:6px;padding:0 12px;overflow-x:auto"></div>'
  +'<div id="sk_inc" style="position:absolute;left:14px;top:calc(126px + env(safe-area-inset-top));font-size:12px;color:#fff;text-shadow:0 1px 3px #000;pointer-events:none"></div>'
  +'<div id="sk_bot" style="position:absolute;left:0;right:0;bottom:0;padding:0 10px calc(10px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px">'
@@ -2650,7 +2658,7 @@ $('skm_x').onclick=()=>show('sk_map',false);
 document.head.insertAdjacentHTML('beforeend','<style>#sk_tabs{overflow:visible!important}.skwb{display:flex;align-items:center;gap:10px;width:100%;max-width:340px;background:linear-gradient(#3b2f86,#251c5c);border:2px solid rgba(255,255,255,.25);border-radius:16px;padding:6px 12px 6px 8px;color:#fff;font-family:inherit;box-shadow:0 4px 0 rgba(0,0,0,.3)}.skwb .wi{font-size:28px}.skwb .wt{flex:1;text-align:left;min-width:0}.skwb b{font-size:14px;display:block}.skwb small{font-size:11px;opacity:.85;display:block;margin:1px 0 3px}.skwb i{display:block;height:6px;border-radius:4px;background:rgba(0,0,0,.4);overflow:hidden}.skwb em{display:block;height:100%;background:linear-gradient(#67e8f9,#0ea5e9)}.skwb .wm{font-size:22px}.skwb.rdy{border-color:#fde047;animation:skpl 1s infinite}@keyframes skpl{50%{transform:scale(1.04);box-shadow:0 0 18px #fde047}}.skmn{display:flex;align-items:center;gap:10px;margin:10px 0;padding:8px;border-radius:16px;background:rgba(255,255,255,.06);border:2px solid transparent;opacity:.6}.skmn.on,.skmn.aff{opacity:1}.skmn.r{flex-direction:row-reverse;text-align:right;margin-left:30px}.skmn.l{margin-right:30px}.skmn.cur{border-color:#fde047}.skmn.aff{border-color:#4ade80}.skmc{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-size:28px;flex:none;border:3px solid #fff;box-shadow:0 4px 0 rgba(0,0,0,.35)}.skmt b{display:block;font-size:15px}.skmt small{font-size:12px;opacity:.85}</style>');
 document.head.insertAdjacentHTML('beforeend','<style>#sk_bot{padding:0!important;gap:0!important}#sk_pan{margin:0 10px 8px}#sk_sheet{background:linear-gradient(#1f1847,#17123a);border-radius:20px 20px 0 0;border-top:2px solid rgba(255,255,255,.18);box-shadow:0 -8px 24px rgba(0,0,0,.45);max-height:44vh;display:flex;flex-direction:column}#sk_sheet.hidden{display:none}.shh{display:flex;align-items:center;gap:8px;padding:10px 12px 6px}.shh b{flex:1;font-size:16px}.shm button,.shh>button{padding:4px 9px;min-width:0;font-size:12px}.shm{display:flex;gap:4px}#sh_list{overflow-y:auto;padding:4px 10px 10px;-webkit-overflow-scrolling:touch;touch-action:pan-y}.skh2{font-size:12px;opacity:.7;margin:8px 2px 4px;letter-spacing:.5px}.skc{display:flex;gap:9px;align-items:center;background:linear-gradient(#2c2363,#231b50);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:8px;margin-bottom:7px}.skc .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:24px;flex:none;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}.skc .mid{flex:1;min-width:0}.skc .mid b{font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.skc .mid small{display:block;font-size:11px;opacity:.8;margin:1px 0 4px}.skc .bar{height:9px;border-radius:6px;background:rgba(0,0,0,.4);overflow:hidden}.skc .bar i{display:block;height:100%;background:linear-gradient(#fde047,#f59e0b);border-radius:6px}.skc .sb{flex:none;min-width:96px;padding:7px 6px;font-size:12px;line-height:1.2;border-radius:12px;border:0;color:#fff;font-weight:700;background:linear-gradient(#4ade80,#16a34a);box-shadow:0 4px 0 #166534}.skc .sb.no{background:linear-gradient(#64748b,#475569);box-shadow:0 4px 0 #334155;color:#cbd5e1}.skc .sb:active{transform:translateY(3px);box-shadow:0 1px 0 #166534}.skc .sb.ad{background:linear-gradient(#fde047,#f59e0b);box-shadow:0 4px 0 #b45309;color:#422006}#sk_bar{display:flex;background:linear-gradient(#2a2160,#1a1442);border-top:2px solid rgba(255,255,255,.15);padding:6px 4px calc(6px + env(safe-area-inset-bottom));gap:2px}#sk_bar button{flex:1;position:relative;background:none;border:0;color:#c4b5fd;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0;border-radius:12px;font-family:inherit}#sk_bar button i{font-style:normal;font-size:24px;line-height:1}#sk_bar button span{font-size:11px;font-weight:600}#sk_bar button.on{background:rgba(255,211,77,.16);color:#ffd34d}#sk_bar button u{position:absolute;top:2px;right:18%;width:11px;height:11px;border-radius:50%;background:#ef4444;border:2px solid #1a1442;display:none}#sk_bar button u.show{display:block}</style>');
 $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardSk" style="background:linear-gradient(135deg,#38bdf8,#6366f1 60%,#a855f7)"><div class="gicon">🏝️</div><div class="gtx"><b>Gök Adaları</b><small>Adaları büyüt.</small><span class="gtag" id="hsSk">☁️ 0</span></div></div>');
-ACH.push({id:'sk1',name:'Gökyüzü Sahibi',text:'Gök Adaları: 2. katmanı aç',get:()=>sk.l.filter(l=>l.on).length-1,target:1,reward:300},{id:'sk2',name:'Gök Baronu',text:'Gök Adaları: 4 katman aç',get:()=>sk.l.filter(l=>l.on).length-1,target:3,reward:1500});
+ACH.push({id:'sk1',name:'Gökyüzü Sahibi',text:'Gök Adaları: 2. dünyayı aç',get:()=>sk.l.filter(l=>l.on).length-1,target:1,reward:300},{id:'sk2',name:'Gök Baronu',text:'Gök Adaları: 4 dünya aç',get:()=>sk.l.filter(l=>l.on).length-1,target:3,reward:1500});
 function skSave(){sk.last=Date.now();sv('tv_sky',sk)}
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')skSave()});addEventListener('pagehide',skSave);
 const skRaf={on:false,last:0,acc:0,save:0},skFx={T:0},skG={sh:0,tw:50,th:25,ox:0,oy:0,W:0,H:0,dpr:1,ctx:null};
@@ -2854,7 +2862,7 @@ function skScene(dt){
   // çim kenarı
   c.fillStyle='#3fae5a';skPoly(c,[A,B,[B[0],B[1]+7*s],[A[0],A[1]+7*s]]);c.fill();c.fillStyle='#2f9a4c';skPoly(c,[B,C2,[C2[0],C2[1]+7*s],[B[0],B[1]+7*s]]);c.fill();
   // zemin karoları
-  for(let i=0;i<N;i++)for(let j=0;j<N;j++){const pts=[skP(i,j,0),skP(i+1,j,0),skP(i+1,j+1,0),skP(i,j+1,0)];const gg=c.createLinearGradient(pts[0][0],pts[0][1],pts[2][0],pts[2][1]);const a=(i+j)%2;gg.addColorStop(0,a?'#58e07e':'#6cec a0'.replace(' ',''));gg.addColorStop(1,a?'#3ccb6a':'#4fdc88');skPoly(c,pts,gg)}
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++){const pts=[skP(i,j,0),skP(i+1,j,0),skP(i+1,j+1,0),skP(i,j+1,0)];const gg=c.createLinearGradient(pts[0][0],pts[0][1],pts[2][0],pts[2][1]);const a=(i+j)%2;gg.addColorStop(0,a?L.gr[0]:skSh(L.gr[0],1.08));gg.addColorStop(1,a?L.gr[1]:skSh(L.gr[1],1.08));skPoly(c,pts,gg)}
   c.strokeStyle='rgba(20,83,45,.12)';c.lineWidth=1;for(let i=0;i<=N;i++){let a=skP(i,0,0),b=skP(i,N,0);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);a=skP(0,i,0);b=skP(N,i,0);c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke()}
   // çimen tutamları ve çiçekler
   for(let i=0;i<26;i++){const gx2=((i*37)%78)/10,gy2=((i*53)%79)/10;if(gx2>=6&&gy2<6.2)continue;const p=skP(gx2,gy2,0);if(i%4===0){c.fillStyle=['#fda4af','#fde047','#fff','#c4b5fd'][i%4+((i>>2)%4)%4];c.beginPath();c.arc(p[0],p[1]-1.5*s,1.5*s,0,6.283);c.fill()}else{c.strokeStyle='#22a04f';c.lineWidth=1.2;c.beginPath();c.moveTo(p[0]-2*s,p[1]);c.lineTo(p[0]-3*s,p[1]-4*s);c.moveTo(p[0],p[1]);c.lineTo(p[0],p[1]-5*s);c.moveTo(p[0]+2*s,p[1]);c.lineTo(p[0]+3*s,p[1]-4*s);c.stroke()}}
@@ -2884,19 +2892,22 @@ function skScene(dt){
   c.restore();
   for(let i=skFloat.length-1;i>=0;i--){const q=skFloat[i];q.life-=dt;q.y-=26*dt;if(q.life<=0){skFloat.splice(i,1);continue}c.globalAlpha=Math.min(1,q.life*1.6);c.font='700 '+(14*s)+'px Fredoka,sans-serif';c.textAlign='center';c.fillStyle='#fff';c.strokeStyle='rgba(0,0,0,.6)';c.lineWidth=3.5;c.lineJoin='round';c.strokeText(q.t,q.x,q.y);c.fillText(q.t,q.x,q.y);c.globalAlpha=1}c.textAlign='left';
 }
-function skUnlock(i){const x=SK_L[i];if(sk.l[i].on){sk.cur=i;skSel=null;skCloseSheet();skTabs();skPanel();return true}
-  if(i>0&&!sk.l[i-1].on){toast('Önce önceki dünyayı aç');return false}if(sk.k<x.u){toast('Açmak için 💎 '+fmt(x.u)+' lazım');return false}
-  sk.k-=x.u;sk.l[i].on=true;sk.l[i].isl.c=[{L:1,m:0,a:0}];sk.cur=i;skSel=null;sfx.power();checkAch();skCloseSheet();skTabs();skPanel();return true}
+function skApplyWorld(li){const w=SK_L[li];for(const t of SK_TT){SK_T[t].n=w.t[t].n;SK_T[t].cur=w.t[t].cur;const e=$('pe_'+t);if(e)e.textContent=w.t[t].cur}}
+function skSwitch(i){if(i===sk.cur)return;sk.w[sk.cur]={c:sk.c,e:sk.e,k:sk.k};const n=sk.w[i];sk.cur=i;sk.c=n.c;sk.e=n.e;sk.k=n.k;skApplyWorld(i)}
+skApplyWorld(sk.cur);
+function skUnlock(i){const x=SK_L[i];if(sk.l[i].on){skSwitch(i);skSel=null;skCloseSheet();skTabs();skPanel();skRefresh();return true}
+  if(i>0&&!sk.l[i-1].on){toast('Önce önceki dünyayı aç');return false}const wl=skWal(i-1),cu=SK_L[i-1].t.k.cur;if(wl.k<x.u){toast('Açmak için '+cu+' '+fmt(x.u)+' lazım');return false}
+  wl.k-=x.u;sk.l[i].on=true;sk.l[i].isl.c=[{L:1,m:0,a:0}];sk.w[i]={c:25*x.s,e:0,k:0};skSwitch(i);skSel=null;sfx.power();checkAch();skCloseSheet();skTabs();skPanel();skRefresh();return true}
 function skTabs(){
-  const tabs=$('sk_tabs'),i=sk.cur,x=SK_L[i],nx=SK_L[i+1],can=nx&&sk.l[i].on&&!sk.l[i+1].on,pr=can?Math.min(1,sk.k/nx.u):1,rdy=can&&pr>=1;
-  tabs.innerHTML='<button id="sk_world" class="skwb'+(rdy?' rdy':'')+'"><span class="wi">'+x.e+'</span><span class="wt"><b>Dünya '+(i+1)+' · '+x.n+'</b><small>'+(can?(rdy?'Yeni dünya açılabilir! 🗺️':'Sonraki dünya: 💎 '+fmt(sk.k)+' / '+fmt(nx.u)):'🗺️ Haritayı aç')+'</small><i><em style="width:'+Math.round(pr*100)+'%"></em></i></span><span class="wm">🗺️</span></button>';
+  const tabs=$('sk_tabs'),i=sk.cur,x=SK_L[i],nx=SK_L[i+1],can=nx&&sk.l[i].on&&!sk.l[i+1].on,pr=can?Math.min(1,sk.k/nx.u):1,rdy=can&&pr>=1,cu=SK_T.k.cur;
+  tabs.innerHTML='<button id="sk_world" class="skwb'+(rdy?' rdy':'')+'"><span class="wi">'+x.e+'</span><span class="wt"><b>Dünya '+(i+1)+' · '+x.n+'</b><small>'+(can?(rdy?'Yeni dünya açılabilir! 🗺️':'Sonraki dünya: '+cu+' '+fmt(sk.k)+' / '+fmt(nx.u)):'🗺️ Haritayı aç')+'</small><i><em style="width:'+Math.round(pr*100)+'%"></em></i></span><span class="wm">🗺️</span></button>';
   $('sk_world').onclick=skOpenMap;
 }
 function skOpenMap(){
   skCloseSheet();skSel=null;skPanel();const m=$('sk_map'),box=$('skm_list');box.innerHTML='';
-  SK_L.forEach((x,i)=>{const on=sk.l[i].on,can=!on&&(i===0||sk.l[i-1].on),aff=can&&sk.k>=x.u;
+  SK_L.forEach((x,i)=>{const on=sk.l[i].on,can=!on&&(i===0||sk.l[i-1].on),aff=can&&skWal(i-1).k>=x.u,pc=i?SK_L[i-1].t.k.cur:'';
     const n=document.createElement('div');n.className='skmn '+(i%2?'r':'l')+(on?' on':'')+(i===sk.cur?' cur':'')+(aff?' aff':'');
-    n.innerHTML='<div class="skmc" style="background:linear-gradient(160deg,'+x.sky[0]+','+x.sky[1]+')">'+(on?x.e:'🔒')+'</div><div class="skmt"><b>'+(i+1)+'. '+x.n+'</b><small>'+(on?(i===sk.cur?'Şu an buradasın':'Git ›'):(can?(aff?'AÇ ›  💎 '+fmt(x.u):'💎 '+fmt(x.u)+' lazım'):'Önceki dünyayı aç'))+'</small></div>';
+    n.innerHTML='<div class="skmc" style="background:linear-gradient(160deg,'+x.sky[0]+','+x.sky[1]+')">'+(on?x.e:'🔒')+'</div><div class="skmt"><b>'+(i+1)+'. '+x.n+'</b><small>'+(on?(i===sk.cur?'Şu an buradasın':'Git ›'):(can?(aff?'AÇ ›  '+pc+' '+fmt(x.u):pc+' '+fmt(x.u)+' lazım ('+SK_L[i-1].n+' parası)'):'Önceki dünyayı aç'))+'</small></div>';
     n.onclick=()=>{if(skUnlock(i))show('sk_map',false);else skOpenMap()};box.appendChild(n)});
   show('sk_map',true);
 }
@@ -2912,7 +2923,7 @@ function skPanelRefresh(){
   mode.forEach(b=>b.style.display=(S.kind==='b'||S.kind==='i')?'':'none');
   if(S.kind==='b'){
     const t=S.t,n=S.n,x=l.isl[t][n],T=SK_T[t],act=x.m||x.a>0,b=skBulk(t,n,x.L,sk.cur),r=skRate(t,n,x.L,sk.cur);
-    $('sp_t').textContent=T.n+' '+(n+1)+' · Sv '+x.L;$('sp_s').textContent=T.cur+' '+fmt(r)+'/sn'+(t==='c'?'':'')+' · çarpan x'+skM(t).toFixed(2);
+    $('sp_t').textContent=T.n+' '+(n+1)+' · Sv '+x.L;$('sp_s').textContent=T.cur+' '+fmt(r)+'/sn'+(t==='c'?'':'')+' · çarpan x'+skM(t,sk.cur).toFixed(2);
     $('sp_b').style.width=act?Math.round(((skFx.T*0.6)%1)*100)+'%':'0%';
     show(up,1);show(mg,1);show(run,!x.m);
     up.innerHTML='⬆ '+(b.n>1?'+'+b.n+' ':'')+skCostTxt(t,b);up.className=skAfford(t,b)?'gold':'alt';
@@ -2926,7 +2937,7 @@ function skPanelRefresh(){
     show(up,1);show(mg,1);show(run,0);up.innerHTML='⬆ '+(b.n>1?'+'+b.n+' ':'')+skCostTxt(t,b);up.className=skAfford(t,b)?'gold':'alt';
     const mc=skInfMgr(t,sk.cur);mg.innerHTML=x.m?'👷 Yönetici ✓':'👷 '+T.cur+' '+fmt(mc);mg.className=x.m?'alt':(sk[t]>=mc?'gold':'alt');mg.disabled=!!x.m;
   }else if(S.kind==='info'){
-    $('sp_t').textContent='📋 Nasıl çalışır?';$('sp_s').innerHTML='Her ada üretir, ama <b>İskele / Hat / Depo</b> kapasitesi kadarı taşınır. Üretim kapasiteyi geçerse 🔴 ! çıkar. ☁️→⚡→💎 birbirini besler: yükselt, dengele!';$('sp_b').style.width='0%';show(up,0);show(mg,0);show(run,0);
+    $('sp_t').textContent='📋 Nasıl çalışır?';$('sp_s').innerHTML='Her ada üretir, ama <b>İskele / Hat / Depo</b> kapasitesi kadarı taşınır. Üretim kapasiteyi geçerse 🔴 ! çıkar. '+SK_T.c.cur+'→'+SK_T.e.cur+'→'+SK_T.k.cur+' birbirini besler: yükselt, dengele!';$('sp_b').style.width='0%';show(up,0);show(mg,0);show(run,0);
   }else if(S.kind==='buy'){
     const t=S.t,T=SK_T[t],arr=l.isl[t],first=arr.length===0,cur=first?T.prev:t,cost=first?T.unl*SK_L[sk.cur].s:skBuy(t,arr.length,sk.cur);
     $('sp_t').textContent=first?T.n+' aç':'Yeni '+T.n;$('sp_s').textContent=first?'Önce '+SK_T[T.prev].cur+' biriktirmen gerekiyor':'Üretimini artırır';$('sp_b').style.width='0%';
@@ -2991,8 +3002,8 @@ function skRefresh(){
   $('sk_c').textContent=fmt(sk.c);$('sk_e').textContent=fmt(sk.e);$('sk_k').textContent=fmt(sk.k);
   const boost=Date.now()<sk.boost,i=skInc(),f=boost?2:1;
   const bnT=SK_TT.filter(t=>skProd(sk.cur,t)>skCap(t,sk.cur)*1.001);
-  $('sk_inc').innerHTML=(boost?'⚡x2 ':'')+'☁️'+fmt(i.c*f)+' ⚡'+fmt(i.e*f)+' 💎'+fmt(i.k*f)+' /sn'+(bnT.length?'<br><span style="color:#fecaca">⚠ Darboğaz: '+bnT.map(t=>SK_INF[t].n).join(', ')+'</span>':'');
-  skPanelRefresh();skSheetRefresh();{const i=sk.cur,nx=SK_L[i+1],can=nx&&!sk.l[i+1].on,w=$('sk_world');if(w&&can){const pr=Math.min(1,sk.k/nx.u);w.querySelector('small').textContent=pr>=1?'Yeni dünya açılabilir! 🗺️':'Sonraki dünya: 💎 '+fmt(sk.k)+' / '+fmt(nx.u);w.querySelector('em').style.width=Math.round(pr*100)+'%';w.classList.toggle('rdy',pr>=1)}}
+  $('sk_inc').innerHTML=(boost?'⚡x2 ':'')+SK_T.c.cur+fmt(i.c*f)+' '+SK_T.e.cur+fmt(i.e*f)+' '+SK_T.k.cur+fmt(i.k*f)+' /sn'+(bnT.length?'<br><span style="color:#fecaca">⚠ Darboğaz: '+bnT.map(t=>SK_INF[t].n).join(', ')+'</span>':'');
+  skPanelRefresh();skSheetRefresh();{const i=sk.cur,nx=SK_L[i+1],can=nx&&!sk.l[i+1].on,w=$('sk_world');if(w&&can){const pr=Math.min(1,sk.k/nx.u);w.querySelector('small').textContent=pr>=1?'Yeni dünya açılabilir! 🗺️':'Sonraki dünya: '+SK_T.k.cur+' '+fmt(sk.k)+' / '+fmt(nx.u);w.querySelector('em').style.width=Math.round(pr*100)+'%';w.classList.toggle('rdy',pr>=1)}}
 }
 function skTap(px,py){
   if(skTab)skCloseSheet();
@@ -3025,11 +3036,12 @@ function skFrame(now){
 }
 function openSky(){
   state='sky';stopMusic();hideAll();show('sky',true);skLayout();skSel=null;skCloseSheet();skTabs();skPanel();
-  const away=(Date.now()-sk.last)/1000,i=skInc();skRefresh();
-  if(away>60&&(i.c+i.e+i.k)>0){const s=Math.min(away,10800);skPend={c:i.c*s,e:i.e*s,k:i.k*s};$('sk_offt').textContent=Math.floor(s/60)+' dakika boyunca adaların çalıştı.';$('sk_offv').textContent='☁️ '+fmt(skPend.c)+'  ⚡ '+fmt(skPend.e)+'  💎 '+fmt(skPend.k);show('sk_off',true)}
+  const away=(Date.now()-sk.last)/1000;skRefresh();
+  if(away>60){const sc=Math.min(away,10800);skPend=sk.l.map((l,li)=>{const i=skInc(li);return{c:i.c*sc,e:i.e*sc,k:i.k*sc}});const q=skPend[sk.cur];
+    if(skPend.some(o=>o.c+o.e+o.k>0)){$('sk_offt').textContent=Math.floor(sc/60)+' dakika boyunca adaların çalıştı.';$('sk_offv').textContent=SK_T.c.cur+' '+fmt(q.c)+'  '+SK_T.e.cur+' '+fmt(q.e)+'  '+SK_T.k.cur+' '+fmt(q.k);show('sk_off',true)}else skPend=null}
   if(!skRaf.on){skRaf.on=true;skRaf.last=performance.now();requestAnimationFrame(skFrame)}
 }
-const skTake=m=>{if(skPend){for(const t of SK_TT){sk[t]+=skPend[t]*m;sk.run+=skPend[t]*m*SK_V[t]}skPend=null}show('sk_off',false);skRefresh()};
+const skTake=m=>{if(skPend){skPend.forEach((o,li)=>{for(const t of SK_TT){skWal(li)[t]+=o[t]*m;sk.run+=o[t]*m*SK_V[t]/SK_L[li].s*Math.pow(3,li)}});skPend=null}show('sk_off',false);skRefresh()};
 $('sk_cv').addEventListener('pointerdown',e=>{if(state==='sky')skTap(e.clientX,e.clientY)});
 $('sk_offa').onclick=()=>skTake(1);$('sk_offd').onclick=()=>Ads.rewarded(()=>skTake(2));
 const skBoost=()=>Ads.rewarded(()=>{sk.boost=Math.min(Math.max(Date.now(),sk.boost)+600000,Date.now()+3600000);skRefresh()});
@@ -3043,7 +3055,7 @@ $('sp_up').onclick=()=>{
   if(S.kind==='i'){const t=S.t,x=l.inf[t],b=skBulkI(t,x.L,sk.cur);if(!skAfford(t,b)){toast('Yeterli kaynak yok');return}sk[t]-=b.own;if(SK_T[t].prev)sk[SK_T[t].prev]-=b.pre;x.L+=b.n;sfx.coin();skRefresh();return}
   if(S.kind==='b'){const x=l.isl[S.t][S.n],t=S.t,b=skBulk(t,S.n,x.L,sk.cur);if(!skAfford(t,b)){toast('Yeterli kaynak yok');return}sk[t]-=b.own;if(SK_T[t].prev)sk[SK_T[t].prev]-=b.pre;x.L+=b.n;sfx.coin();skRefresh()}
   else if(S.kind==='buy'){const t=S.t,T=SK_T[t],arr=l.isl[t];if(arr.length>=SK_MAXI)return;const first=arr.length===0,cur=first?T.prev:t,cost=first?T.unl*SK_L[sk.cur].s:skBuy(t,arr.length,sk.cur);if(sk[cur]<cost){toast('Yeterli '+SK_T[cur].cur+' yok');return}sk[cur]-=cost;arr.push({L:1,m:0,a:0});sfx.power();skSel={kind:'b',t,n:arr.length-1};skPanel();skRefresh()}
-  else if(S.kind==='portal'){const g=Math.floor(Math.sqrt(sk.run/5e7));if(g<1){toast('Biraz daha kazan');return}if(!confirm('Tüm adalar sıfırlanır. '+g+' 🌟 kazanırsın (her 🌟 geliri %5 artırır). Emin misin?'))return;sk.stars+=g;sk.run=0;sk.c=150;sk.e=0;sk.k=0;sk.l=[0,1,2,3,4].map(skNewLayer);sk.cur=0;skSel=null;sfx.power();skTabs();skPanel();skRefresh()}
+  else if(S.kind==='portal'){const g=Math.floor(Math.sqrt(sk.run/5e7));if(g<1){toast('Biraz daha kazan');return}if(!confirm('Tüm adalar sıfırlanır. '+g+' 🌟 kazanırsın (her 🌟 geliri %5 artırır). Emin misin?'))return;sk.stars+=g;sk.run=0;sk.c=12;sk.e=0;sk.k=0;sk.l=[0,1,2,3,4,5,6,7,8,9].map(skNewLayer);sk.w=Array.from({length:10},()=>({c:0,e:0,k:0}));sk.cur=0;skApplyWorld(0);skSel=null;sfx.power();skTabs();skPanel();skRefresh()}
   else{if(Date.now()>=sk.crateAt)skCrate()}
 };
 $('sk_back').onclick=()=>{skSave();openLobby('sky')};
