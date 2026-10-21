@@ -2641,14 +2641,16 @@ document.body.insertAdjacentHTML('beforeend','<div id="sky" class="hidden mgscr"
  +'<div id="sk_pan" class="hidden skp"><div style="display:flex;align-items:center;gap:8px"><b id="sp_t" style="font-size:17px;flex:1"></b><button id="sp_x" class="alt" style="padding:4px 10px;min-width:0;font-size:14px">✕</button></div><small id="sp_s" style="display:block;opacity:.85;margin:2px 0 6px"></small><div class="mnbar"><i id="sp_b"></i></div>'
  +'<div style="display:flex;gap:6px;align-items:center;margin:6px 0"><button class="alt skmode" data-m="1">x1</button><button class="alt skmode" data-m="10">x10</button><button class="alt skmode" data-m="max">MAX</button></div>'
  +'<div style="display:flex;gap:8px"><button id="sp_up" class="gold" style="flex:1;font-size:14px;padding:10px 6px"></button><button id="sp_mg" class="alt" style="flex:1;font-size:14px;padding:10px 6px"></button></div><button id="sp_run" class="alt" style="width:100%;margin-top:8px;padding:9px;font-size:14px">▶ Çalıştır (12 sn)</button></div>'
- +'<div id="sk_bar" style="display:flex;gap:8px"><button id="sk_boost" class="gold" style="flex:1;padding:10px 6px;font-size:14px">⚡ x2 gelir 📺</button><button id="sk_crate" class="alt hidden" style="flex:1;padding:10px 6px;font-size:14px">🎁 Hazine 📺</button></div></div>'
+ +'<div id="sk_sheet" class="hidden"><div class="shh"><b id="sh_t"></b><span class="shm"><button class="alt skmode" data-m="1">x1</button><button class="alt skmode" data-m="10">x10</button><button class="alt skmode" data-m="max">MAX</button></span><button id="sh_x" class="alt">✕</button></div><div id="sh_list"></div></div>'
+ +'<div id="sk_bar"><button data-tab="b"><i>🏗️</i><span>Binalar</span><u></u></button><button data-tab="m"><i>👷</i><span>Yönetici</span><u></u></button><button data-tab="i"><i>🔌</i><span>Altyapı</span><u></u></button><button data-tab="x"><i>🎁</i><span>Bonus</span><u></u></button><button data-tab="p"><i>🌟</i><span>Yüksel</span><u></u></button></div></div>'
  +'<div id="sk_off" class="overlay hidden"><div class="card"><div class="ttl" style="color:var(--gold)">Hoş geldin! 🌤️</div><div id="sk_offt" style="color:var(--mute)"></div><div id="sk_offv" style="font-size:22px;font-weight:700;margin:8px 0"></div><button id="sk_offa" class="gold">Al</button><button id="sk_offd" class="alt">📺 2 kat al</button></div></div></div>');
 SCR.push('sky');
+document.head.insertAdjacentHTML('beforeend','<style>#sk_bot{padding:0!important;gap:0!important}#sk_pan{margin:0 10px 8px}#sk_sheet{background:linear-gradient(#1f1847,#17123a);border-radius:20px 20px 0 0;border-top:2px solid rgba(255,255,255,.18);box-shadow:0 -8px 24px rgba(0,0,0,.45);max-height:44vh;display:flex;flex-direction:column}#sk_sheet.hidden{display:none}.shh{display:flex;align-items:center;gap:8px;padding:10px 12px 6px}.shh b{flex:1;font-size:16px}.shm button,.shh>button{padding:4px 9px;min-width:0;font-size:12px}.shm{display:flex;gap:4px}#sh_list{overflow-y:auto;padding:4px 10px 10px;-webkit-overflow-scrolling:touch;touch-action:pan-y}.skh2{font-size:12px;opacity:.7;margin:8px 2px 4px;letter-spacing:.5px}.skc{display:flex;gap:9px;align-items:center;background:linear-gradient(#2c2363,#231b50);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:8px;margin-bottom:7px}.skc .ic{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-size:24px;flex:none;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}.skc .mid{flex:1;min-width:0}.skc .mid b{font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.skc .mid small{display:block;font-size:11px;opacity:.8;margin:1px 0 4px}.skc .bar{height:9px;border-radius:6px;background:rgba(0,0,0,.4);overflow:hidden}.skc .bar i{display:block;height:100%;background:linear-gradient(#fde047,#f59e0b);border-radius:6px}.skc .sb{flex:none;min-width:96px;padding:7px 6px;font-size:12px;line-height:1.2;border-radius:12px;border:0;color:#fff;font-weight:700;background:linear-gradient(#4ade80,#16a34a);box-shadow:0 4px 0 #166534}.skc .sb.no{background:linear-gradient(#64748b,#475569);box-shadow:0 4px 0 #334155;color:#cbd5e1}.skc .sb:active{transform:translateY(3px);box-shadow:0 1px 0 #166534}.skc .sb.ad{background:linear-gradient(#fde047,#f59e0b);box-shadow:0 4px 0 #b45309;color:#422006}#sk_bar{display:flex;background:linear-gradient(#2a2160,#1a1442);border-top:2px solid rgba(255,255,255,.15);padding:6px 4px calc(6px + env(safe-area-inset-bottom));gap:2px}#sk_bar button{flex:1;position:relative;background:none;border:0;color:#c4b5fd;display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0;border-radius:12px;font-family:inherit}#sk_bar button i{font-style:normal;font-size:24px;line-height:1}#sk_bar button span{font-size:11px;font-weight:600}#sk_bar button.on{background:rgba(255,211,77,.16);color:#ffd34d}#sk_bar button u{position:absolute;top:2px;right:18%;width:11px;height:11px;border-radius:50%;background:#ef4444;border:2px solid #1a1442;display:none}#sk_bar button u.show{display:block}</style>');
 $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardSk" style="background:linear-gradient(135deg,#38bdf8,#6366f1 60%,#a855f7)"><div class="gicon">🏝️</div><div class="gtx"><b>Gök Adaları</b><small>Adaları büyüt.</small><span class="gtag" id="hsSk">☁️ 0</span></div></div>');
 ACH.push({id:'sk1',name:'Gökyüzü Sahibi',text:'Gök Adaları: 2. katmanı aç',get:()=>sk.l.filter(l=>l.on).length-1,target:1,reward:300},{id:'sk2',name:'Gök Baronu',text:'Gök Adaları: 4 katman aç',get:()=>sk.l.filter(l=>l.on).length-1,target:3,reward:1500});
 function skSave(){sk.last=Date.now();sv('tv_sky',sk)}
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')skSave()});addEventListener('pagehide',skSave);
-const skRaf={on:false,last:0,acc:0,save:0},skFx={T:0},skG={tw:50,th:25,ox:0,oy:0,W:0,H:0,dpr:1,ctx:null};
+const skRaf={on:false,last:0,acc:0,save:0},skFx={T:0},skG={sh:0,tw:50,th:25,ox:0,oy:0,W:0,H:0,dpr:1,ctx:null};
 let skSel=null,skFloat=[],skParts=[],skFlash={};
 const skCostTxt=(t,b)=>SK_T[t].cur+' '+fmt(b.own)+(b.pre?' + '+SK_T[SK_T[t].prev].cur+' '+fmt(b.pre):'');
 function skLayout(){
@@ -2656,7 +2658,7 @@ function skLayout(){
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
   skG.W=W;skG.H=H;skG.dpr=dpr;skG.ctx=cv.getContext?cv.getContext('2d'):null;skG.tw=W*0.96/SKG;skG.th=skG.tw*0.7;skG.ox=W/2;skG.oy=Math.max(190,H*0.5-skG.th*SKG/2-70);
 }
-const SKG=8,skP=(gx,gy,z)=>[skG.ox+(gx-gy)*skG.tw/2,skG.oy+(gx+gy)*skG.th/2-(z||0)];
+const SKG=8,skP=(gx,gy,z)=>[skG.ox+(gx-gy)*skG.tw/2,skG.oy+(gx+gy)*skG.th/2-(z||0)-skG.sh];
 function skSh(hex,f){const n=parseInt(hex.slice(1),16),r=Math.min(255,Math.round((n>>16)*f)),g=Math.min(255,Math.round(((n>>8)&255)*f)),b=Math.min(255,Math.round((n&255)*f));return 'rgb('+r+','+g+','+b+')'}
 function skPoly(c,pts,fill,stroke){c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath();if(fill){c.fillStyle=fill;c.fill()}if(stroke){c.strokeStyle=stroke;c.lineWidth=1;c.stroke()}}
 const skEll=(c,x,y,rx,ry,f,r)=>{c.fillStyle=f;c.beginPath();c.ellipse(x,y,Math.max(0.1,rx),Math.max(0.1,ry),r||0,0,6.283);c.fill()};
@@ -2707,6 +2709,7 @@ function skFence(c,gx,gy,s){
     const n=6;for(let i=0;i<=n;i++){const u=i/n,x=ax+(bx-ax)*u,y=ay+(by-ay)*u,a=skP(x,y,4),b=skP(x,y,4+11*s);c.strokeStyle='#b45309';c.lineWidth=2.4*s;c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke();c.strokeStyle='#fcd34d';c.lineWidth=0.8*s;c.beginPath();c.moveTo(b[0]-0.6*s,b[1]+1);c.lineTo(b[0]-0.6*s,b[1]+4*s);c.stroke()}};
   edge(gx+0.1,gy+1.92,gx+1.92,gy+1.92);edge(gx+1.92,gy+0.1,gx+1.92,gy+1.92);
 }
+function skUpBadge(c,gx,gy,z,T,s){const a=skP(gx+1,gy+1,z+Math.abs(Math.sin(T*4))*5*s);c.fillStyle='rgba(0,0,0,.25)';c.beginPath();c.arc(a[0],a[1]+2*s,11*s,0,6.283);c.fill();c.fillStyle='#22c55e';c.strokeStyle='#fff';c.lineWidth=2*s;c.beginPath();c.arc(a[0],a[1],11*s,0,6.283);c.fill();c.stroke();c.fillStyle='#fff';c.beginPath();c.moveTo(a[0],a[1]-6*s);c.lineTo(a[0]+6*s,a[1]+1*s);c.lineTo(a[0]+2.2*s,a[1]+1*s);c.lineTo(a[0]+2.2*s,a[1]+6*s);c.lineTo(a[0]-2.2*s,a[1]+6*s);c.lineTo(a[0]-2.2*s,a[1]+1*s);c.lineTo(a[0]-6*s,a[1]+1*s);c.closePath();c.fill()}
 function skBuilding(c,t,n,x,L,li,act,T){
   const {gx,gy}=skPlot(t,n),s=skG.tw/50,tier=L>=50?2:L>=20?1:0,key=t+n+li;
   if(t==='c'){
@@ -2768,6 +2771,7 @@ function skBuilding(c,t,n,x,L,li,act,T){
     if(act)for(let k=0;k<6;k++){const a=T*1.2+k*1.05,p=skP(gx+1+Math.cos(a)*0.9,gy+1+Math.sin(a)*0.9,20+((T*26+k*13)%36));c.fillStyle='rgba(255,255,255,'+(0.5+0.5*Math.sin(T*8+k*2))+')';c.fillRect(p[0]-1.2*s,p[1]-1.2*s,2.6*s,2.6*s)}
   }
   if(!act){skPoly(c,[skP(gx,gy,4),skP(gx+2,gy,4),skP(gx+2,gy+2,4),skP(gx,gy+2,4)],'rgba(15,23,42,.2)')}
+  if(skAfford(t,skUp(t,n,L,li)))skUpBadge(c,gx,gy,t==='e'?96:t==='c'?72:78,T,s);
 }
 function skInfra(c,t,li,T){
   const gx=6,gy=SK_TT.indexOf(t)*SKR,x=sk.l[li].inf[t],s=skG.tw/50,prod=skProd(li,t),cap=skCap(t,li),util=prod/Math.max(1e-9,cap),bn=util>1.001;
@@ -2796,6 +2800,7 @@ function skInfra(c,t,li,T){
     c.beginPath();c.ellipse(q[0],q[1]-14*s,34*s,16*s,0,0,6.283);c.stroke();c.fillStyle='rgba(255,255,255,.55)';c.beginPath();c.ellipse(q[0]-12*s,q[1]-22*s,5*s,2.4*s,-0.4,0,6.283);c.fill();
   }
   const top=skP(gx+1,gy+1,70);skBar(c,[top[0],top[1]],util,s);
+  if(bn&&skAfford(t,skInfUp(t,x.L,li)))skUpBadge(c,gx+0.3,gy,92,T,s);
   const ic={c:'🎈',e:'⚡',k:'💎'}[t];c.font=(13*s)+'px sans-serif';c.textAlign='center';c.fillText(ic,top[0],top[1]-4*s);c.textAlign='left';
   if(bn){const a=skP(gx+1.7,gy+0.3,80),b=1+0.12*Math.sin(T*8);skEll(c,a[0],a[1],10*s*b,10*s*b,'#ef4444');c.fillStyle='#fff';c.font='700 '+(14*s)+'px Fredoka,sans-serif';c.textAlign='center';c.fillText('!',a[0],a[1]+5*s);c.textAlign='left'}
   if(!x.m){skPoly(c,[skP(gx,gy,4),skP(gx+2,gy,4),skP(gx+2,gy+2,4),skP(gx,gy+2,4)],'rgba(15,23,42,.18)');const z=skP(gx+1,gy+1.9,6);c.font=(12*s)+'px sans-serif';c.textAlign='center';c.fillText('😴',z[0],z[1]);c.textAlign='left'}
@@ -2882,12 +2887,12 @@ function skTabs(){
     b.onclick=()=>{if(on){sk.cur=i;skSel=null;skTabs();skPanel()}else{if(i>0&&!sk.l[i-1].on){toast('Önce önceki katmanı aç');return}if(sk.k<x.u){toast('Açmak için 💎 '+fmt(x.u)+' lazım');return}sk.k-=x.u;sk.l[i].on=true;sk.l[i].isl.c=[{L:1,m:0,a:0}];sk.cur=i;skSel=null;sfx.power();checkAch();skTabs();skPanel()}};tabs.appendChild(b)});
 }
 function skPanel(){
-  const p=$('sk_pan');if(!skSel){p.classList.add('hidden');$('sk_bar').style.display='flex';return}
-  p.classList.remove('hidden');$('sk_bar').style.display='none';
+  const p=$('sk_pan');if(!skSel){p.classList.add('hidden');return}
+  p.classList.remove('hidden');
   document.querySelectorAll('.skmode').forEach(b=>b.className=(String(b.dataset.m)===String(skMode)?'gold':'alt')+' skmode');skPanelRefresh(true);
 }
 function skPanelRefresh(){
-  const S=skSel;if(!S)return;const l=sk.l[sk.cur],mode=document.querySelectorAll('.skmode');
+  const S=skSel;if(!S)return;const l=sk.l[sk.cur],mode=document.querySelectorAll('#sk_pan .skmode');
   const up=$('sp_up'),mg=$('sp_mg'),run=$('sp_run');
   const show=(a,v)=>a.style.display=v?'':'none';
   mode.forEach(b=>b.style.display=(S.kind==='b'||S.kind==='i')?'':'none');
@@ -2920,18 +2925,65 @@ function skPanelRefresh(){
     show(up,1);show(mg,0);show(run,0);up.innerHTML='🎁 Reklam izle & al';up.className=rdy?'gold':'alt';
   }
 }
+
+let skTab=null,skSig='',skCards=[];
+const SKI={c:['🐑','linear-gradient(#4ade80,#15803d)'],e:['🌬️','linear-gradient(#94a3b8,#475569)'],k:['💎','linear-gradient(#e879f9,#7e22ce)']};
+const SKN={b:'🏗️ Binalar',m:'👷 Yöneticiler',i:'🔌 Altyapı',x:'🎁 Bonus',p:'🌟 Yüksel'};
+function skAct(kind,t,n,what){const l=sk.l[sk.cur];skSel=what==='buy'?{kind:'buy',t,n}:{kind,t,n};
+  if(what==='mgr')$('sp_mg').onclick();else $('sp_up').onclick();skSel=null;skPanel()}
+function skCloseSheet(){skTab=null;skSig='';show('sk_sheet',false);document.querySelectorAll('#sk_bar button').forEach(b=>b.classList.remove('on'))}
+function skOpenSheet(t){if(skTab===t){skCloseSheet();return}skTab=t;skSig='';skSel=null;skPanel();show('sk_sheet',true);document.querySelectorAll('#sk_bar button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));$('sh_t').textContent=SKN[t];$('sh_list').scrollTop=0;skSheetRefresh()}
+function skCard(o){
+  const d=document.createElement('div');d.className='skc';
+  d.innerHTML='<div class="ic" style="background:'+o.col+'">'+o.ic+'</div><div class="mid"><b></b><small></small><div class="bar"><i></i></div></div><button class="sb"></button>';
+  const q=d.querySelector.bind(d),nm=q('b'),sm=q('small'),br=q('.bar'),bi=q('.bar i'),bt=q('.sb');
+  bt.onclick=()=>{const r=o.get();if(r.fn)r.fn()};
+  const upd=()=>{const r=o.get();nm.textContent=r.name;sm.innerHTML=r.sub;br.style.display=r.bar==null?'none':'';if(r.bar!=null){bi.style.width=Math.round(Math.min(1,r.bar)*100)+'%';bi.style.background=r.barc||''}bt.innerHTML=r.btn;bt.className='sb'+(r.ok?'':' no')+(r.ad?' ad':'');bt.style.display=r.btn?'':'none'};
+  upd();return{el:d,upd}}
+function skBuild(tab){
+  const l=sk.l[sk.cur],out=[];const H=txt=>{const h=document.createElement('div');h.className='skh2';h.textContent=txt;out.push({el:h,upd:()=>{}})};
+  const ms=x=>{const nx=25*(Math.floor(x.L/25)+1);return {bar:(x.L%25)/25,txt:'Sv '+x.L+' · x2 için Sv '+nx}};
+  if(tab==='b'){
+    SK_TT.forEach(t=>{const T=SK_T[t],arr=l.isl[t];H(T.cur+' '+T.n);
+      arr.forEach((x,n)=>out.push(skCard({ic:SKI[t][0],col:SKI[t][1],get:()=>{const m=ms(x),b=skBulk(t,n,x.L,sk.cur);return{name:T.n+' '+(n+1)+' · Sv '+x.L,sub:T.cur+' '+fmt(skRate(t,n,x.L,sk.cur))+'/sn · '+m.txt,bar:m.bar,btn:'⬆'+(b.n>1?' +'+b.n:'')+'<br>'+skCostTxt(t,b),ok:skAfford(t,b),fn:()=>skAct('b',t,n,'up')}}})));
+      if(arr.length<SK_MAXI){const n=arr.length,ok2=t==='c'||l.isl[SK_TT[SK_TT.indexOf(t)-1]].length>0;
+        out.push(skCard({ic:'🏗️',col:'linear-gradient(#fbbf24,#b45309)',get:()=>{const first=n===0,cur=first?T.prev:t,cost=first?T.unl*SK_L[sk.cur].s:skBuy(t,n,sk.cur);return ok2?{name:first?T.n+' aç':'Yeni '+T.n,sub:'Üretimini artırır',bar:null,btn:'🏗️<br>'+SK_T[cur].cur+' '+fmt(cost),ok:sk[cur]>=cost,fn:()=>skAct('buy',t,n,'up')}:{name:'🔒 '+T.n,sub:'Önce önceki türde ada aç',bar:null,btn:'',ok:false}}}))}});
+  }else if(tab==='m'){
+    SK_TT.forEach(t=>{const T=SK_T[t];l.isl[t].forEach((x,n)=>out.push(skCard({ic:'👷',col:SKI[t][1],get:()=>{const c=skMgr(t,n,sk.cur);return{name:T.n+' '+(n+1),sub:x.m?'Otomatik çalışıyor':'Yönetici işe alırsan kendi çalışır',bar:null,btn:x.m?'✓ Aktif':'👷<br>'+T.cur+' '+fmt(c),ok:!x.m&&sk[t]>=c,fn:x.m?null:()=>skAct('b',t,n,'mgr')}}})))});
+    SK_TT.forEach(t=>{const T=SK_T[t],x=l.inf[t];out.push(skCard({ic:'👷',col:'linear-gradient(#38bdf8,#0369a1)',get:()=>{const c=skInfMgr(t,sk.cur);return{name:SK_INF[t].n,sub:x.m?'Tam kapasite':'Yönetici yok: taşıma %30',bar:null,btn:x.m?'✓ Aktif':'👷<br>'+T.cur+' '+fmt(c),ok:!x.m&&sk[t]>=c,fn:x.m?null:()=>skAct('i',t,0,'mgr')}}}))});
+  }else if(tab==='i'){
+    SK_TT.forEach(t=>{const T=SK_T[t],x=l.inf[t];out.push(skCard({ic:{c:'🎈',e:'🔌',k:'🏺'}[t],col:SKI[t][1],get:()=>{const b=skBulkI(t,x.L,sk.cur),cap=skCap(t,sk.cur),pr=skProd(sk.cur,t),u=pr/Math.max(1e-9,cap);return{name:SK_INF[t].n+' · Sv '+x.L,sub:T.cur+' Üretim '+fmt(pr)+' / Taşıma '+fmt(cap)+(u>1.001?' <b style="color:#fca5a5">⚠ Darboğaz</b>':''),bar:u,barc:u>1.001?'#ef4444':u>0.8?'#f59e0b':'#4ade80',btn:'⬆'+(b.n>1?' +'+b.n:'')+'<br>'+skCostTxt(t,b),ok:skAfford(t,b),fn:()=>skAct('i',t,0,'up')}}}))});
+  }else if(tab==='x'){
+    out.push(skCard({ic:'⚡',col:'linear-gradient(#fde047,#f59e0b)',get:()=>{const on=Date.now()<sk.boost;return{name:'x2 Gelir',sub:on?'Kalan: '+Math.ceil((sk.boost-Date.now())/60000)+' dk':'Reklam izle: 10 dk boyunca gelir 2 kat',bar:null,btn:'📺<br>'+(on?'+10 dk':'İzle'),ok:true,ad:true,fn:skBoost}}}));
+    out.push(skCard({ic:'🎁',col:'linear-gradient(#fb923c,#b45309)',get:()=>{const r=Date.now()>=sk.crateAt;return{name:'Hazine Sandığı',sub:r?'3 dakikalık gelir kazan':'Sonraki: '+Math.ceil((sk.crateAt-Date.now())/1000)+' sn',bar:null,btn:'📺<br>'+(r?'Al':'Bekle'),ok:r,ad:r,fn:r?skCrate:null}}}));
+  }else{
+    out.push(skCard({ic:'🌟',col:'linear-gradient(#c084fc,#6d28d9)',get:()=>{const g=Math.floor(Math.sqrt(sk.run/5e7));return{name:'Yükseliş · '+sk.stars+' 🌟',sub:g>=1?'Sıfırlanırsın, '+g+' 🌟 kazanırsın (her 🌟 = %5 gelir)':'Biraz daha büyü, sonra yüksel (her 🌟 = %5 gelir)',bar:null,btn:'🌟<br>Yüksel +'+g,ok:g>=1,fn:()=>{skSel={kind:'portal'};$('sp_up').onclick();skSel=null;skPanel()}}}}));
+  }
+  return out}
+function skSheetRefresh(){
+  const nb=document.querySelectorAll('#sk_bar u'),l=sk.l[sk.cur],f=(id,v)=>{const u=document.querySelector('#sk_bar button[data-tab="'+id+'"] u');if(u)u.classList.toggle('show',!!v)};
+  let ub=false,um=false,ui=false;
+  SK_TT.forEach(t=>{l.isl[t].forEach((x,n)=>{const u=skUp(t,n,x.L,sk.cur);if(skAfford(t,u))ub=true;if(!x.m&&sk[t]>=skMgr(t,n,sk.cur))um=true});if(l.isl[t].length<SK_MAXI){const n=l.isl[t].length,ok=t==='c'||l.isl[SK_TT[SK_TT.indexOf(t)-1]].length>0,first=n===0,cur=first?SK_T[t].prev:t,cost=first?SK_T[t].unl*SK_L[sk.cur].s:skBuy(t,n,sk.cur);if(ok&&sk[cur]>=cost)ub=true}
+    const x=l.inf[t];if(!x.m&&sk[t]>=skInfMgr(t,sk.cur))um=true;if(skProd(sk.cur,t)>skCap(t,sk.cur)*1.001)ui=true});
+  f('b',ub);f('m',um);f('i',ui);f('x',Date.now()>=sk.crateAt);f('p',Math.floor(Math.sqrt(sk.run/5e7))>=1);
+  if(!skTab)return;
+  const sig=skTab+'|'+sk.cur+'|'+SK_TT.map(t=>l.isl[t].length+':'+l.isl[t].map(x=>x.m).join('')+l.inf[t].m).join(',');
+  if(sig!==skSig){skSig=sig;const ls=$('sh_list'),top=ls.scrollTop;ls.innerHTML='';skCards=skBuild(skTab);skCards.forEach(c=>ls.appendChild(c.el));ls.scrollTop=top}
+  else skCards.forEach(c=>c.upd());
+}
+document.querySelectorAll('#sk_bar button').forEach(b=>b.onclick=()=>skOpenSheet(b.dataset.tab));
+$('sh_x').onclick=skCloseSheet;
 function skRefresh(){
   $('sk_c').textContent=fmt(sk.c);$('sk_e').textContent=fmt(sk.e);$('sk_k').textContent=fmt(sk.k);
   const boost=Date.now()<sk.boost,i=skInc(),f=boost?2:1;
   const bnT=SK_TT.filter(t=>skProd(sk.cur,t)>skCap(t,sk.cur)*1.001);
   $('sk_inc').innerHTML=(boost?'⚡x2 ':'')+'☁️'+fmt(i.c*f)+' ⚡'+fmt(i.e*f)+' 💎'+fmt(i.k*f)+' /sn'+(bnT.length?'<br><span style="color:#fecaca">⚠ Darboğaz: '+bnT.map(t=>SK_INF[t].n).join(', ')+'</span>':'');
-  $('sk_boost').textContent=boost?'⚡ x2 '+Math.ceil((sk.boost-Date.now())/60000)+' dk +10 📺':'⚡ x2 gelir 📺';
-  $('sk_crate').classList.toggle('hidden',Date.now()<sk.crateAt);
-  skPanelRefresh();
+  skPanelRefresh();skSheetRefresh();
 }
 function skTap(px,py){
+  if(skTab)skCloseSheet();
   const l=sk.l[sk.cur],tw=skG.tw,th=skG.th,fl=Math.sin(skFx.T*0.9)*3;
-  const hit=(yy)=>{const a=(px-skG.ox)/(tw/2),b=(yy-skG.oy)/(th/2);return[(a+b)/2,(b-a)/2]};
+  const hit=(yy)=>{const a=(px-skG.ox)/(tw/2),b=(yy-skG.oy+skG.sh)/(th/2);return[(a+b)/2,(b-a)/2]};
   const cands=[hit(py-fl),hit(py-fl+tw*0.45)];
   for(const [gx,gy] of cands){
     if(gx<0||gy<0||gx>=SKG||gy>=SKG)continue;
@@ -2950,7 +3002,7 @@ function skTap(px,py){
 function skFrame(now){
   if(state!=='sky'){skRaf.on=false;skSave();return}
   requestAnimationFrame(skFrame);
-  const dt=Math.min((now-skRaf.last)/1000,0.5);skRaf.last=now;skTick(dt);skFx.T+=dt;
+  const dt=Math.min((now-skRaf.last)/1000,0.5);skRaf.last=now;skTick(dt);skFx.T+=dt;{const tg=skTab?Math.min(70,skG.H*0.09):(skSel?30:0);skG.sh+=(tg-skG.sh)*Math.min(1,dt*8)}
   // uçuşan üretim sayıları
   skRaf.fl=(skRaf.fl||0)+dt;if(skRaf.fl>1.4){skRaf.fl=0;const l=sk.l[sk.cur],f=Date.now()<sk.boost?2:1;SK_TT.forEach(t=>l.isl[t].forEach((x,n)=>{if(x.m||x.a>0){const {gx,gy}=skPlot(t,n),p=skP(gx+1,gy+1,60),fl=Math.sin(skFx.T*0.9)*3;skFloat.push({x:p[0],y:p[1]+fl,t:'+'+fmt(skRate(t,n,x.L,sk.cur)*1.4*f)+' '+SK_T[t].cur,life:1.3})}}))}
   skScene(dt);
@@ -2958,7 +3010,7 @@ function skFrame(now){
   skRaf.save+=dt;if(skRaf.save>5){skRaf.save=0;skSave()}
 }
 function openSky(){
-  state='sky';stopMusic();hideAll();show('sky',true);skLayout();skSel=null;skTabs();skPanel();
+  state='sky';stopMusic();hideAll();show('sky',true);skLayout();skSel=null;skCloseSheet();skTabs();skPanel();
   const away=(Date.now()-sk.last)/1000,i=skInc();skRefresh();
   if(away>60&&(i.c+i.e+i.k)>0){const s=Math.min(away,10800);skPend={c:i.c*s,e:i.e*s,k:i.k*s};$('sk_offt').textContent=Math.floor(s/60)+' dakika boyunca adaların çalıştı.';$('sk_offv').textContent='☁️ '+fmt(skPend.c)+'  ⚡ '+fmt(skPend.e)+'  💎 '+fmt(skPend.k);show('sk_off',true)}
   if(!skRaf.on){skRaf.on=true;skRaf.last=performance.now();requestAnimationFrame(skFrame)}
@@ -2966,9 +3018,8 @@ function openSky(){
 const skTake=m=>{if(skPend){for(const t of SK_TT){sk[t]+=skPend[t]*m;sk.run+=skPend[t]*m*SK_V[t]}skPend=null}show('sk_off',false);skRefresh()};
 $('sk_cv').addEventListener('pointerdown',e=>{if(state==='sky')skTap(e.clientX,e.clientY)});
 $('sk_offa').onclick=()=>skTake(1);$('sk_offd').onclick=()=>Ads.rewarded(()=>skTake(2));
-$('sk_boost').onclick=()=>Ads.rewarded(()=>{sk.boost=Math.min(Math.max(Date.now(),sk.boost)+600000,Date.now()+3600000);skRefresh()});
+const skBoost=()=>Ads.rewarded(()=>{sk.boost=Math.min(Math.max(Date.now(),sk.boost)+600000,Date.now()+3600000);skRefresh()});
 const skCrate=()=>Ads.rewarded(()=>{const i=skInc();for(const t of SK_TT){const g=Math.max(i[t]*180,t==='c'?300:0);sk[t]+=g;sk.run+=g*SK_V[t]}sk.crateAt=Date.now()+240000;toast('🎁 Hazine alındı!');skRefresh()});
-$('sk_crate').onclick=skCrate;
 document.querySelectorAll('.skmode').forEach(b=>b.onclick=()=>{skMode=b.dataset.m==='max'?'max':+b.dataset.m;document.querySelectorAll('.skmode').forEach(x=>x.className=(String(x.dataset.m)===String(skMode)?'gold':'alt')+' skmode');skRefresh()});
 $('sp_x').onclick=()=>{skSel=null;skPanel()};
 $('sp_run').onclick=()=>{const S=skSel;if(!S||S.kind!=='b')return;const x=sk.l[sk.cur].isl[S.t][S.n];if(!x.m){x.a=12;sfx.jump();buzz(5)}skRefresh()};
