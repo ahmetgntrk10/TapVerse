@@ -2298,29 +2298,49 @@ mgRegister({id:'blocks',title:'Blok Bulmaca',emo:'🧩',desc:'Şekilleri tahtaya
 const AR_SK=[{id:'neon',n:'Neon',p:0,c:['#2ee6c5','#ffd34d','#ff6b9d','#60a5fa','#a78bfa']},{id:'sun',n:'Gün Batımı',p:300,c:['#fb923c','#f43f5e','#facc15','#fb7185','#f97316']},{id:'ice',n:'Buz',p:600,c:['#7dd3fc','#bae6fd','#38bdf8','#a5f3fc','#93c5fd']},{id:'forest',n:'Orman',p:1000,c:['#4ade80','#a3e635','#22c55e','#86efac','#facc15']},{id:'candy',n:'Şeker',p:1600,c:['#f472b6','#c084fc','#fb7185','#fde047','#67e8f9']}];
 let arLevel=ld('tv_arlevel',1),arOwn=ld('tv_arown',['neon']),arSkin=ld('tv_arskin','neon');
 const AR_D=[[0,1],[1,0],[0,-1],[-1,0]];
-function arGen(level){
+function arGen(level,aspect){
   let seed=(level*7919+13)>>>0;const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
-  const e=Math.max(1,level+(level%5===0?7:level%5===1&&level>1?-4:0)),cols=Math.min(11,5+Math.floor((e-1)/3)),rows=Math.round(cols*1.35);
-  const occ=Array.from({length:rows},()=>new Array(cols).fill(0)),pcs=[];
-  const target=Math.min(0.74,0.5+e*0.006)*cols*rows;let filled=0;
-  const maxLen=3+Math.min(5,Math.floor(e/4));
-  for(let att=0;att<8000&&filled<target;att++){
-    const r0=Math.floor(rnd()*rows),c0=Math.floor(rnd()*cols);if(occ[r0][c0])continue;
-    const len=2+Math.floor(rnd()*(maxLen-1)),path=[[r0,c0]],own=new Set([r0*100+c0]);let last=null;
+  const e=Math.max(1,level+(level%5===0?7:level%5===1&&level>1?-4:0)),cols=Math.min(12,7+Math.floor((e-1)/4)),rows=Math.max(cols,Math.min(Math.round(cols*(aspect||1.5)),22));
+  const maxLen=4+Math.min(8,Math.floor(e/3));
+  const grid=Array.from({length:rows},()=>new Array(cols).fill(0)),raw=[];
+  const order=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)order.push([r,c]);
+  for(let i=order.length-1;i>0;i--){const k=Math.floor(rnd()*(i+1));[order[i],order[k]]=[order[k],order[i]]}
+  for(const [r0,c0] of order){
+    if(grid[r0][c0])continue;
+    const len=2+Math.floor(rnd()*(maxLen-1)),path=[[r0,c0]];grid[r0][c0]=-1;let last=null;
     for(let k=1;k<len;k++){
       const cur=path[path.length-1];
-      const opts=AR_D.filter(d=>{const r=cur[0]+d[0],c=cur[1]+d[1];return r>=0&&c>=0&&r<rows&&c<cols&&!occ[r][c]&&!own.has(r*100+c)});
+      const opts=AR_D.filter(d=>{const r=cur[0]+d[0],c=cur[1]+d[1];return r>=0&&c>=0&&r<rows&&c<cols&&!grid[r][c]});
       if(!opts.length)break;
-      const d=last&&opts.includes(last)&&rnd()<0.55?last:opts[Math.floor(rnd()*opts.length)];
-      path.push([cur[0]+d[0],cur[1]+d[1]]);own.add((cur[0]+d[0])*100+cur[1]+d[1]);last=d;
+      const d=last&&opts.includes(last)&&rnd()<0.45?last:opts[Math.floor(rnd()*opts.length)];
+      path.push([cur[0]+d[0],cur[1]+d[1]]);grid[cur[0]+d[0]][cur[1]+d[1]]=-1;last=d;
     }
-    if(path.length<2)continue;
-    const h=path[path.length-1];let r=h[0]+last[0],c=h[1]+last[1],ok=true;
-    while(r>=0&&c>=0&&r<rows&&c<cols){if(occ[r][c]||own.has(r*100+c)){ok=false;break}r+=last[0];c+=last[1]}
-    if(!ok)continue;
-    const id=pcs.length+1;for(const p of path)occ[p[0]][p[1]]=id;filled+=path.length;
-    pcs.push({id,cells:path,d:last,alive:true,col:pcs.length%5,s:-1,bump:0,flash:0});
+    if(path.length<2){grid[r0][c0]=0;continue}
+    raw.push(path);for(const q of path)grid[q[0]][q[1]]=raw.length;
   }
+  // yön ver: kaldırma sırasını kurarak çözülebilirliği garanti et
+  const done=new Array(raw.length+1).fill(false),pcs=[];let left=raw.map((_,i)=>i);
+  const opts=(pi)=>{
+    const res=[];
+    for(const rev of [false,true]){
+      const cells=rev?raw[pi].slice().reverse():raw[pi],h=cells[cells.length-1];
+      for(const d of AR_D){
+        let r=h[0]+d[0],c=h[1]+d[1],ok=true,hits=0;
+        while(r>=0&&c>=0&&r<rows&&c<cols){const v=grid[r][c];if(v===pi+1){ok=false;break}if(v>0&&!done[v]){ok=false;break}if(v>0)hits++;r+=d[0];c+=d[1]}
+        if(ok)res.push({cells,d,hits});
+      }
+    }
+    return res;
+  };
+  while(left.length){
+    const cand=[];for(const pi of left){const o=opts(pi);if(o.length)cand.push([pi,o])}
+    if(!cand.length)break;
+    const [pi,o]=cand[Math.floor(rnd()*cand.length)];
+    const pick=o[Math.floor(rnd()*o.length)];
+    done[pi+1]=true;left=left.filter(x=>x!==pi);
+    pcs.push({id:pcs.length+1,cells:pick.cells,d:pick.d,alive:true,col:pcs.length%5,s:-1,bump:0,flash:0});
+  }
+  // yerleştirilemeyenler tahtadan silinir; sıra: sonradan eklenen önce çıkar -> ters çevir
   return {cols,rows,pcs};
 }
 function arRay(G,p){ // yoldaki ilk engel
@@ -2348,7 +2368,7 @@ function arLayout(G){
 }
 let arCur=1;
 function arStart(lv){
-  arCur=lv||arLevel;const g=arGen(arCur);const G=Object.assign(g,{hearts:3,left:g.pcs.length,t:0,hintId:0,done:false,lost:false,revived:false,hint:!ld('tv_arhint',0),parts:[],shake:0});
+  arCur=lv||arLevel;const g=arGen(arCur,(innerHeight-174)/(innerWidth-24));const G=Object.assign(g,{hearts:3,left:g.pcs.length,t:0,hintId:0,done:false,lost:false,revived:false,hint:!ld('tv_arhint',0),parts:[],shake:0});
   ar.G=G;arLayout(G);
   show('ar_win',false);show('ar_lose',false);show('ar_shop',false);arHud();
   if(!ar.raf){ar.raf=true;ar.last=performance.now();requestAnimationFrame(arFrame)}
@@ -2384,8 +2404,12 @@ function arTap(x,y){
   const c=Math.floor((x-G.ox)/G.cell),r=Math.floor((y-G.oy)/G.cell);
   let best=null,bd=1e9;
   for(const p of G.pcs){if(!p.alive||p.s>=0)continue;
-    for(const k of p.cells){const q=arPt(G,k),d=Math.hypot(q[0]-x,q[1]-y);if(d<bd){bd=d;best=p}}}
-  if(!best||bd>G.cell*0.75)return;
+    const P=p.cells.map(k=>arPt(G,k));
+    for(let i=0;i<P.length;i++){
+      const a=P[i],b2=P[Math.min(i+1,P.length-1)],dx=b2[0]-a[0],dy=b2[1]-a[1],l2=dx*dx+dy*dy||1;
+      const t=Math.max(0,Math.min(1,((x-a[0])*dx+(y-a[1])*dy)/l2)),d=Math.hypot(a[0]+dx*t-x,a[1]+dy*t-y);
+      if(d<bd){bd=d;best=p}}}
+  if(!best||bd>G.cell*0.6)return;
   if(G.hint){G.hint=false;sv('tv_arhint',1)}
   const bl=arRay(G,best);
   if(!bl){best.s=0;best.v=420;G.hintId=0;sfx.jump();buzz(8)}
@@ -2419,9 +2443,9 @@ function arDraw(G,now){
   c.setTransform(G.dpr,0,0,G.dpr,0,0);
   const bg=c.createRadialGradient(W/2,H*0.25,10,W/2,H*0.25,H);bg.addColorStop(0,'#33267a');bg.addColorStop(0.62,'#140d34');bg.addColorStop(1,'#0b0720');c.fillStyle=bg;c.fillRect(0,0,W,H);
   c.save();if(G.shake>0)c.translate((Math.random()-.5)*G.shake*10,(Math.random()-.5)*G.shake*10);
-  c.fillStyle='rgba(255,255,255,.1)';
+  c.fillStyle='rgba(255,255,255,.07)';
   for(let r=0;r<G.rows;r++)for(let k=0;k<G.cols;k++){c.beginPath();c.arc(G.ox+(k+0.5)*cs,G.oy+(r+0.5)*cs,2,0,6.283);c.fill()}
-  const lw=cs*0.3;
+  const lw=Math.max(3,cs*0.13);
   for(const p of G.pcs){
     if(!p.alive)continue;
     const ph=arPath(G,p);let a=0,b=ph.L;
@@ -2432,11 +2456,11 @@ function arDraw(G,now){
     c.lineCap='round';c.lineJoin='round';c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=lw+4;
     c.beginPath();c.moveTo(pts[0][0],pts[0][1]+2);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]+2);c.stroke();
     c.strokeStyle=col;c.lineWidth=lw;c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);c.stroke();
-    const h=pts[pts.length-1],t=pts[pts.length-2],ang=Math.atan2(h[1]-t[1],h[0]-t[0]),sz=cs*0.34;
+    const h=pts[pts.length-1],t=pts[pts.length-2],ang=Math.atan2(h[1]-t[1],h[0]-t[0]),sz=Math.max(7,cs*0.27);
     c.fillStyle=col;c.beginPath();
     c.moveTo(h[0]+Math.cos(ang)*sz,h[1]+Math.sin(ang)*sz);
-    c.lineTo(h[0]+Math.cos(ang+2.35)*sz,h[1]+Math.sin(ang+2.35)*sz);
-    c.lineTo(h[0]+Math.cos(ang-2.35)*sz,h[1]+Math.sin(ang-2.35)*sz);c.closePath();c.fill();
+    c.lineTo(h[0]+Math.cos(ang+2.5)*sz,h[1]+Math.sin(ang+2.5)*sz);
+    c.lineTo(h[0]+Math.cos(ang-2.5)*sz,h[1]+Math.sin(ang-2.5)*sz);c.closePath();c.fill();
   }
   if(G.hint&&!G.done){c.textAlign='center';c.font='600 18px Fredoka,sans-serif';c.fillStyle='rgba(255,255,255,.92)';c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=4;c.strokeText('Oka dokun: yönüne kayıp çıkar',W/2,G.oy+G.rows*cs+28);c.fillText('Oka dokun: yönüne kayıp çıkar',W/2,G.oy+G.rows*cs+28)}
   c.restore();
