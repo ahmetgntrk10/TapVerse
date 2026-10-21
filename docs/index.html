@@ -2305,7 +2305,7 @@ function arGen(level,aspect){
 }
 function arGen1(level,aspect,k0){
   let seed=(level*7919+13+k0*104729)>>>0;const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
-  const e=Math.max(1,level+(level%5===0?7:level%5===1&&level>1?-4:0)),cols=Math.min(18,8+Math.floor((e-1)/2)),rows=Math.max(cols,Math.min(Math.round(cols*(aspect||1.5)),30));
+  const e=Math.max(1,level+(level%5===0?7:level%5===1&&level>1?-4:0)),cols=Math.min(22,10+Math.floor((e-1)/1.5)),rows=Math.max(cols,Math.min(Math.round(cols*(aspect||1.5)),40));
   const maxLen=5+Math.min(10,Math.floor(e/2));
   const grid=Array.from({length:rows},()=>new Array(cols).fill(0)),raw=[];
   const order=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)order.push([r,c]);
@@ -2451,7 +2451,7 @@ function arDraw(G,now){
   c.save();if(G.shake>0)c.translate((Math.random()-.5)*G.shake*10,(Math.random()-.5)*G.shake*10);
   c.fillStyle='rgba(255,255,255,.07)';
   for(let r=0;r<G.rows;r++)for(let k=0;k<G.cols;k++){c.beginPath();c.arc(G.ox+(k+0.5)*cs,G.oy+(r+0.5)*cs,2,0,6.283);c.fill()}
-  const lw=Math.max(2.5,cs*0.12);
+  const lw=Math.max(3,cs*0.2);
   for(const p of G.pcs){
     if(!p.alive)continue;
     const ph=arPath(G,p);let a=0,b=ph.L;
@@ -2462,11 +2462,12 @@ function arDraw(G,now){
     c.lineCap='round';c.lineJoin='round';c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=lw+2;
     c.beginPath();c.moveTo(pts[0][0],pts[0][1]+2);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]+2);c.stroke();
     c.strokeStyle=col;c.lineWidth=lw;c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);c.stroke();
-    const h=pts[pts.length-1],t=pts[pts.length-2],ang=Math.atan2(h[1]-t[1],h[0]-t[0]),sz=Math.max(6,cs*0.3);
+    const h=pts[pts.length-1],t=pts[pts.length-2],ang=Math.atan2(h[1]-t[1],h[0]-t[0]),ca=Math.cos(ang),sa=Math.sin(ang),hl=cs*0.5,hw=Math.max(cs*0.34,lw*0.9);
+    // çizgi ok ucunun tabanında bitsin, ucu hep gidilen yöne baksın
     c.fillStyle=col;c.beginPath();
-    c.moveTo(h[0]+Math.cos(ang)*sz,h[1]+Math.sin(ang)*sz);
-    c.lineTo(h[0]+Math.cos(ang+2.5)*sz,h[1]+Math.sin(ang+2.5)*sz);
-    c.lineTo(h[0]+Math.cos(ang-2.5)*sz,h[1]+Math.sin(ang-2.5)*sz);c.closePath();c.fill();
+    c.moveTo(h[0]+ca*hl*0.7,h[1]+sa*hl*0.7);
+    c.lineTo(h[0]-ca*hl*0.3-sa*hw,h[1]-sa*hl*0.3+ca*hw);
+    c.lineTo(h[0]-ca*hl*0.3+sa*hw,h[1]-sa*hl*0.3-ca*hw);c.closePath();c.fill();
   }
   if(G.hint&&!G.done){c.textAlign='center';c.font='600 18px Fredoka,sans-serif';c.fillStyle='rgba(255,255,255,.92)';c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=4;c.strokeText('Oka dokun: yönüne kayıp çıkar',W/2,G.oy+G.rows*cs+28);c.fillText('Oka dokun: yönüne kayıp çıkar',W/2,G.oy+G.rows*cs+28)}
   c.restore();
