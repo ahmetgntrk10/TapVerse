@@ -2298,16 +2298,34 @@ mgRegister({id:'blocks',title:'Blok Bulmaca',emo:'🧩',desc:'Şekilleri tahtaya
 const AR_SK=[{id:'neon',n:'Neon',p:0,c:['#2ee6c5','#ffd34d','#ff6b9d','#60a5fa','#a78bfa']},{id:'sun',n:'Gün Batımı',p:300,c:['#fb923c','#f43f5e','#facc15','#fb7185','#f97316']},{id:'ice',n:'Buz',p:600,c:['#7dd3fc','#bae6fd','#38bdf8','#a5f3fc','#93c5fd']},{id:'forest',n:'Orman',p:1000,c:['#4ade80','#a3e635','#22c55e','#86efac','#facc15']},{id:'candy',n:'Şeker',p:1600,c:['#f472b6','#c084fc','#fb7185','#fde047','#67e8f9']}];
 let arLevel=ld('tv_arlevel',1),arOwn=ld('tv_arown',['neon']),arSkin=ld('tv_arskin','neon');
 const AR_D=[[0,1],[1,0],[0,-1],[-1,0]];
-function arGen(level,aspect){
+const AR_SHAPES=[
+ (u,v)=>{const x=u*1.25,y=-v*1.25+0.25,a=x*x+y*y-1;return a*a*a-x*x*y*y*y<=0},
+ (u,v)=>{const r=Math.hypot(u,v),t=Math.atan2(v,u);return r<=0.6+0.4*Math.cos(6*t)||r<0.25},
+ (u,v)=>v>-0.1?(Math.abs(u)<=0.75&&v<=0.95):(v>=-0.95&&Math.abs(u)<=(v+0.95)*1.05),
+ (u,v)=>(v>=-1&&v<=0.6&&Math.abs(u)<=(v+1)*0.5)||(v>0.6&&v<=1&&Math.abs(u)<=0.16),
+ (u,v)=>Math.hypot(u,v+0.55)<=0.33||(v>=-0.3&&v<-0.08&&Math.abs(u)<=0.15)||(v>=-0.1&&v<0.06&&Math.abs(u)<=0.42)||(v>=0.05&&v<0.72&&Math.abs(u)<=0.22+(v-0.05)*0.45)||(v>=0.7&&v<=1&&Math.abs(u)<=0.75),
+ (u,v)=>(v>=-1&&v<-0.7&&Math.abs(u)<=0.75&&(Math.abs(u)>=0.5||Math.abs(u)<=0.17))||(v>=-0.7&&v<-0.5&&Math.abs(u)<=0.58)||(v>=-0.5&&v<0.55&&Math.abs(u)<=0.4)||(v>=0.55&&v<0.72&&Math.abs(u)<=0.58)||(v>=0.7&&v<=1&&Math.abs(u)<=0.85),
+ (u,v)=>{const a=(u+0.2)/0.8,b=v/0.52;return a*a+b*b<=1||(u>0.45&&u<=1&&Math.abs(v)<=(u-0.45)*1.3)},
+ (u,v)=>Math.hypot(u,v-0.15)<=0.75||(v<-0.2&&v>-0.97&&Math.abs(Math.abs(u)-0.5)<=(v+0.97)*0.5),
+ (u,v)=>Math.hypot(u,v)<=1&&Math.hypot(u-0.5,v+0.15)>0.78,
+ (u,v)=>(v<=0.15&&u*u+((v-0.15)/1.05)**2<=1)||(v>0.15&&v<=1&&Math.abs(u)<=0.28),
+ (u,v)=>Math.abs(u)+Math.abs(v)<=1,
+ (u,v)=>Math.hypot(u,v)<=1
+];
+function arGen(level,maxC,maxR){
   let best=null,bf=-1;
-  for(let k=0;k<14;k++){const g=arGen1(level,aspect,k),f=g.pcs.reduce((a,p)=>a+p.cells.length,0);if(f>bf){bf=f;best=g}}
+  for(let k=0;k<14;k++){const g=arGen1(level,maxC,maxR,k),f=g.pcs.reduce((a,p)=>a+p.cells.length,0);if(f>bf){bf=f;best=g}}
   return best;
 }
-function arGen1(level,aspect,k0){
+function arGen1(level,maxC,maxR,k0){
   let seed=(level*7919+13+k0*104729)>>>0;const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
-  const e=Math.max(1,level+(level%5===0?7:level%5===1&&level>1?-4:0)),cols=Math.min(22,10+Math.floor((e-1)/1.5)),rows=Math.max(cols,Math.min(Math.round(cols*(aspect||1.5)),40));
+  const e=Math.max(1,level+(level%5===0?7:level%5===1&&level>1?-4:0)),shape=level%3===0&&level>=3?AR_SHAPES[(level/3-1)%AR_SHAPES.length]:null,f=Math.min(1,(e-1)/22);
+  let cols=Math.round(8+f*(maxC-8)),rows=Math.min(maxR,Math.round(cols*1.45));
+  if(shape){cols=Math.min(maxC,Math.max(cols,15+Math.floor(f*8)));rows=Math.min(maxR,Math.round(cols*1.25))}
+  rows=Math.max(rows,Math.min(cols,maxR));
   const maxLen=5+Math.min(10,Math.floor(e/2));
   const grid=Array.from({length:rows},()=>new Array(cols).fill(0)),raw=[];
+  if(shape){for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const u=(c+0.5-cols/2)/(cols/2),v=(r+0.5-rows/2)/(rows/2);if(!(Math.abs(u)<=1&&Math.abs(v)<=1&&shape(u,v)))grid[r][c]=-2}}
   const order=[];for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)order.push([r,c]);
   for(let i=order.length-1;i>0;i--){const k=Math.floor(rnd()*(i+1));[order[i],order[k]]=[order[k],order[i]]}
   for(const [r0,c0] of order){
@@ -2347,6 +2365,26 @@ function arGen1(level,aspect,k0){
     pcs.push({id:pcs.length+1,cells:pick.cells,d:pick.d,alive:true,col:pcs.length%5,s:-1,bump:0,flash:0});
   }
   // yerleştirilemeyenler tahtadan silinir; sıra: sonradan eklenen önce çıkar -> ters çevir
+  // boş kalan yerleri doldur (sonradan eklenen oklar en son çıkar, kimsenin yolunu kesmez)
+  const RC=Array.from({length:rows},()=>new Array(cols).fill(false));
+  const rayCells=(cells,d)=>{const h=cells[cells.length-1],out=[];let r=h[0]+d[0],c=h[1]+d[1];while(r>=0&&c>=0&&r<rows&&c<cols){out.push([r,c]);r+=d[0];c+=d[1]}return out};
+  for(const p of pcs)for(const q of rayCells(p.cells,p.d))RC[q[0]][q[1]]=true;
+  for(const q0 of order){
+    const [r0,c0]=q0;if(grid[r0][c0]!==0||RC[r0][c0])continue;
+    const len=2+Math.floor(rnd()*(maxLen-1)),path=[[r0,c0]],mark=new Set([r0*100+c0]);let last=null;
+    for(let k=1;k<len;k++){
+      const cur=path[path.length-1];
+      const o=AR_D.filter(d=>{const r=cur[0]+d[0],c=cur[1]+d[1];return r>=0&&c>=0&&r<rows&&c<cols&&grid[r][c]===0&&!RC[r][c]&&!mark.has(r*100+c)});
+      if(!o.length)break;
+      const d=last&&o.includes(last)&&rnd()<0.45?last:o[Math.floor(rnd()*o.length)];
+      const nr=cur[0]+d[0],nc=cur[1]+d[1];path.push([nr,nc]);mark.add(nr*100+nc);last=d;
+    }
+    if(path.length<2)continue;
+    const rc=rayCells(path,last);if(rc.some(q=>mark.has(q[0]*100+q[1])))continue;
+    for(const q of path)grid[q[0]][q[1]]=99;
+    for(const q of rc)RC[q[0]][q[1]]=true;
+    pcs.push({id:pcs.length+1,cells:path,d:last,alive:true,col:pcs.length%5,s:-1,bump:0,flash:0});
+  }
   return {cols,rows,pcs};
 }
 function arRay(G,p){ // yoldaki ilk engel
@@ -2365,16 +2403,17 @@ $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardAr" sty
 ACH.push({id:'ar1',name:'Ok Avcısı',text:'Ok Kaçışı: 10. seviyeye ulaş',get:()=>arLevel-1,target:10,reward:200},{id:'ar2',name:'Ok Ustası',text:'Ok Kaçışı: 40. seviyeye ulaş',get:()=>arLevel-1,target:40,reward:600});
 QPOOL.push({type:'arrows',target:3,text:'Ok Kaçışı: 3 seviye geç',reward:150});
 const ar={G:null,raf:false,last:0};
+const arCell=W=>Math.max(15,Math.min(26,Math.floor((W-16)/19)));
 function arLayout(G){
   const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_ar');
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
   G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;
-  const aw=W-24,ah=H-90-84;G.cell=Math.floor(Math.min(aw/G.cols,ah/G.rows));
+  const ah=H-90-84;G.cell=arCell(W);
   G.ox=Math.round((W-G.cell*G.cols)/2);G.oy=Math.round(90+(ah-G.cell*G.rows)/2);
 }
 let arCur=1;
 function arStart(lv){
-  arCur=lv||arLevel;const g=arGen(arCur,(innerHeight-174)/(innerWidth-24));const G=Object.assign(g,{hearts:3,left:g.pcs.length,t:0,hintId:0,done:false,lost:false,revived:false,hint:!ld('tv_arhint',0),parts:[],shake:0});
+  arCur=lv||arLevel;const cs0=arCell(innerWidth),g=arGen(arCur,Math.floor((innerWidth-16)/cs0),Math.floor((innerHeight-174)/cs0));const G=Object.assign(g,{hearts:3,left:g.pcs.length,t:0,hintId:0,done:false,lost:false,revived:false,hint:!ld('tv_arhint',0),parts:[],shake:0});
   ar.G=G;arLayout(G);
   show('ar_win',false);show('ar_lose',false);show('ar_shop',false);arHud();
   if(!ar.raf){ar.raf=true;ar.last=performance.now();requestAnimationFrame(arFrame)}
@@ -2415,7 +2454,7 @@ function arTap(x,y){
       const a=P[i],b2=P[Math.min(i+1,P.length-1)],dx=b2[0]-a[0],dy=b2[1]-a[1],l2=dx*dx+dy*dy||1;
       const t=Math.max(0,Math.min(1,((x-a[0])*dx+(y-a[1])*dy)/l2)),d=Math.hypot(a[0]+dx*t-x,a[1]+dy*t-y);
       if(d<bd){bd=d;best=p}}}
-  if(!best||bd>G.cell*0.6)return;
+  if(!best||bd>Math.max(G.cell*0.7,11))return;
   if(G.hint){G.hint=false;sv('tv_arhint',1)}
   const bl=arRay(G,best);
   if(!bl){best.s=0;best.v=420;G.hintId=0;sfx.jump();buzz(8)}
@@ -2449,9 +2488,7 @@ function arDraw(G,now){
   c.setTransform(G.dpr,0,0,G.dpr,0,0);
   const bg=c.createRadialGradient(W/2,H*0.25,10,W/2,H*0.25,H);bg.addColorStop(0,'#33267a');bg.addColorStop(0.62,'#140d34');bg.addColorStop(1,'#0b0720');c.fillStyle=bg;c.fillRect(0,0,W,H);
   c.save();if(G.shake>0)c.translate((Math.random()-.5)*G.shake*10,(Math.random()-.5)*G.shake*10);
-  c.fillStyle='rgba(255,255,255,.07)';
-  for(let r=0;r<G.rows;r++)for(let k=0;k<G.cols;k++){c.beginPath();c.arc(G.ox+(k+0.5)*cs,G.oy+(r+0.5)*cs,2,0,6.283);c.fill()}
-  const lw=Math.max(3,cs*0.2);
+    const lw=Math.max(3,cs*0.3);
   for(const p of G.pcs){
     if(!p.alive)continue;
     const ph=arPath(G,p);let a=0,b=ph.L;
@@ -2460,9 +2497,9 @@ function arDraw(G,now){
     if(p.bump>0){const o=Math.sin((p.bump/0.3)*Math.PI)*cs*0.22;pts=pts.map(q=>[q[0]+p.d[1]*o,q[1]+p.d[0]*o])}
     const col=p.flash>0?'#ff4d6d':G.hintId===p.id&&Math.floor(now/200)%2?'#ffffff':sk.c[p.col];
     c.lineCap='round';c.lineJoin='round';c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=lw+2;
-    c.beginPath();c.moveTo(pts[0][0],pts[0][1]+2);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]+2);c.stroke();
+    c.beginPath();c.moveTo(pts[0][0],pts[0][1]+1.5);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]+1.5);c.stroke();
     c.strokeStyle=col;c.lineWidth=lw;c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);c.stroke();
-    const h=pts[pts.length-1],t=pts[pts.length-2],ang=Math.atan2(h[1]-t[1],h[0]-t[0]),ca=Math.cos(ang),sa=Math.sin(ang),hl=cs*0.5,hw=Math.max(cs*0.34,lw*0.9);
+    const h=pts[pts.length-1],t=pts[pts.length-2],ang=Math.atan2(h[1]-t[1],h[0]-t[0]),ca=Math.cos(ang),sa=Math.sin(ang),hl=cs*0.62,hw=Math.max(cs*0.4,lw*0.9);
     // çizgi ok ucunun tabanında bitsin, ucu hep gidilen yöne baksın
     c.fillStyle=col;c.beginPath();
     c.moveTo(h[0]+ca*hl*0.7,h[1]+sa*hl*0.7);
