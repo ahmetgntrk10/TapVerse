@@ -111,6 +111,14 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
 .gcard .gtx small{display:none}
 .gcard .gtag{margin-top:7px;font-size:12px;padding:3px 9px}
 .gcard .gplay{display:none}
+.mnrow{display:flex;gap:10px;align-items:center;padding:10px;border-radius:18px;margin-bottom:10px;border:1px solid rgba(255,255,255,.15);cursor:pointer}
+.mnico{width:52px;height:52px;border-radius:16px;background:rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;font-size:28px;flex:none}
+.mnmid{flex:1;min-width:0}.mnmid b{font-size:15px}.mnmid small{display:block;font-size:12px;opacity:.9}
+.mnbar{height:10px;border-radius:6px;background:rgba(0,0,0,.4);overflow:hidden;margin:6px 0 4px}.mnbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffd34d,#fb923c)}
+.mnbtns{display:flex;flex-direction:column;gap:6px;flex:none}.mnbtns button{padding:7px 8px;font-size:13px;border-radius:12px;min-width:104px}
+.mnrow.run .mnico{animation:mnb .45s infinite alternate}@keyframes mnb{to{transform:translateY(-4px) rotate(-8deg)}}
+.mntap{animation:mnp 1s infinite}@keyframes mnp{50%{opacity:.35}}
+.mnmode{padding:6px 12px;font-size:13px;min-width:0}
 .htitle{text-align:center;margin:10px 0 8px;pointer-events:none}
 .htitle .logo{margin:0}
 .htitle .sub{margin-top:10px;font-size:15px;letter-spacing:3px;color:var(--mute)}
@@ -996,7 +1004,7 @@ $('qback').onclick=()=>{show('quests',false);goHome();updateBadge()};
 let curHome='hub';
 function leaveHome(){show('menu',false);show('hub',false)}
 function goHome(){show(curHome==='hub'?'hub':'menu',true)}
-function refreshHub(){for(const k in MG)$('tag_'+k).textContent='Rekor: '+(mgBest[k]||0);const wl=k=>' · 🪙 '+(k===curW?totalCoins:(WALLET[k]||0));$('hsMt').textContent='⭐ '+mtStarsTotal()+'/'+SONGS.length*3+wl('tiles');$('hsCity').textContent='Rekor: '+cityBest;$('hsRun').textContent='En iyi: '+best+wl('run');if($('hsAr'))$('hsAr').textContent='Seviye '+arLevel+wl('arrows');$('hsMaze').textContent='Seviye '+mz.best+wl('maze')}
+function refreshHub(){for(const k in MG)$('tag_'+k).textContent='Rekor: '+(mgBest[k]||0);const wl=k=>' · 🪙 '+(k===curW?totalCoins:(WALLET[k]||0));$('hsMt').textContent='⭐ '+mtStarsTotal()+'/'+SONGS.length*3+wl('tiles');$('hsCity').textContent='Rekor: '+cityBest;$('hsRun').textContent='En iyi: '+best+wl('run');if($('hsMn'))$('hsMn').textContent='💵 '+fmt(mn.cash);if($('hsAr'))$('hsAr').textContent='Seviye '+arLevel+wl('arrows');$('hsMaze').textContent='Seviye '+mz.best+wl('maze')}
 const SCR=['hub','menu','over','shop','maze','city','mt','mtsel'];
 function hideAll(){SCR.forEach(i=>show(i,false))}
 function openHub(){
@@ -2553,6 +2561,7 @@ let lbId=null;
 function lbCfg(id){
   const wl=k=>'🪙 '+(k===curW?totalCoins:(WALLET[k]||0));
   if(id==='maze')return{emo:'🌀',t:'Tek Parmak Labirent',d:'Parmağınla topu yönlendir, çıkışı bul.',i:'Seviye '+mz.best,w:wl('maze'),wk:'maze',play:()=>openMaze(),x:[['📅 Günlük Labirent',()=>openMaze(true)],['🎨 Top Renkleri',()=>openShop('ball')]]};
+  if(id==='miner')return{emo:'⛏️',t:'Maden Baronu',d:'Madenini büyüt, yönetici tut, yeni dünyalar aç. Sen yokken de kazanır!',i:'💵 '+fmt(mn.cash)+' · 💎 '+mn.gems,play:()=>openMiner(),x:[]};
   if(id==='city')return{emo:'🏙️',t:'Tek Tuş Şehir',d:'Basılı tut, çatıdan çatıya zıpla. Ne kadar uzun basarsan o kadar uzağa gidersin.',i:'🏅 Rekor: '+cityBest,play:()=>openCity(),x:[]};
   if(id==='ar')return{emo:'🎯',t:'Ok Kaçışı',d:'Oklara dokun, yönüne kayıp çıksınlar. Yolu tıkalıysa çıkmaz!',i:'Seviye '+arLevel,w:wl('arrows'),wk:'arrows',play:()=>openArrows(arLevel),x:[['🎨 Ok Renkleri',()=>{openArrows(arLevel);arSkins();show('ar_shop',true)}]],levels:true};
   const d=MG[id];return{emo:d.emo,t:d.title,d:d.desc,i:'🏅 Rekor: '+(mgBest[id]||0),play:()=>mgOpen(id),x:[]};
@@ -2574,6 +2583,139 @@ for(const k in MG)$('card_'+k).onclick=()=>openLobby(k);
 $('mBack').onclick=()=>openLobby('maze');$('cBack').onclick=()=>openLobby('city');$('ar_back').onclick=()=>openLobby('ar');
 for(const k in MG)$('b_'+k).onclick=()=>openLobby(k);
 
+// ---- Maden Baronu (Idle Miner tarzı) ----
+const MN_W=[
+ {n:'Altın Ocağı',e:'⛏️',c1:'#b45309',c2:'#451a03',s:1,u:0},
+ {n:'Kristal Mağarası',e:'💎',c1:'#0891b2',c2:'#164e63',s:300,u:2e6},
+ {n:'Lav Derinliği',e:'🌋',c1:'#dc2626',c2:'#450a0a',s:9e4,u:6e8},
+ {n:'Buz Mağarası',e:'❄️',c1:'#3b82f6',c2:'#1e1b4b',s:2.7e7,u:2e11},
+ {n:'Uzay Madeni',e:'🚀',c1:'#7c3aed',c2:'#1e1b4b',s:8.1e9,u:6e13}];
+const MN_MAXF=14,MN_SUF=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc','Ud','Dd','Td','Qd'];
+function fmt(n){if(!isFinite(n))return '∞';if(n<1000)return n<10?n.toFixed(1).replace(/\.0$/,''):String(Math.floor(n));let i=0;while(n>=1000&&i<MN_SUF.length-1){n/=1000;i++}return (n<10?n.toFixed(2):n<100?n.toFixed(1):Math.floor(n))+MN_SUF[i]}
+function mnNewWorld(i){return{on:i===0,fl:i===0?[{L:1,m:0,a:0,s:0}]:[],el:{L:1,m:0,a:0,ds:0},wh:{L:1,m:0,a:0}}}
+let mn=ld('tv_miner',null);
+if(!mn||!mn.w)mn={cash:150,gems:0,run:0,life:0,w:[0,1,2,3,4].map(mnNewWorld),last:Date.now(),boost:0,cur:0,crateAt:0,gemAt:0};
+let mnMode=1,mnRows=[],mnPend=0;
+const mnMul=L=>L*Math.pow(2,Math.floor(L/25)),mnEMul=L=>L*Math.pow(2,Math.floor(L/10));
+const mnRate=(i,L)=>Math.pow(3,i)*mnMul(L),mnThrE=L=>15*mnEMul(L)/Math.max(2,6-0.04*L),mnThrW=L=>20*mnEMul(L)/Math.max(2,8-0.05*L);
+const mnS=wi=>MN_W[wi].s,mnGm=()=>1+0.05*mn.gems;
+const mnCF=(wi,i)=>L=>8*Math.pow(3.6,i)*Math.pow(1.17,L-1)*mnS(wi);
+const mnCE=wi=>L=>60*Math.pow(1.28,L-1)*mnS(wi),mnCW=wi=>L=>80*Math.pow(1.28,L-1)*mnS(wi);
+const mnBuyFloor=(wi,n)=>150*Math.pow(4.5,n)*mnS(wi),mnMgrF=(wi,i)=>500*Math.pow(4,i)*mnS(wi),mnMgrE=wi=>2000*mnS(wi),mnMgrW=wi=>4000*mnS(wi);
+function mnInc(wi){const w=mn.w[wi];if(!w.on)return 0;let p=0;w.fl.forEach((f,i)=>{if(f.m)p+=mnRate(i,f.L)});return Math.min(p,w.el.m?mnThrE(w.el.L):0,w.wh.m?mnThrW(w.wh.L):0)*mnS(wi)*mnGm()}
+const mnIncAll=()=>{let t=0;for(let i=0;i<5;i++)t+=mnInc(i);return t};
+function mnBulk(fn,L){
+  if(mnMode==='max'){let n=0,tot=0;while(n<400){const c=fn(L+n);if(tot+c>mn.cash)break;tot+=c;n++}if(n===0)return{n:1,tot:fn(L)};return{n,tot}}
+  let tot=0;for(let k=0;k<mnMode;k++)tot+=fn(L+k);return{n:mnMode,tot};
+}
+function mnTick(dt){
+  const gm=mnGm()*(Date.now()<mn.boost?2:1);
+  for(let wi=0;wi<5;wi++){const w=mn.w[wi];if(!w.on)continue;let tot=0;
+    w.fl.forEach((f,i)=>{if(f.a>0)f.a-=dt;const r=mnRate(i,f.L);if(f.m||f.a>0)f.s=Math.min(r*20,f.s+r*dt);tot+=f.s});
+    const e=w.el;if(e.a>0)e.a-=dt;
+    if(e.m||e.a>0){const mv=Math.min(mnThrE(e.L)*dt,tot);if(mv>0){e.ds=Math.min(e.ds+mv,mnThrE(e.L)*30);let need=mv;for(let i=0;i<w.fl.length&&need>0;i++){const t=Math.min(w.fl[i].s,need);w.fl[i].s-=t;need-=t}}}
+    const h=w.wh;if(h.a>0)h.a-=dt;
+    if((h.m||h.a>0)&&e.ds>0){const mv=Math.min(mnThrW(h.L)*dt,e.ds);e.ds-=mv;const g=mv*mnS(wi)*gm;mn.cash+=g;mn.run+=g;mn.life+=g}
+  }
+}
+document.body.insertAdjacentHTML('beforeend','<div id="miner" class="hidden mgscr"><div class="mtop"><button id="mn_back" class="ibtn alt">‹</button><div class="pill" style="color:var(--gold)">💵 <span id="mn_cash">0</span></div><div class="pill">💎 <span id="mn_gem">0</span></div><div class="sp"></div><div class="pill" id="mn_inc" style="font-size:13px"></div></div>'
+ +'<div style="position:absolute;inset:0;display:flex;flex-direction:column;padding-top:calc(62px + env(safe-area-inset-top))">'
+ +'<div id="mn_tabs" style="display:flex;gap:6px;padding:0 12px 6px;overflow-x:auto"></div>'
+ +'<div style="display:flex;gap:6px;padding:0 12px 8px;align-items:center"><span style="color:var(--mute);font-size:13px">Satın al:</span><button class="alt mnmode" data-m="1">x1</button><button class="alt mnmode" data-m="10">x10</button><button class="alt mnmode" data-m="max">MAX</button></div>'
+ +'<div id="mn_list" style="flex:1;overflow-y:auto;padding:0 12px 16px;touch-action:pan-y"></div>'
+ +'<div style="display:flex;gap:8px;padding:8px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(8,5,24,.85)"><button id="mn_boost" class="gold" style="flex:1;padding:10px 6px;font-size:14px">⚡ x2 gelir 📺</button><button id="mn_crate" class="alt hidden" style="flex:1;padding:10px 6px;font-size:14px">🎁 Sandık 📺</button><button id="mn_gemad" class="alt" style="flex:1;padding:10px 6px;font-size:14px">💎 +1 📺</button></div></div>'
+ +'<div id="mn_off" class="overlay hidden"><div class="card"><div class="ttl" style="color:var(--gold)">Hoş geldin! ⛏️</div><div id="mn_offt" style="color:var(--mute)"></div><div class="bigscore"><span id="mn_offv">0</span><small>💵 KAZANDIN</small></div><button id="mn_offa" class="gold">Al</button><button id="mn_offd" class="alt">📺 2 kat al</button></div></div></div>');
+SCR.push('miner');
+$('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardMn" style="background:linear-gradient(135deg,#f59e0b,#b45309 60%,#451a03)"><div class="gicon">⛏️</div><div class="gtx"><b>Maden Baronu</b><small>Madenini büyüt.</small><span class="gtag" id="hsMn">💵 0</span></div></div>');
+ACH.push({id:'mn1',name:'Maden Sahibi',text:'Maden Baronu: 2. madeni aç',get:()=>mn.w.filter(w=>w.on).length-1,target:1,reward:300},{id:'mn2',name:'Maden Baronu',text:'Maden Baronu: 4 maden aç',get:()=>mn.w.filter(w=>w.on).length-1,target:3,reward:1500});
+function mnSave(){mn.last=Date.now();sv('tv_miner',mn)}
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')mnSave()});addEventListener('pagehide',mnSave);
+const mnRaf={on:false,last:0,acc:0,save:0};
+function mnBtn(txt,fn,cls){const b=document.createElement('button');b.className=cls||'';b.innerHTML=txt;b.onclick=e=>{e.stopPropagation();fn()};return b}
+function mnRow(wi,kind,idx){
+  const W=MN_W[wi],w=mn.w[wi],row=document.createElement('div');row.className='mnrow';row.style.background='linear-gradient(135deg,'+W.c1+','+W.c2+')';
+  const unit=kind==='f'?w.fl[idx]:kind==='e'?w.el:w.wh;
+  const ico=kind==='f'?W.e:kind==='e'?'🛗':'🚚',title=kind==='f'?'Kat '+(idx+1)+' · Madenci':kind==='e'?'Asansör':'Taşıyıcı';
+  row.innerHTML='<div class="mnico">'+ico+'</div><div class="mnmid"><b></b><div class="mnbar"><i></i></div><small></small></div><div class="mnbtns"></div>';
+  const btns=row.querySelector('.mnbtns'),up=mnBtn('',()=>{
+    const fn=kind==='f'?mnCF(wi,idx):kind==='e'?mnCE(wi):mnCW(wi),b=mnBulk(fn,unit.L);
+    if(mn.cash<b.tot){toast('Yeterli nakit yok');return}mn.cash-=b.tot;unit.L+=b.n;sfx.coin();mnRefresh(true);
+  },'gold'),mg=mnBtn('',()=>{
+    if(unit.m)return;const c=kind==='f'?mnMgrF(wi,idx):kind==='e'?mnMgrE(wi):mnMgrW(wi);
+    if(mn.cash<c){toast('Yeterli nakit yok');return}mn.cash-=c;unit.m=1;sfx.power();mnRefresh(true);
+  },'alt');
+  btns.appendChild(up);btns.appendChild(mg);
+  row.onclick=()=>{if(!unit.m){unit.a=12;sfx.jump();buzz(5)}};
+  const R={row,unit,kind,idx,wi,title,b:row.querySelector('b'),bar:row.querySelector('.mnbar i'),sm:row.querySelector('small'),up,mg};
+  mnRows.push(R);return row;
+}
+function mnBuild(){
+  const w=mn.w[mn.cur],W=MN_W[mn.cur],list=$('mn_list');list.innerHTML='';mnRows=[];
+  // sekmeler
+  const tabs=$('mn_tabs');tabs.innerHTML='';
+  MN_W.forEach((x,i)=>{const on=mn.w[i].on,b=document.createElement('button');b.className=i===mn.cur?'gold':'alt';b.style.cssText='flex:none;padding:8px 12px;font-size:14px';
+    b.textContent=on?x.e+' '+x.n:'🔒 '+fmt(x.u);
+    b.onclick=()=>{if(on){mn.cur=i;mnBuild()}else{if(i>0&&!mn.w[i-1].on){toast('Önce önceki madeni aç');return}if(mn.cash<x.u){toast('Açmak için 💵 '+fmt(x.u)+' lazım');return}mn.cash-=x.u;mn.w[i].on=true;mn.w[i].fl=[{L:1,m:0,a:0,s:0}];mn.cur=i;sfx.power();checkAch();mnBuild()}};
+    tabs.appendChild(b)});
+  list.appendChild(mnRow(mn.cur,'w',0));list.appendChild(mnRow(mn.cur,'e',0));
+  w.fl.forEach((f,i)=>list.appendChild(mnRow(mn.cur,'f',i)));
+  if(w.fl.length<MN_MAXF){const c=mnBuyFloor(mn.cur,w.fl.length),r=document.createElement('div');r.className='mnrow';r.style.background='rgba(255,255,255,.08)';
+    r.innerHTML='<div class="mnico">➕</div><div class="mnmid"><b>Yeni kat aç</b><small>Kat '+(w.fl.length+1)+'</small></div>';
+    const b=mnBtn('💵 '+fmt(c),()=>{if(mn.cash<c){toast('Yeterli nakit yok');return}mn.cash-=c;w.fl.push({L:1,m:0,a:0,s:0});sfx.power();mnBuild()},'gold');b.dataset.c=c;r.appendChild(b);list.appendChild(r);mnRows.push({buy:b,c})}
+  const g=Math.floor(Math.sqrt(mn.run/2e7)),pr=document.createElement('div');pr.className='mnrow';pr.style.background='linear-gradient(135deg,#4c1d95,#1e1b4b)';
+  pr.innerHTML='<div class="mnico">🔄</div><div class="mnmid"><b>Yeniden Doğuş</b><small id="mn_prt"></small></div>';
+  const pb=mnBtn('',()=>{const g=Math.floor(Math.sqrt(mn.run/2e7));if(g<1){toast('Biraz daha kazan');return}
+    if(!confirm('Tüm madenler sıfırlanır. '+g+' 💎 kazanırsın (her 💎 geliri %5 artırır). Emin misin?'))return;
+    mn.gems+=g;mn.run=0;mn.cash=150;mn.w=[0,1,2,3,4].map(mnNewWorld);mn.cur=0;sfx.power();mnBuild()},'alt');pb.id='mn_prb';pr.appendChild(pb);list.appendChild(pr);
+  document.querySelectorAll('.mnmode').forEach(b=>b.className=(String(b.dataset.m)===String(mnMode)?'gold':'alt')+' mnmode');
+  mnRefresh(true);
+}
+function mnRefresh(full){
+  const w=mn.w[mn.cur];
+  $('mn_cash').textContent=fmt(mn.cash);$('mn_gem').textContent=mn.gems;
+  const boost=Date.now()<mn.boost,inc=mnIncAll()*(boost?2:1);
+  $('mn_inc').textContent=(boost?'⚡x2 ':'')+'💵 '+fmt(inc)+'/sn';
+  const ub=$('mn_boost');if(ub)ub.textContent=boost?'⚡ x2 '+Math.ceil((mn.boost-Date.now())/60000)+' dk +10 📺':'⚡ x2 gelir 📺';
+  $('mn_crate').classList.toggle('hidden',Date.now()<mn.crateAt);
+  $('mn_gemad').disabled=Date.now()<mn.gemAt;
+  for(const R of mnRows){
+    if(R.buy){R.buy.className=mn.cash>=R.c?'gold':'alt';continue}
+    const u=R.unit,W=MN_W[R.wi],act=u.m||u.a>0;
+    const fn=R.kind==='f'?mnCF(R.wi,R.idx):R.kind==='e'?mnCE(R.wi):mnCW(R.wi),bk=mnBulk(fn,u.L);
+    let info,fill;
+    if(R.kind==='f'){const r=mnRate(R.idx,u.L);info='⛏ '+fmt(r)+'/sn';fill=Math.min(1,u.s/(r*20))}
+    else if(R.kind==='e'){const t=mnThrE(u.L);info='🛗 '+fmt(t)+'/sn';fill=Math.min(1,w.el.ds/(t*30))}
+    else{const t=mnThrW(u.L);info='💰 '+fmt(t)+'/sn';fill=Math.min(1,w.el.ds/(mnThrE(w.el.L)*30))}
+    R.b.textContent=R.title+' · Sv '+u.L;R.sm.textContent=info+(act?'':'  · DOKUN → çalıştır');R.bar.style.width=Math.round(fill*100)+'%';
+    R.row.classList.toggle('run',!!act);R.sm.classList.toggle('mntap',!act);
+    R.up.innerHTML='⬆ '+(bk.n>1?'+'+bk.n+' ':'')+'💵 '+fmt(bk.tot);R.up.className=mn.cash>=bk.tot?'gold':'alt';
+    const mc=R.kind==='f'?mnMgrF(R.wi,R.idx):R.kind==='e'?mnMgrE(R.wi):mnMgrW(R.wi);
+    R.mg.innerHTML=u.m?'👷 Yönetici ✓':'👷 💵 '+fmt(mc);R.mg.className=u.m?'alt':(mn.cash>=mc?'gold':'alt');R.mg.disabled=!!u.m;
+  }
+  const g=Math.floor(Math.sqrt(mn.run/2e7)),pt=$('mn_prt');if(pt){pt.textContent=g>=1?'+'+g+' 💎 kazanırsın (her 💎 = %5 gelir)':'Toplam 💵 '+fmt(2e7)+' kazanınca açılır';$('mn_prb').textContent='🔄 '+g+' 💎';$('mn_prb').className=g>=1?'gold':'alt'}
+}
+function mnFrame(now){
+  if(state!=='miner'){mnRaf.on=false;mnSave();return}
+  requestAnimationFrame(mnFrame);
+  const dt=Math.min((now-mnRaf.last)/1000,0.5);mnRaf.last=now;mnTick(dt);
+  mnRaf.acc+=dt;if(mnRaf.acc>0.15){mnRaf.acc=0;mnRefresh()}
+  mnRaf.save+=dt;if(mnRaf.save>5){mnRaf.save=0;mnSave()}
+}
+function openMiner(){
+  state='miner';stopMusic();hideAll();show('miner',true);
+  const away=(Date.now()-mn.last)/1000,inc=mnIncAll();
+  mnBuild();
+  if(away>60&&inc>0){mnPend=inc*Math.min(away,10800);$('mn_offt').textContent=Math.floor(Math.min(away,10800)/60)+' dakika boyunca madenlerin çalıştı.';$('mn_offv').textContent=fmt(mnPend);show('mn_off',true)}
+  if(!mnRaf.on){mnRaf.on=true;mnRaf.last=performance.now();requestAnimationFrame(mnFrame)}
+}
+const mnTake=m=>{mn.cash+=mnPend*m;mn.run+=mnPend*m;mn.life+=mnPend*m;mnPend=0;show('mn_off',false);mnRefresh()};
+$('mn_offa').onclick=()=>mnTake(1);$('mn_offd').onclick=()=>Ads.rewarded(()=>mnTake(2));
+$('mn_boost').onclick=()=>Ads.rewarded(()=>{mn.boost=Math.min(Math.max(Date.now(),mn.boost)+600000,Date.now()+3600000);mnRefresh()});
+$('mn_crate').onclick=()=>Ads.rewarded(()=>{const g=Math.max(mnIncAll()*180,300);mn.cash+=g;mn.run+=g;mn.life+=g;mn.crateAt=Date.now()+240000;toast('🎁 +💵 '+fmt(g));mnRefresh()});
+$('mn_gemad').onclick=()=>Ads.rewarded(()=>{mn.gems++;mn.gemAt=Date.now()+120000;toast('+1 💎');mnRefresh()});
+document.querySelectorAll('.mnmode').forEach(b=>b.onclick=()=>{mnMode=b.dataset.m==='max'?'max':+b.dataset.m;document.querySelectorAll('.mnmode').forEach(x=>x.className=(String(x.dataset.m)===String(mnMode)?'gold':'alt')+' mnmode');mnRefresh()});
+$('mn_back').onclick=()=>{mnSave();openLobby('miner')};
+$('cardMn').onclick=()=>openLobby('miner');
 // ---- Kontroller ----
 function moveLane(d){if(state!=='run')return;lane=Math.max(0,Math.min(2,lane+d));targetX=LANES[lane]}
 function jump(){if(state==='run'&&y<=0.001){vy=9;sliding=0;sfx.jump();addProg('jump',1);burst(player.position.x,0.1,0,0xb39ddb,8,3,0.12,1,speed*0.6)}}
@@ -2631,7 +2773,7 @@ const cP=new THREE.Vector3(0,1.7,4.4),cL=new THREE.Vector3(0,0.8,0),dP=new THREE
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min((now-last)/1000,0.05);last=now;
-  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||MG[state])return;
+  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='miner'||MG[state])return;
   if(state==='run'){
     speedMul+=(1-speedMul)*Math.min(1,dt*0.45);
     speed=Math.min(14+score*0.02,40)*speedMul;   // zamanla hızlanır
