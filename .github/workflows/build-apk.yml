@@ -37,6 +37,18 @@ jobs:
           npx cap sync android
           sed -i 's#<activity#<activity android:screenOrientation="portrait"#' android/app/src/main/AndroidManifest.xml
 
+      - name: Ikon ve titresim izni
+        run: |
+          R=android/app/src/main/res
+          for d in mdpi:48:108 hdpi:72:162 xhdpi:96:216 xxhdpi:144:324 xxxhdpi:192:432; do
+            n=${d%%:*}; r=${d#*:}; l=${r%%:*}; f=${r#*:}
+            cp icon/legacy-$l.png $R/mipmap-$n/ic_launcher.png
+            cp icon/round-$l.png $R/mipmap-$n/ic_launcher_round.png
+            cp icon/fg-$f.png $R/mipmap-$n/ic_launcher_foreground.png
+          done
+          printf '<?xml version="1.0" encoding="utf-8"?>\n<resources><color name="ic_launcher_background">#1B1045</color></resources>\n' > $R/values/ic_launcher_background.xml
+          sed -i 's#<application#<uses-permission android:name="android.permission.VIBRATE"/><application#' android/app/src/main/AndroidManifest.xml
+
       - name: APK derle
         working-directory: android
         run: |

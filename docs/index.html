@@ -12,6 +12,11 @@
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:'Fredoka',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
 canvas{display:block}
 .hidden{display:none!important}
+.sw{flex:none!important;box-sizing:border-box;min-width:0!important;width:58px!important;height:32px!important;padding:0!important;border-radius:999px!important;position:relative;background:#3b3270;box-shadow:none!important;border:1px solid var(--line)}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}
+.sw.on{background:linear-gradient(135deg,var(--teal),var(--green))}.sw.on::after{transform:translateX(26px)}
+.tdots{display:flex;gap:7px;justify-content:center;margin:10px 0}.tdots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25)}.tdots i.on{background:var(--gold);width:22px;border-radius:6px}
+#tut{z-index:20}#tut .big{font-size:64px;margin-bottom:4px}#tut .tx{color:var(--text);font-size:16px;line-height:1.5;min-height:72px}
 /* düğmeler */
 button{font:inherit;font-weight:600;color:#fff;border:0;border-radius:14px;padding:12px 22px;font-size:17px;cursor:pointer;touch-action:manipulation;background:linear-gradient(#a37aff,var(--pri) 55%,#7440e0);box-shadow:0 4px 0 var(--pri-d),0 8px 18px rgba(0,0,0,.35);transition:transform .08s,box-shadow .08s,filter .15s}
 button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--pri-d)}
@@ -26,7 +31,7 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
 #coinhud{position:fixed;top:calc(14px + env(safe-area-inset-top));right:12px;display:none;pointer-events:none;color:var(--gold)}
 #pw{position:fixed;top:calc(62px + env(safe-area-inset-top));right:12px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none}
 #pw .pill{font-size:15px;padding:4px 12px}
-#mute{position:fixed;top:calc(12px + env(safe-area-inset-top));left:12px;z-index:5;width:42px;height:42px;min-width:0;padding:0;border-radius:50%;font-size:18px}
+#mute{display:none;position:fixed;top:calc(12px + env(safe-area-inset-top));left:12px;z-index:5;width:42px;height:42px;min-width:0;padding:0;border-radius:50%;font-size:18px}
 #flash{position:fixed;inset:0;background:radial-gradient(#0000 40%,#ff1744cc);opacity:0;pointer-events:none;transition:opacity .45s}
 #banner{position:fixed;left:50%;top:22%;transform:translateX(-50%);width:max-content;max-width:92vw;text-align:center;font-size:28px;font-weight:700;padding:10px 24px;border-radius:20px;background:rgba(20,14,50,.72);border:1px solid var(--line);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);opacity:0;transition:opacity .5s;pointer-events:none;text-shadow:0 2px 8px #000}
 #toast{position:fixed;left:50%;bottom:150px;transform:translateX(-50%);width:max-content;max-width:90vw;text-align:center;font-size:17px;font-weight:600;padding:9px 18px;border-radius:999px;background:rgba(20,14,50,.85);border:1px solid var(--line);pointer-events:none;opacity:0;transition:opacity .25s;z-index:20}
@@ -88,7 +93,7 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
 .gcard:active{transform:scale(.97)}
 .gcard.g1{background:linear-gradient(135deg,#7c3aed,#d946ef 60%,#fb7185)}
 .gcard.g2{background:linear-gradient(135deg,#0ea5a4,#2563eb 70%,#6d28d9)}
-.gcard.lock{background:linear-gradient(135deg,#3a3566,#262049);filter:saturate(.5);cursor:default;min-height:96px}
+.gcard.lock{background:linear-gradient(135deg,#3a3566,#262049);filter:saturate(.5);cursor:default;min-height:72px}
 .gcard.lock:active{transform:none}
 .gicon{flex:none;width:84px;height:84px;border-radius:24px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:48px;box-shadow:inset 0 2px 0 rgba(255,255,255,.25),0 6px 14px rgba(0,0,0,.25)}
 .gcard.lock .gicon{width:64px;height:64px;font-size:34px}
@@ -212,6 +217,22 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
   <div class="top"><span>📅 Görevler</span><span>🪙 <span class="tc">0</span></span><button id="qback" class="alt">✕</button></div>
   <div id="qlist"></div>
 </div>
+<div id="settings" class="sheet hidden" style="height:auto;max-height:80vh">
+  <div class="top"><span>⚙️ Ayarlar</span><button id="setBack" class="alt">✕</button></div>
+  <div class="row"><div class="tx">🔊 Ses efektleri</div><button id="swSfx" class="sw"></button></div>
+  <div class="row"><div class="tx">🎵 Müzik</div><button id="swMus" class="sw"></button></div>
+  <div class="row"><div class="tx">📳 Titreşim</div><button id="swVib" class="sw"></button></div>
+  <button id="howBtn" style="width:100%;margin-top:10px">❓ Nasıl oynanır?</button>
+  <div style="text-align:center;color:var(--mute);font-size:12px;margin-top:12px">TapVerse · sürüm 1.0</div>
+</div>
+<div id="tut" class="overlay hidden">
+  <div class="card">
+    <div class="big" id="tIc"></div><div class="ttl" id="tTt"></div><div class="tx" id="tTx"></div>
+    <div class="tdots" id="tDots"></div>
+    <button id="tNext" class="gold">İleri</button>
+    <button id="tSkip" class="alt">Geç</button>
+  </div>
+</div>
 <div id="wheel" class="overlay hidden">
   <div class="card">
     <div class="ttl" style="color:var(--gold)">🎡 Şans Çarkı</div>
@@ -228,7 +249,7 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
 <div id="banner"></div>
 <div id="toast"></div>
 <div id="flash"></div>
-<button id="mute" class="alt">🔊</button>
+<button id="mute" class="alt" title="Ayarlar">⚙️</button>
 <script type="module">
 import * as THREE from 'three';
 
@@ -360,7 +381,8 @@ const STONE=0x8d93a8;
 const cone=(r,h,c,x,y,z)=>{const m=new THREE.Mesh(new THREE.ConeGeometry(r,h,6),mat(c));m.position.set(x,y,z);m.castShadow=true;return m};
 
 // ---- Ses ----
-let actx=null,muted=false,mTimer=null,mStep=0;
+let actx=null,muted=false,noMusic=false,vib=true,mTimer=null,mStep=0;
+function buzz(ms){if(vib&&navigator.vibrate)try{navigator.vibrate(ms)}catch(e){}}
 function ac(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();return actx}catch(e){return null}}
 function tone(f1,f2,dur,type='sine',vol=0.1,delay=0){
   if(muted)return;const a=ac();if(!a)return;
@@ -381,7 +403,7 @@ const sfx={
   jump:()=>tone(260,640,0.16,'sine',0.09),
   slide:()=>noise(0.3,0.08,900),
   land:()=>noise(0.12,0.06,400),
-  hit:()=>{noise(0.5,0.22,600);tone(170,40,0.5,'square',0.1)},
+  hit:()=>{buzz(140);noise(0.5,0.22,600);tone(170,40,0.5,'square',0.1)},
   power:()=>{for(let i=0;i<3;i++)tone(600+i*260,680+i*260,0.13,'triangle',0.1,i*0.07)},
   shield:()=>tone(900,180,0.35,'sawtooth',0.07)
 };
@@ -394,7 +416,7 @@ function musicStep(){
   if(mStep%4===0)tone(f(n-12),f(n-12)*0.98,0.5,'sine',0.07);
   mStep++;
 }
-function startMusic(){if(muted||mTimer)return;ac();mTimer=setInterval(musicStep,230)}
+function startMusic(){if(muted||noMusic||mTimer)return;ac();mTimer=setInterval(musicStep,230)}
 function stopMusic(){clearInterval(mTimer);mTimer=null}
 
 // ---- Parçacıklar ----
@@ -959,7 +981,7 @@ function openMaze(){
 }
 function mzSpark(x,y,n,color,sp){for(let i=0;i<n;i++){const a=Math.random()*6.283,v=(0.3+Math.random())*sp;mzG.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:0.6+Math.random()*0.5,max:1.1,c:color})}}
 function mzWin(){
-  const g=mzG;g.running=false;
+  const g=mzG;g.running=false;buzz(60);
   const stars=g.time<=g.par?3:g.time<=g.par*1.7?2:1;
   g.reward=10+5*stars;totalCoins+=g.reward;stats.coins+=g.reward;stats.mazeLevels++;addProg('maze',1);addProg('coins',g.reward);
   if(mz.cur>=mz.best){mz.best=mz.cur+1;sv('tv_mzlevel',mz.best)}
@@ -1341,11 +1363,36 @@ bubbleWire.position.y=1.15;bubbleWire.visible=false;player.add(bubbleWire);
 const mring=new THREE.Mesh(new THREE.TorusGeometry(0.85,0.04,8,28),new THREE.MeshBasicMaterial({color:0xff5252}));
 mring.position.y=1.15;mring.visible=false;player.add(mring);
 let invuln=0,shakeT=0,wasAir=false,dustT=0,hudStr='';
-muted=ld('tv_mute',false);$('mute').textContent=muted?'🔇':'🔊';
-$('mute').onclick=()=>{muted=!muted;sv('tv_mute',muted);$('mute').textContent=muted?'🔇':'🔊';if(muted)stopMusic();else if(state==='run')startMusic()};
+muted=ld('tv_mute',false);noMusic=ld('tv_nomusic',false);vib=ld('tv_vib',true);
+const swSet=(id,on)=>$(id).classList.toggle('on',on);
+function refreshSw(){swSet('swSfx',!muted);swSet('swMus',!noMusic);swSet('swVib',vib)}
+$('swSfx').onclick=()=>{muted=!muted;sv('tv_mute',muted);if(muted)stopMusic();else sfx.coin();refreshSw()};
+$('swMus').onclick=()=>{noMusic=!noMusic;sv('tv_nomusic',noMusic);if(noMusic)stopMusic();else if(state==='run')startMusic();refreshSw()};
+$('swVib').onclick=()=>{vib=!vib;sv('tv_vib',vib);if(vib)buzz(60);refreshSw()};
+$('mute').onclick=()=>{refreshSw();show('settings',true)};
+$('setBack').onclick=()=>show('settings',false);
+// Öğretici
+const TUT=[
+  ['🏃','Sonsuz Koşu','Sağa / sola kaydır: şerit değiştir.\nYukarı kaydır: zıpla. Aşağı kaydır: kay.'],
+  ['🪙','Altın ve canavar','Altın topla, kostüm ve hayvan al.\nEngele çarparsan canavar yaklaşır. Yakalanırsan oyun biter.'],
+  ['🌀','Tek Parmak Labirent','Parmağını ekrana koy ve sürükle, top o yöne gider.\nÇıkışa en hızlı ulaş, 3 yıldız kazan.']
+];
+let tutI=0;
+function tutShow(){
+  const t=TUT[tutI];$('tIc').textContent=t[0];$('tTt').textContent=t[1];$('tTx').innerHTML=t[2].replace(/\n/g,'<br>');
+  $('tDots').innerHTML=TUT.map((_,i)=>'<i class="'+(i===tutI?'on':'')+'"></i>').join('');
+  $('tNext').textContent=tutI===TUT.length-1?'Başla!':'İleri';
+}
+function tutOpen(){tutI=0;tutShow();show('settings',false);show('tut',true)}
+function tutClose(){show('tut',false);sv('tv_tut',1)}
+$('tNext').onclick=()=>{if(tutI<TUT.length-1){tutI++;tutShow()}else tutClose()};
+$('tSkip').onclick=tutClose;
+$('howBtn').onclick=tutOpen;
+setInterval(()=>{const v=(state==='hub'||state==='menu')&&$('shop').classList.contains('hidden')&&$('lb').classList.contains('hidden')&&$('ach').classList.contains('hidden')&&$('quests').classList.contains('hidden')&&$('wheel').classList.contains('hidden');$('mute').style.display=v?'block':'none'},250);
 applyCostume(selected);applyPet(petSel);reset();refreshCoins();worldInstant();ensureDaily();updateBadge();
 player.rotation.y=0;
-openHub();
+openHub();refreshSw();
+if(!ld('tv_tut',0))setTimeout(tutOpen,400);
 requestAnimationFrame(frame);
 </script>
 </body>
