@@ -1445,9 +1445,11 @@ function pnote(midi){
     return {stop(){try{const n=a.currentTime;g.gain.cancelScheduledValues(n);g.gain.setValueAtTime(Math.max(0.0009,g.gain.value),n);g.gain.exponentialRampToValueAtTime(0.0008,n+0.22)}catch(e){}}};
   }catch(e){return null}
 }
-function mtBuildTiles(song,H){
+function mtBuildTiles(song,H,loops){
   const ppb=Math.max(150,H*0.2),r=mzRng(song.id.length*977+song.bpm);
-  let d=0,prev=-1;const tiles=[];
+  let d=0,prev=-1;const tiles=[];let loopLen=0;
+  for(let lp=0;lp<loops;lp++){
+  if(lp>0)d+=ppb;
   for(const tok of song.seq.split(' ')){
     const [n,bs]=tok.split(':'),b=+bs;
     if(n==='R'){d+=b*ppb;continue}
@@ -1455,24 +1457,26 @@ function mtBuildTiles(song,H){
     tiles.push({lane,d,b,len:Math.max(30,b*ppb-8),midi:mtMidi(n),long:b>=2,hit:false,ht:0,hold:false,pid:-1,voice:null,fin:false});
     d+=b*ppb;
   }
-  return {tiles,ppb};
+  if(lp===0)loopLen=tiles.length;
+  }
+  return {tiles,ppb,loopLen};
 }
-function mtBuild(song){
+function mtBuild(song,endless){
   const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
   mcv2.width=Math.round(W*dpr);mcv2.height=Math.round(H*dpr);mcv2.style.width=W+'px';mcv2.style.height=H+'px';
-  const {tiles,ppb}=mtBuildTiles(song,H);
-  const max=tiles.length*10+tiles.filter(t=>t.long).length*10;
-  return {W,H,dpr,song,tiles,ppb,speed:ppb*song.bpm/60,hitY:H*0.8,failY:H*0.97,scroll:0,speedMul:1,started:false,over:false,win:false,shown:false,overT:0,milestone:0,
+  const {tiles,ppb,loopLen}=mtBuildTiles(song,H,endless?12:1);
+  const first=tiles.slice(0,loopLen),max=first.length*10+first.filter(t=>t.long).length*10;
+  return {W,H,dpr,song,tiles,ppb,endless:!!endless,loopLen,paid:0,speed:ppb*song.bpm/60,hitY:H*0.8,failY:H*0.97,scroll:0,speedMul:1,started:false,over:false,win:false,shown:false,overT:0,milestone:0,
     score:0,combo:0,maxCombo:0,max,perfects:0,hitN:0,parts:[],pops:[],ripples:[],flash:[0,0,0,0],failFlash:0,failLane:-1,revived:false,coins:0,stars:0,msg:''};
 }
-function mtHud(){const G=mt.G;$('mtScore').textContent=G.score;$('mtName').textContent=G.song.name}
-function mtStart(song){
-  if(song)mt.song=song;
-  mt.G=mtBuild(mt.song);mtHud();show('mtOver',false);
+function mtHud(){const G=mt.G;$('mtScore').textContent=G.score;$('mtName').textContent=G.song.name+(G.endless?' ♾️':'')}
+function mtStart(song,endless){
+  if(song){mt.song=song;mt.endless=!!endless}
+  mt.G=mtBuild(mt.song,mt.endless);mtHud();show('mtOver',false);
   if(!mt.raf){mt.raf=true;mt.last=performance.now();requestAnimationFrame(mtFrame)}
 }
-function openTiles(song){
-  state='tiles';stopMusic();hideAll();show('mt',true);mtStart(song);
+function openTiles(song,endless){
+  state='tiles';stopMusic();hideAll();show('mt',true);mtStart(song,endless);
 }
 function mtPop(t,col,lane){const G=mt.G;G.pops.push({t,col,x:G.W/2,y:G.hitY-60,life:0.8})}
 function mtNext(){const G=mt.G;for(const t of G.tiles)if(!t.hit)return t;return null}
@@ -1481,6 +1485,13 @@ function mtFail(msg,lane){
   G.over=true;G.win=false;G.msg=msg;G.failLane=lane;G.failFlash=1;G.overT=0;
   for(const t of G.tiles)if(t.hold){t.hold=false;if(t.voice)t.voice.stop()}
   sfx.hit();buzz(120);
+  if(G.endless){
+    const c=Math.min(80,Math.floor(G.score/40))-G.paid;G.paid+=Math.max(0,c);G.coins=G.paid;
+    if(c>0){totalCoins+=c;stats.coins+=c;addProg('coins',c)}
+    const prev=mtData[G.song.id]||{s:0,b:0};
+    if(G.score>(prev.e||0)){mtData[G.song.id]=Object.assign({},prev,{e:G.score});G.newBest=true}
+    sv('tv_mtdata',mtData);sv('tv_coins',totalCoins);saveDaily();checkAch();refreshCoins();
+  }
 }
 function mtTap(lane,pid){
   const G=mt.G;if(!G||state!=='tiles'||G.over)return;
@@ -1530,10 +1541,10 @@ function mtFinish(){
 function mtUpdate(dt){
   const G=mt.G;if(!G)return;
   if(G.started&&!G.over){
-    G.speedMul=1+0.4*Math.min(1,G.hitN/G.tiles.length);
+    G.speedMul=G.endless?Math.min(3,1+0.2*G.hitN/G.loopLen):1+0.7*G.hitN/G.tiles.length;
     G.scroll+=G.speed*G.speedMul*dt;
-    const ms=Math.floor(G.hitN/G.tiles.length*4);
-    if(ms>G.milestone&&ms<4){G.milestone=ms;mtPop('Hızlanıyor! ⚡','#ff6fb1')}
+    const ms=G.endless?Math.floor(G.hitN/G.loopLen*2):Math.floor(G.hitN/G.tiles.length*4);
+    if(ms>G.milestone&&(G.endless||ms<4)){G.milestone=ms;mtPop('Hızlanıyor! ⚡','#ff6fb1')}
     const t=mtNext();
     if(t&&G.hitY-(t.d-G.scroll)>G.failY){mtFail('Karoyu kaçırdın!',t.lane)}
     for(const h of G.tiles)if(h.hold&&G.scroll-h.hs>=h.len*0.92){
@@ -1551,6 +1562,16 @@ function mtUpdate(dt){
     G.overT+=dt;
     if(G.overT>(G.win?0.7:0.9)&&!G.shown){
       G.shown=true;
+      if(G.endless&&!G.win){
+        $('mtoTitle').textContent=G.msg;$('mtoTitle').style.color='#ff6b81';
+        const lp=Math.floor(G.hitN/G.loopLen)+1;
+        $('mtoStars').textContent='♾️ Tur '+lp;
+        $('mtoInfo').textContent=(G.newBest?'🎉 Yeni rekor! ':'')+G.score+' puan · en iyi seri ×'+G.maxCombo+' · hız ×'+G.speedMul.toFixed(1)+' · 🪙 +'+G.coins;
+        $('mtRevive').classList.toggle('hidden',G.revived);$('mtDbl').classList.toggle('hidden',G.coins===0);
+        $('mtAgain').textContent='↻ Baştan Başla';
+        if((mt.fails=(mt.fails||0)+1)%3===0)Ads.interstitial();
+        show('mtOver',true);return;
+      }
       $('mtoTitle').textContent=G.win?'Şarkı bitti! 🎉':G.msg;
       $('mtoTitle').style.color=G.win?'var(--gold)':'#ff6b81';
       const pct=Math.min(100,Math.round(G.tiles.filter(t=>t.hit).length/G.tiles.length*100));
@@ -1610,11 +1631,12 @@ function mtDraw(now){
   for(const q of G.parts){c.globalAlpha=Math.max(0,q.life/q.max);c.fillStyle=q.c;c.beginPath();c.arc(q.x,q.y,3,0,6.283);c.fill()}
   c.globalAlpha=1;
   // ilerleme çubuğu ve yıldızlar
-  const bx=14,bw=W-28,by=66,r=G.score/G.max;
+  const bx=14,bw=W-28,by=66,r=G.endless?(G.hitN%G.loopLen)/G.loopLen:G.score/G.max;
   c.fillStyle='rgba(255,255,255,.12)';c.fillRect(bx,by,bw,8);
   const pg=c.createLinearGradient(bx,0,bx+bw,0);pg.addColorStop(0,'#2ee6c5');pg.addColorStop(1,'#ffd34d');c.fillStyle=pg;c.fillRect(bx,by,bw*Math.min(1,r),8);
   c.textAlign='center';c.font='20px sans-serif';
-  [0.5,0.75,0.9].forEach(th=>{c.globalAlpha=r>=th?1:0.35;c.fillText('⭐',bx+bw*th,by-6)});
+  if(G.endless){c.font='700 15px Fredoka,sans-serif';c.fillStyle='rgba(255,255,255,.85)';c.textAlign='left';c.fillText('Tur '+(Math.floor(G.hitN/G.loopLen)+1)+' · hız ×'+G.speedMul.toFixed(1),bx,by-8);c.textAlign='center'}
+  else [0.5,0.75,0.9].forEach(th=>{c.globalAlpha=r>=th?1:0.35;c.fillText('⭐',bx+bw*th,by-6)});
   c.globalAlpha=1;
   // seri ve yazılar
   if(G.combo>=3){c.font='700 34px Fredoka,sans-serif';c.fillStyle='rgba(255,255,255,.85)';c.fillText('×'+G.combo,W/2,H*0.2)}
@@ -1633,7 +1655,7 @@ function renderSongs(){
   for(const s of SONGS){
     const own=mtOwned(s),d=mtData[s.id]||{s:0,b:0};
     const row=document.createElement('div');row.className='row';
-    row.innerHTML='<div class="gicon" style="width:48px;height:48px;font-size:26px;border-radius:14px">'+s.emo+'</div><div class="tx">'+s.name+'<small>'+s.lvl+' · '+'⭐'.repeat(d.s)+'☆'.repeat(3-d.s)+(d.b?' · '+d.b:'')+'</small></div>';
+    row.innerHTML='<div class="gicon" style="width:48px;height:48px;font-size:26px;border-radius:14px">'+s.emo+'</div><div class="tx">'+s.name+'<small>'+s.lvl+' · '+'⭐'.repeat(d.s)+'☆'.repeat(3-d.s)+(d.b?' · '+d.b:'')+(d.e?' · ♾️ '+d.e:'')+'</small></div>';
     const b=document.createElement('button');
     b.textContent=own?'Çal ▶':'🪙 '+s.price;
     b.className=own?'':(totalCoins<s.price?'alt':'gold');
@@ -1642,7 +1664,12 @@ function renderSongs(){
       if(totalCoins>=s.price){totalCoins-=s.price;mtOwn.push(s.id);sv('tv_coins',totalCoins);sv('tv_mtown',mtOwn);toast('Şarkı açıldı!');refreshCoins();renderSongs()}
       else toast('Yeterli altın yok · '+(s.price-totalCoins)+' altın daha lazım');
     };
-    row.appendChild(b);list.appendChild(row);
+    const eb=document.createElement('button');eb.textContent=own&&d.s>=1?'♾️':'🔒';eb.className='alt';eb.style.minWidth='0';eb.style.padding='10px 12px';
+    eb.onclick=()=>{
+      if(!own||d.s<1){toast('Sonsuz mod için önce şarkıyı bir kez bitir');return}
+      show('mtsel',false);openTiles(s,true);
+    };
+    row.appendChild(eb);row.appendChild(b);list.appendChild(row);
   }
 }
 function openSongs(){
