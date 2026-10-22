@@ -2033,7 +2033,7 @@ mgRegister({id:'color',title:'Renk Değiştir',emo:'🎨',desc:'Topla aynı renk
    const R=Math.max(52,Math.min(G.W*0.3,120)-Math.min(i,14)*2),T=15;
    const typ=i>=4&&i%4===1?'bars':i>=5&&i%3===2?'double':'ring';
    const sp=(1.0+Math.min(i,18)*0.05)*(i%2?-1:1);
-   G.obs.push({i,y,R:typ==='bars'?0:R,T:typ==='bars'?20:T,typ,rot:Math.random()*6.28,sp,star:true,sy:typ==='bars'?y-80:y,passed:false});
+   G.obs.push({i,y,R:typ==='bars'?0:R,T:typ==='bars'?20:T,typ,rot:Math.random()*6.28,sp,star:true,sy:typ==='bars'?y-50:y,passed:false});
    // renk değiştirici engelin altında
    G.sw.push({y:y+G.gap*0.5,x:G.W/2,got:false});
    G.top=y-G.gap*0.5;
@@ -2059,7 +2059,8 @@ mgRegister({id:'color',title:'Renk Değiştir',emo:'🎨',desc:'Topla aynı renk
          const k=Math.floor(a/1.5708)%4;if(k!==b.col){mgBurst(G,b.x,b.y,24,CS_COL,260);G.shake=0.6;mgEnd(G,'Yanlış renk!');return true}
        }return false;
      };
-     if(o.passed){}
+     if(o.passed)o.pt=(o.pt||0)+dt;
+     if(o.passed&&o.pt<0.9){}
      else if(o.typ==='ring'){if(chk(o.R,o.rot))return}
      else if(o.typ==='double'){if(chk(o.R,o.rot)||chk(o.R-o.T-8,-o.rot*0.7))return}
      else if(o.typ==='bars'){if(Math.abs(b.y-o.y)<o.T/2+G.br-2){const seg=G.W/4,j=Math.floor((b.x-o.rot*55)/seg),k=((j%4)+4)%4;if(k!==b.col){mgBurst(G,b.x,b.y,24,CS_COL,260);G.shake=0.6;mgEnd(G,'Yanlış renk!');return}}}
