@@ -153,6 +153,8 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
 <div id="ui"><span id="score"></span></div>
 <div id="coinhud" class="pill">🪙 <span id="rc">0</span></div>
 <div id="pw"></div>
+<button id="pauseBtn" class="alt" style="display:none;position:fixed;top:calc(12px + env(safe-area-inset-top));left:12px;z-index:6;width:42px;height:42px;min-width:0;padding:0;border-radius:50%;font-size:18px">⏸</button>
+<div id="pauseOv" class="overlay hidden" style="z-index:50"><div class="card"><div class="ttl">⏸ Duraklatıldı</div><button id="pvResume" class="gold">▶ Devam</button><button id="pvExit" class="alt">🚪 Çık</button></div></div>
 <div id="menu">
   <div class="topbar">
     <div class="tb-left">
@@ -1574,7 +1576,7 @@ function mtRelease(pid){
     const f=Math.max(0,Math.min(1,(G.scroll-t.hs)/(t.len*0.92)));
     t.hold=false;t.fin=true;if(t.voice)t.voice.stop();
     const bonus=Math.floor(10*f);G.score+=bonus;
-    if(f<0.85){mtFail('Erken bıraktın!',t.lane);return}else mtPop('Süper!','#ffd34d');
+    if(f<0.35){mtFail('Erken bıraktın!',t.lane);return}G.score+=f>=0.85?10:5;mtPop(f>=0.85?'Süper!':'Güzel!','#ffd34d');
     mtHud();
   }
 }
@@ -2726,7 +2728,7 @@ document.head.insertAdjacentHTML('beforeend','<style>#sk_bot{padding:0!important
 $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardSk" style="background:linear-gradient(135deg,#38bdf8,#6366f1 60%,#a855f7)"><div class="gicon">🏝️</div><div class="gtx"><b>Gök Adaları</b><small>Adaları büyüt.</small><span class="gtag" id="hsSk">☁️ 0</span></div></div>');
 ACH.push({id:'sk1',name:'Gökyüzü Sahibi',text:'Gök Adaları: 2. dünyayı aç',get:()=>sk.l.filter(l=>l.on).length-1,target:1,reward:300},{id:'sk2',name:'Gök Baronu',text:'Gök Adaları: 4 dünya aç',get:()=>sk.l.filter(l=>l.on).length-1,target:3,reward:1500});
 function skSave(){sk.last=Date.now();sv('tv_sky',sk)}
-addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){skSave();if(jb.G&&!jb.G.fin&&state==='job')jbSave(jb.G);if(state==='clean')clSave(cl.G)}});addEventListener('pagehide',skSave);
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){if(state==='sky')notSky(true);skSave();if(jb.G&&!jb.G.fin&&state==='job')jbSave(jb.G);if(state==='clean')clSave(cl.G)}});addEventListener('pagehide',skSave);
 const skRaf={on:false,last:0,acc:0,save:0},skFx={T:0},skG={sh:0,tw:50,th:25,ox:0,oy:0,W:0,H:0,dpr:1,ctx:null};
 let skSel=null,skFloat=[],skParts=[],skFlash={};
 const skCostTxt=(t,b)=>SK_T[t].cur+' '+fmt(b.own)+(b.pre?' + '+SK_T[SK_T[t].prev].cur+' '+fmt(b.pre):'');
@@ -3047,6 +3049,12 @@ function skBuild(tab){
   }else if(tab==='x'){
     out.push(skCard({ic:'⚡',col:'linear-gradient(#fde047,#f59e0b)',get:()=>{const on=Date.now()<sk.boost;return{name:'x2 Gelir',sub:on?'Kalan: '+Math.ceil((sk.boost-Date.now())/60000)+' dk':'Reklam izle: 10 dk boyunca gelir 2 kat',bar:null,btn:'📺<br>'+(on?'+10 dk':'İzle'),ok:true,ad:true,fn:skBoost}}}));
     out.push(skCard({ic:'🎁',col:'linear-gradient(#fb923c,#b45309)',get:()=>{const r=Date.now()>=sk.crateAt;return{name:'Hazine Sandığı',sub:r?'2 dakikalık gelir kazan':'Sonraki: '+Math.ceil((sk.crateAt-Date.now())/1000)+' sn',bar:null,btn:'📺<br>'+(r?'Al':'Bekle'),ok:r,ad:r,fn:r?skCrate:null}}}));
+    H('🛒 Mağaza · reklam izle, kaynak kazan');
+    SK_TT.forEach(t=>{const T=SK_T[t];out.push(skCard({ic:SKI[t][0],col:SKI[t][1],get:()=>{const i=skInc(),has=t==='c'||i[t]>0,st=skShopSt(t),g=skShopGain(t),now=Date.now();
+      if(!has)return{name:T.cur+' '+T.n+' paketi',sub:'Önce bu türde üretim başlat',bar:null,btn:'🔒',ok:false};
+      if(st.n>=SK_SHOPMAX)return{name:T.cur+' '+T.n+' paketi',sub:'Bugünlük bitti ('+SK_SHOPMAX+'/'+SK_SHOPMAX+'). Yarın yenilenir',bar:null,btn:'✓',ok:false};
+      if(now<st.at)return{name:T.cur+' '+T.n+' paketi',sub:'Sonraki: '+Math.ceil((st.at-now)/60000)+' dk · Bugün '+st.n+'/'+SK_SHOPMAX,bar:null,btn:'⏳',ok:false};
+      return{name:T.cur+' '+T.n+' paketi',sub:'+'+T.cur+' '+fmt(g)+' · Bugün '+st.n+'/'+SK_SHOPMAX,bar:null,btn:'📺<br>'+T.cur+' '+fmt(g),ok:true,ad:true,fn:()=>skShopBuy(t)}}}))});
   }else{
     out.push(skCard({ic:'🌟',col:'linear-gradient(#c084fc,#6d28d9)',get:()=>{const g=Math.floor(Math.sqrt(sk.run/5e7));return{name:'Yükseliş · '+sk.stars+' 🌟',sub:g>=1?'Sıfırlanırsın, '+g+' 🌟 kazanırsın (her 🌟 = %5 gelir)':'Biraz daha büyü, sonra yüksel (her 🌟 = %5 gelir)',bar:null,btn:'🌟<br>Yüksel +'+g,ok:g>=1,fn:()=>{skSel={kind:'portal'};$('sp_up').onclick();skSel=null;skPanel()}}}}));
   }
@@ -3101,7 +3109,7 @@ function skFrame(now){
   skRaf.save+=dt;if(skRaf.save>5){skRaf.save=0;skSave()}
 }
 function openSky(){
-  state='sky';stopMusic();hideAll();show('sky',true);skLayout();skSel=null;skCloseSheet();skTabs();skPanel();
+  notSky(false);state='sky';stopMusic();hideAll();show('sky',true);skLayout();skSel=null;skCloseSheet();skTabs();skPanel();
   const away=(Date.now()-sk.last)/1000;skRefresh();
   if(away>60){const sc=Math.min(away,10800);skPend=sk.l.map((l,li)=>{const i=skInc(li);return{c:i.c*sc,e:i.e*sc,k:i.k*sc}});const q=skPend[sk.cur];
     if(skPend.some(o=>o.c+o.e+o.k>0)){$('sk_offt').textContent=Math.floor(sc/60)+' dakika boyunca adaların çalıştı.';$('sk_offv').textContent=SK_T.c.cur+' '+fmt(q.c)+'  '+SK_T.e.cur+' '+fmt(q.e)+'  '+SK_T.k.cur+' '+fmt(q.k);show('sk_off',true)}else skPend=null}
@@ -3110,6 +3118,10 @@ function openSky(){
 const skTake=m=>{if(skPend){skPend.forEach((o,li)=>{for(const t of SK_TT){skWal(li)[t]+=o[t]*m;sk.run+=o[t]*m*SK_V[t]/SK_L[li].s*Math.pow(3,li)}});skPend=null}show('sk_off',false);skRefresh()};
 $('sk_cv').addEventListener('pointerdown',e=>{if(state==='sky')skTap(e.clientX,e.clientY)});
 $('sk_offa').onclick=()=>skTake(1);$('sk_offd').onclick=()=>Ads.rewarded(()=>skTake(2));
+const SK_SHOPMAX=5,SK_SHOPCD=900000,SK_SHOPMIN={c:10,e:8,k:6},SK_SHOPFL={c:60,e:10,k:1.6};
+function skShopSt(t){sk.shop=sk.shop||{};const d=new Date().toDateString();let o=sk.shop[t];if(!o||o.d!==d)o=sk.shop[t]={at:0,n:0,d};return o}
+function skShopGain(t){const i=skInc();return Math.max(i[t]*60*SK_SHOPMIN[t],SK_SHOPFL[t]*SK_L[sk.cur].s)}
+function skShopBuy(t){const st=skShopSt(t);if(st.n>=SK_SHOPMAX||Date.now()<st.at)return;Ads.rewarded(()=>{const g=skShopGain(t);sk[t]+=g;sk.run+=g*SK_V[t];st.n++;st.at=Date.now()+SK_SHOPCD;toast('🛒 '+SK_T[t].cur+' '+fmt(g)+' kazandın!');skRefresh();skSave()})}
 const skBoost=()=>Ads.rewarded(()=>{sk.boost=Math.min(Math.max(Date.now(),sk.boost)+600000,Date.now()+2400000);skRefresh()});
 const skCrate=()=>Ads.rewarded(()=>{const i=skInc();for(const t of SK_TT){const g=Math.max(i[t]*120,t==='c'?40*SK_L[sk.cur].s:0);sk[t]+=g;sk.run+=g*SK_V[t]}sk.crateAt=Date.now()+600000;toast('🎁 Hazine alındı!');skRefresh()});
 document.querySelectorAll('.skmode').forEach(b=>b.onclick=()=>{skMode=b.dataset.m==='max'?'max':+b.dataset.m;document.querySelectorAll('.skmode').forEach(x=>x.className=(String(x.dataset.m)===String(skMode)?'gold':'alt')+' skmode');skRefresh()});
@@ -3124,7 +3136,7 @@ $('sp_up').onclick=()=>{
   else if(S.kind==='portal'){const g=Math.floor(Math.sqrt(sk.run/5e7));if(g<1){toast('Biraz daha kazan');return}if(!confirm('Tüm adalar sıfırlanır. '+g+' 🌟 kazanırsın (her 🌟 geliri %5 artırır). Emin misin?'))return;sk.stars+=g;sk.run=0;sk.c=12;sk.e=0;sk.k=0;sk.l=[0,1,2,3,4,5,6,7,8,9].map(skNewLayer);sk.w=Array.from({length:10},()=>({c:0,e:0,k:0}));sk.cur=0;skApplyWorld(0);skSel=null;sfx.power();skTabs();skPanel();skRefresh()}
   else{if(Date.now()>=sk.crateAt)skCrate()}
 };
-$('sk_back').onclick=()=>{skSave();openLobby('sky')};
+$('sk_back').onclick=()=>{skSave();notSky(true);openLobby('sky')};
 $('cardSk').onclick=()=>openLobby('sky');
 // ---- Su Sıralama ----
 WN.sort='Su Sıralama';WKEYS.push('sort');
@@ -4062,8 +4074,8 @@ function animateRunner(dt,running){
 const cP=new THREE.Vector3(0,1.7,4.4),cL=new THREE.Vector3(0,0.8,0),dP=new THREE.Vector3(),dL=new THREE.Vector3();
 function frame(now){
   requestAnimationFrame(frame);
-  const dt=Math.min((now-last)/1000,0.05);last=now;
-  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||MG[state])return;
+  const dt=Math.min(Math.max((now-last)/1000||0,0),0.05);last=now;
+  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||state==='pause'||MG[state])return;
   if(state==='run'){
     speedMul+=(1-speedMul)*Math.min(1,dt*0.45);
     speed=Math.min(14+score*0.02,40)*speedMul;   // zamanla hızlanır
@@ -4141,8 +4153,8 @@ function frame(now){
     const ch=(t)=>'<div class="pill">'+t+'</div>';const hs=(pw.magnet>0?ch('🧲 '+Math.ceil(pw.magnet)):'')+(pw.shield>0?ch('🛡️ '+Math.ceil(pw.shield)):'')+(pw.x2>0?ch('✖2 '+Math.ceil(pw.x2)):'');
     if(hs!==hudStr){hudStr=hs;$('pw').innerHTML=hs}
     scoreEl.textContent=Math.floor(score);
-    const wi=Math.floor(score/1000)%4;
-    if(wi!==worldIdx){worldIdx=wi;showBanner(WORLDS[wi].emo+' '+WORLDS[wi].name);addProg('world',Math.floor(score/1000)+1,'max');stats.worldMax=Math.max(stats.worldMax,Math.floor(score/1000)+1);sfx.power()}
+    const wi=((Math.floor((+score||0)/1000)%4)+4)%4;
+    if(wi!==worldIdx&&WORLDS[wi]){worldIdx=wi;showBanner(WORLDS[wi].emo+' '+WORLDS[wi].name);addProg('world',Math.floor(score/1000)+1,'max');stats.worldMax=Math.max(stats.worldMax,Math.floor(score/1000)+1);sfx.power()}
   }
   worldStep(1-Math.exp(-dt*1.3));
   if(state==='menu'){player.rotation.y+=dt*0.9}
@@ -4290,14 +4302,28 @@ let notOn=ld('tv_notif',false);
 async function notSchedule(){
   if(!LN)return false;
   try{
-    await LN.cancel({notifications:[{id:1}]});
-    await LN.schedule({notifications:[{id:1,title:'TapVerse 🎮',body:'Günlük görevlerin, çark hakkın ve günlük labirent seni bekliyor!',smallIcon:'ic_stat_tv',iconColor:'#8B5CF6',schedule:{on:{hour:20,minute:0}}}]});
+    await LN.cancel({notifications:[{id:1},{id:3},{id:4}]});
+    const N=(id,body,on)=>({id,title:'TapVerse 🎮',body,smallIcon:'ic_stat_tv',iconColor:'#8B5CF6',schedule:{on}});
+    await LN.schedule({notifications:[
+      N(1,'Günlük görevlerin, çark hakkın ve günlük labirent seni bekliyor!',{hour:20,minute:0}),
+      N(3,'Hafta sonu keyfi! Rekorunu kırmaya ne dersin? 🏆',{weekday:7,hour:13,minute:0}),
+      N(4,'Pazar günü: bugünkü görevleri ve çarkı unutma 🎡',{weekday:1,hour:13,minute:0})]});
     return true;
   }catch(e){return false}
 }
+async function notSky(on){
+  if(!LN||!notOn)return;
+  try{
+    await LN.cancel({notifications:[{id:5}]});
+    if(!on)return;
+    const inc=sk.l.some((l,li)=>{const i=skInc(li);return i.c+i.e+i.k>0});if(!inc)return;
+    await LN.schedule({notifications:[{id:5,title:'Gök Adaları 🏝️',body:'Adaların depoları doldu! Gelip topla ve geliştir.',smallIcon:'ic_stat_tv',iconColor:'#8B5CF6',schedule:{at:new Date(Date.now()+10800000)}}]});
+  }catch(e){}
+}
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&state==='sky')notSky(false)});
 async function notToggle(){
   if(!LN)return;
-  if(notOn){notOn=false;sv('tv_notif',false);try{await LN.cancel({notifications:[{id:1}]})}catch(e){}refreshSw();return}
+  if(notOn){notOn=false;sv('tv_notif',false);try{await LN.cancel({notifications:[{id:1},{id:3},{id:4},{id:5}]})}catch(e){}refreshSw();return}
   let ok=false;
   try{const r=await LN.requestPermissions();ok=r.display==='granted'}catch(e){}
   if(ok)ok=await notSchedule();
@@ -4339,6 +4365,31 @@ $('tNext').onclick=()=>{if(tutI<TUT.length-1){tutI++;tutShow()}else tutClose()};
 $('tSkip').onclick=tutClose;
 $('howBtn').onclick=tutOpen;
 setInterval(()=>{const v=(state==='hub'||state==='menu')&&$('shop').classList.contains('hidden')&&$('lb').classList.contains('hidden')&&$('ach').classList.contains('hidden')&&$('quests').classList.contains('hidden')&&$('wheel').classList.contains('hidden');$('mute').style.display=v?'block':'none'},250);
+// ---- Duraklat + geri tuşu ----
+function pauseRun(){if(state!=='run')return;state='pause';stopMusic();show('pauseOv',true)}
+function resumeRun(){if(state!=='pause')return;show('pauseOv',false);state='run';last=performance.now();startMusic()}
+$('pauseBtn').onclick=pauseRun;
+$('pauseBtn').addEventListener('pointerdown',e=>e.stopPropagation());
+$('pvResume').onclick=resumeRun;
+$('pvExit').onclick=()=>{show('pauseOv',false);state='run';toMenu()};
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')pauseRun()});
+addEventListener('pagehide',pauseRun);
+setInterval(()=>{const on=state==='run';const b=$('pauseBtn');if(b)b.style.display=on?'':'none'},150);
+const BACKS=['pvResume','setBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','lb_back'];
+function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
+function goBack(){
+  if(state==='pause'){resumeRun();return true}
+  if(state==='run'){pauseRun();return true}
+  for(const id of BACKS){const e=$(id);if(visEl(e)){e.click();return true}}
+  for(const k in MG){const e=$('b_'+k);if(visEl(e)){e.click();return true}}
+  if(state==='over'){toMenu();return true}
+  if(state==='menu'){openHub();return true}
+  return false;
+}
+let backArmed=false;
+function armBack(){if(backArmed)return;try{history.pushState({tv:1},'');backArmed=true}catch(e){}}
+addEventListener('popstate',()=>{backArmed=false;let ok=false;try{ok=goBack()}catch(e){}if(ok)armBack()});
+setInterval(()=>{if(state!=='hub'||visEl($('lobby'))||visEl($('settings'))||visEl($('shop'))||visEl($('lb'))||visEl($('ach'))||visEl($('quests'))||visEl($('wheel')))armBack()},300);
 applyCostume(selected);applyPet(petSel);reset();refreshCoins();worldInstant();ensureDaily();updateBadge();
 player.rotation.y=0;
 openHub();refreshSw();if(notOn)notSchedule();
