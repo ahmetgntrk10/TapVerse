@@ -2081,7 +2081,7 @@ mgRegister({id:'color',title:'Renk Değiştir',emo:'🎨',desc:'Topla aynı renk
      const y=o.y-cam;if(y<-150||y>H+150)continue;
      const arcs=(R,rot)=>{for(let k=0;k<4;k++){c.strokeStyle=CS_COL[k];c.lineWidth=o.T;c.beginPath();c.arc(W/2,y,R,rot+k*1.5708,rot+(k+1)*1.5708-0.02);c.stroke()}};
      c.save();c.lineCap='butt';c.shadowColor='rgba(255,255,255,.25)';c.shadowBlur=8;
-     if(o.typ==='bars'){const seg=W/4;for(let j=-5;j<=9;j++){const x=o.rot*55+j*seg;c.fillStyle=CS_COL[((j%4)+4)%4];c.fillRect(x,y-o.T/2,seg+1,o.T)}}else{arcs(o.R,o.rot);if(o.typ==='double')arcs(o.R-o.T-8,-o.rot*0.7)}
+     if(o.typ==='bars'){const seg=W/4,off=((o.rot*55)%(4*seg)+4*seg)%(4*seg);for(let j=-5;j<=9;j++){const x=off+j*seg;c.fillStyle=CS_COL[((j%4)+4)%4];c.fillRect(x,y-o.T/2,seg+1,o.T)}}else{arcs(o.R,o.rot);if(o.typ==='double')arcs(o.R-o.T-8,-o.rot*0.7)}
      c.restore();
      if(o.star){c.save();c.shadowColor='#ffd34d';c.shadowBlur=14;c.fillStyle='#ffd34d';c.font='26px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('⭐',W/2,y-(o.y-o.sy));c.restore();c.textBaseline='alphabetic'}
    }
