@@ -2059,7 +2059,8 @@ mgRegister({id:'color',title:'Renk Değiştir',emo:'🎨',desc:'Topla aynı renk
          const k=Math.floor(a/1.5708)%4;if(k!==b.col){mgBurst(G,b.x,b.y,24,CS_COL,260);G.shake=0.6;mgEnd(G,'Yanlış renk!');return true}
        }return false;
      };
-     if(o.typ==='ring'){if(chk(o.R,o.rot))return}
+     if(o.passed){}
+     else if(o.typ==='ring'){if(chk(o.R,o.rot))return}
      else if(o.typ==='double'){if(chk(o.R,o.rot)||chk(o.R-o.T-8,-o.rot*0.7))return}
      else if(o.typ==='bars'){if(Math.abs(b.y-o.y)<o.T/2+G.br-2){const seg=G.W/4,j=Math.floor((b.x-o.rot*55)/seg),k=((j%4)+4)%4;if(k!==b.col){mgBurst(G,b.x,b.y,24,CS_COL,260);G.shake=0.6;mgEnd(G,'Yanlış renk!');return}}}
      if(o.star&&Math.hypot(dx,b.y-o.sy)<G.br+14){o.star=false;G.score++;mgBurst(G,G.W/2,o.sy,12,['#ffd34d','#fff'],180);tone(800,1400,0.1,'triangle',0.1)}
