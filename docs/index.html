@@ -4284,7 +4284,7 @@ mring.position.y=1.15;mring.visible=false;player.add(mring);
 let invuln=0,shakeT=0,wasAir=false,dustT=0,hudStr='';
 muted=ld('tv_mute',false);noMusic=ld('tv_nomusic',false);vib=ld('tv_vib',true);
 const swSet=(id,on)=>$(id).classList.toggle('on',on);
-const LN=(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())?Capacitor.registerPlugin('LocalNotifications'):null;
+const LN=(()=>{try{const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return null;if(typeof C.registerPlugin==='function')return C.registerPlugin('LocalNotifications');return(C.Plugins&&C.Plugins.LocalNotifications)||null}catch(e){return null}})();
 let notOn=ld('tv_notif',false);
 async function notSchedule(){
   if(!LN)return false;
