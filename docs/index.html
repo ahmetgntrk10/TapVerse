@@ -3589,21 +3589,24 @@ const JB_EFF={jet:{mud:1,crust:.3},brush:{crust:1,mud:.5,dust:.4},sponge:{stain:
 const JB_RT={mud:.4,crust:.12,stain:.2,dust:.5,film:.6};
 const JB_SM={mud:'rgba(120,104,88,',stain:'rgba(214,196,160,',crust:'rgba(90,76,60,',dust:'rgba(130,118,104,',film:'rgba(255,255,255,'};
 const JB_ST={
- car_ext:{n:'🚗 Araba · Dış',base:'car',par:34,z:{mud:[[12,128,336,62]],crust:[[50,160,70,38],[240,160,70,38]],stain:[[300,126,48,52],[14,150,40,26]],film:[[112,72,160,40]]}},
- car_int:{n:'🚗 Araba · İç',scene:'carint',par:34,z:{dust:[[20,150,150,100],[200,150,140,90]],stain:[[190,120,120,60],[30,100,90,50]],film:[[30,18,300,70]],crust:[[130,215,100,35]]}},
- living:{n:'🛋️ Salon',scene:'living',par:32,z:{film:[[200,40,130,100]],dust:[[10,172,340,80]],stain:[[40,100,130,60]],mud:[[110,215,140,35]]}},
- kitchen:{n:'🍳 Mutfak',scene:'kitchen',par:34,z:{stain:[[40,96,130,52],[200,96,90,40]],crust:[[10,148,340,24]],mud:[[10,205,340,45]],film:[[250,30,90,50]]}},
- bath:{n:'🛁 Banyo',scene:'bath',par:32,z:{film:[[115,22,130,100]],crust:[[214,136,140,80]],stain:[[130,126,100,36]],mud:[[10,222,340,28]]}},
- terrace:{n:'🌿 Teras',scene:'terrace',par:36,z:{mud:[[10,150,340,100]],dust:[[10,170,340,80]],stain:[[120,96,110,50]],crust:[[20,200,120,40]]}},
- rug:{n:'🧶 Halı',base:'rug',par:30,z:{dust:[[30,34,300,190]],stain:[[60,60,100,70],[200,120,100,80]],mud:[[40,150,280,70]]}},
- boat:{n:'⛵ Tekne',scene:'boat',par:44,z:{crust:[[10,172,340,32]],mud:[[10,130,340,50]],film:[[120,62,130,40]],stain:[[240,120,90,50],[20,110,70,50]]}},
- shopf:{n:'🏪 Ön Cephe',scene:'shopf',par:40,z:{film:[[36,100,164,96],[240,100,80,102]],stain:[[30,62,150,26],[232,92,96,40]],mud:[[0,214,360,46],[36,160,164,36]],dust:[[24,10,312,46]],crust:[[10,226,340,24]]}},
+ car_ext:{n:'🚗 Araba · Dış',base:'car',par:34,dr:[110,110,85,78,'r',['#ff6a7d','#e0293f','#a8132a'],[.05,.38]],z:{mud:[[12,128,336,62]],crust:[[50,160,70,38],[240,160,70,38]],stain:[[300,126,48,52],[14,150,40,26]],film:[[112,72,160,40]]}},
+ car_int:{n:'🚗 Araba · İç',scene:'carint',par:34,inside:1,z:{dust:[[20,150,150,100],[200,150,140,90]],stain:[[190,120,120,60],[30,100,90,50]],film:[[30,18,300,70]],crust:[[130,215,100,35]]}},
+ living:{n:'🛋️ Salon',scene:'living',par:32,inside:1,z:{film:[[200,40,130,100]],dust:[[10,172,340,80]],stain:[[40,100,130,60]],mud:[[110,215,140,35]]}},
+ kitchen:{n:'🍳 Mutfak',scene:'kitchen',par:34,inside:1,z:{stain:[[40,96,130,52],[200,96,90,40]],crust:[[10,148,340,24]],mud:[[10,205,340,45]],film:[[250,30,90,50]]}},
+ bath:{n:'🛁 Banyo',scene:'bath',par:32,inside:1,z:{film:[[115,22,130,100]],crust:[[214,136,140,80]],stain:[[130,126,100,36]],mud:[[10,222,340,28]]}},
+ terrace:{n:'🌿 Teras',scene:'terrace',par:36,dr:[296,50,50,100,'l',['#c9d4e0','#9aa8b8'],[.08,.9]],z:{mud:[[10,150,340,100]],dust:[[10,170,340,80]],stain:[[120,96,110,50]],crust:[[20,200,120,40]]}},
+ rug:{n:'🧶 Halı',base:'rug',par:30,inside:1,z:{dust:[[30,34,300,190]],stain:[[60,60,100,70],[200,120,100,80]],mud:[[40,150,280,70]]}},
+ boat:{n:'⛵ Tekne',scene:'boat',par:44,dr:[224,78,26,52,'r',['#ffffff','#d6dde8'],[.12,.5]],z:{crust:[[10,172,340,32]],mud:[[10,130,340,50]],film:[[120,62,130,40]],stain:[[240,120,90,50],[20,110,70,50]]}},
+ shopf:{n:'🏪 Ön Cephe',scene:'shopf',par:40,dr:[232,92,96,118,'r',['#8a5a2a','#5b3a1c'],[.1,.8]],z:{film:[[36,100,164,96],[240,100,80,102]],stain:[[30,62,150,26],[232,92,96,40]],mud:[[0,214,360,46],[36,160,164,36]],dust:[[24,10,312,46]],crust:[[10,226,340,24]]}},
  shopr:{n:'🧱 Sağ Yan',scene:'shopr',par:34,z:{film:[[50,50,80,70],[220,50,80,70]],mud:[[0,150,360,100]],stain:[[150,20,70,120],[20,140,50,40]],dust:[[0,0,360,36],[260,150,80,50]],crust:[[20,176,150,40]]}},
  shopb:{n:'🚪 Arka',scene:'shopb',par:34,z:{film:[[282,50,50,50]],crust:[[20,150,80,64],[250,160,70,54]],mud:[[0,190,360,70]],stain:[[140,60,90,154]],dust:[[0,0,360,50]]}},
  shopl:{n:'🧱 Sol Yan',scene:'shopl',par:34,z:{film:[[272,40,60,50]],mud:[[0,160,360,100]],dust:[[40,50,200,150]],stain:[[260,100,70,80]],crust:[[10,200,200,40]]}},
+ houseout:{n:'🏠 Ev · Dış',scene:'houseout',par:36,dr:[148,112,64,98,'l',['#9a6430','#6b4420'],[.12,.5]],z:{film:[[40,60,70,60],[250,60,70,60]],mud:[[0,196,360,64]],stain:[[130,110,100,90]],dust:[[0,0,360,44]],crust:[[20,214,320,30]]}},
+ shopin:{n:'🛒 Market · İç',scene:'shopin',par:36,inside:1,z:{dust:[[16,30,210,150]],film:[[250,40,92,130]],stain:[[20,200,320,50]],mud:[[60,210,240,40]],crust:[[130,148,110,30]]}},
+ boatin:{n:'🛏️ Kabin',scene:'boatin',par:36,inside:1,z:{film:[[40,40,60,60],[260,40,60,60]],dust:[[0,150,360,100]],stain:[[120,120,120,50]],mud:[[0,205,360,45]],crust:[[30,112,80,36]]}},
  shop:{n:'🏪 Vitrin',base:'win',par:34,z:{film:[[34,46,292,176]],mud:[[34,150,292,70]],dust:[[22,226,320,14],[34,46,292,14]],stain:[[60,90,70,50]]}}
 };
-const JB_JOB={car:{n:'Araba Detayı',e:'🚗',st:['car_ext','car_int'],b:45},house:{n:'Ev Temizliği',e:'🏠',st:['living','kitchen','bath'],b:40},garden:{n:'Teras ve Halı',e:'🌿',st:['terrace','rug'],b:42},boat:{n:'Tekne Bakımı',e:'⛵',st:['boat'],b:70},shop:{n:'Dükkan Temizliği',e:'🏪',st:['shopf','shopr','shopb','shopl'],b:34}};
+const JB_JOB={car:{n:'Araba Detayı',e:'🚗',st:['car_ext','car_int'],b:45},house:{n:'Ev Temizliği',e:'🏠',st:['houseout','living','kitchen','bath'],b:34},garden:{n:'Teras ve Halı',e:'🌿',st:['terrace','rug'],b:42},boat:{n:'Tekne Bakımı',e:'⛵',st:['boat','boatin'],b:45},shop:{n:'Dükkan Temizliği',e:'🏪',st:['shopf','shopin','shopr','shopb','shopl'],b:30}};
 const JB_STY={rush:{n:'⚡ Acele',pm:1.35,tm:.7,d:'Süre kısa, ödeme yüksek'},std:{n:'🙂 Standart',pm:1,tm:1,d:'Dengeli iş'},fine:{n:'💎 Titiz',pm:1.2,tm:1.4,d:'Uzun süre, iz bırakmazsan bonus'}};
 const JB_CL=['Ayşe Hanım','Mehmet Bey','Zeynep','Burak','Selin Hanım','Kemal Usta','Elif','Can','Deniz','Fatma Teyze','Okan','Naz'];
 const JB_SAY={car:['Hafta sonu düğüne gideceğim, araba pırıl pırıl olsun!','Çocuklar arabayı çamur içinde bıraktı…'],house:['Misafir geliyor, evi toparlar mısın?','Taşınmadan önce son bir temizlik lazım.'],garden:['Terasa kış gelmeden bir bakım istiyorum.','Yağmurdan sonra her yer çamur oldu.'],boat:['Sezon açılıyor, teknem hazır olmalı.','Teknenin altı yosun tutmuş.'],shop:['Müşteriler vitrine bakıyor, parlasın!','Dükkan açılışı yarın!']};
@@ -3665,7 +3668,7 @@ function jbScene(c,s){
     R(0,100,360,10,0,'#fff');for(let x=8;x<360;x+=34)R(x,100,8,52,2,'#f1f1f1');R(0,142,360,8,0,'#e6e6e6');
     R(0,150,360,110,0,clGrad(c,0,150,0,260,['#c9b79a','#9d8a6c']));c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=2;for(let y=150;y<260;y+=28){c.beginPath();c.moveTo(0,y);c.lineTo(360,y);c.stroke()}for(let x=0;x<360;x+=48){c.beginPath();c.moveTo(x,150);c.lineTo(x-20,260);c.stroke()}
     c.fillStyle='#c9693a';R(14,176,50,50,8,'#c9693a');c.fillStyle='#3da55a';for(let i=0;i<5;i++){c.beginPath();c.ellipse(39+(i-2)*10,166-Math.abs(i-2)*5,7,24,(i-2)*.35,0,6.283);c.fill()}
-    R(138,96,86,10,5,'#7a4a22');R(176,102,10,60,3,'#5e381a');R(120,150,122,16,8,'#7a4a22');R(130,166,8,50,3,'#5e381a');R(226,166,8,50,3,'#5e381a');R(70,176,36,50,10,'#2f9e8f');R(260,176,36,50,10,'#2f9e8f');
+    R(138,96,86,10,5,'#7a4a22');R(176,102,10,60,3,'#5e381a');R(120,150,122,16,8,'#7a4a22');R(130,166,8,50,3,'#5e381a');R(226,166,8,50,3,'#5e381a');R(70,176,36,50,10,'#2f9e8f');R(260,176,36,50,10,'#2f9e8f');R(290,44,62,112,4,'#f1f1f1');R(296,50,50,100,2,clGrad(c,0,50,0,150,['#bfe3f7','#e9f7ff']));c.fillStyle='#f1f1f1';c.fillRect(319,50,4,100);
   }else if(s==='boat'){
     R(0,0,360,260,0,clGrad(c,0,0,0,260,['#8fd3ff','#e8f6ff','#3b8fd6','#1d5fa8']));c.fillStyle='#ffe66a';c.beginPath();c.arc(300,40,22,0,6.283);c.fill();
     c.fillStyle='rgba(255,255,255,.25)';for(let k=0;k<5;k++){c.beginPath();c.ellipse(40+k*80,222+(k%2)*10,30,3,0,0,6.283);c.fill()}
@@ -3696,6 +3699,22 @@ function jbScene(c,s){
     R(36,44,210,160,6,'#6b727e');R(42,50,198,148,3,clGrad(c,0,50,0,198,['#b4bcc9','#8b94a4']));c.strokeStyle='rgba(0,0,0,.25)';c.lineWidth=2;for(let y=58;y<198;y+=10){c.beginPath();c.moveTo(42,y);c.lineTo(240,y);c.stroke()}R(130,184,22,10,3,'#4a505c');
     R(266,34,70,60,5,'#f1f1f1');R(272,40,58,48,3,clGrad(c,0,40,0,88,['#8fcff5','#dff3ff']));R(270,100,64,40,4,'#e0364b');c.fillStyle='#fff';c.font='700 12px sans-serif';c.textAlign='center';c.fillText('İLAN',302,125);
     R(0,214,360,46,0,clGrad(c,0,214,0,260,['#a2a8b4','#757c8a']));
+
+  }else if(s==='houseout'){
+    R(0,0,360,260,0,clGrad(c,0,0,0,200,['#9fd8ff','#e8f6ff']));c.fillStyle='rgba(255,255,255,.85)';c.beginPath();c.arc(60,30,14,0,6.283);c.arc(82,26,18,0,6.283);c.arc(104,32,13,0,6.283);c.fill();
+    c.fillStyle='#b23a48';c.beginPath();c.moveTo(0,64);c.lineTo(180,6);c.lineTo(360,64);c.lineTo(360,76);c.lineTo(0,76);c.fill();
+    R(0,76,360,124,0,clGrad(c,0,76,0,200,['#f4e3c3','#e0c79a']));for(const x of[40,250]){R(x-4,56,78,70,4,'#fff');R(x,60,70,62,3,clGrad(c,0,60,0,122,['#8fcff5','#dff3ff']));c.fillStyle='#fff';c.fillRect(x+33,60,4,62);R(x-6,120,82,8,3,'#cfd5de')}
+    R(140,104,80,98,6,'#fff');R(148,112,64,90,3,clGrad(c,0,112,0,202,['#9a6430','#6b4420']));c.fillStyle='#f0c24b';c.beginPath();c.arc(202,160,4,0,6.283);c.fill();R(150,118,60,6,2,'rgba(0,0,0,.2)');
+    R(0,198,360,62,0,clGrad(c,0,198,0,260,['#6cc18a','#3f9b62']));R(150,200,60,60,0,'#cbbfa8');c.fillStyle='#d9506a';for(let i=0;i<6;i++){c.beginPath();c.arc(20+i*14,214,5,0,6.283);c.arc(300+i*8,222,5,0,6.283);c.fill()}
+  }else if(s==='shopin'){
+    R(0,0,360,260,0,clGrad(c,0,0,0,200,['#f3ead9','#e1d2b4']));R(0,198,360,62,0,'#cfc5b2');for(let x=0;x<360;x+=40)for(let r=0;r<2;r++)R(x+(r%2)*0,198+r*31,40,31,0,(x/40+r)%2?'#e8e1d2':'#bfb49f');
+    for(let r=0;r<4;r++){R(14,40+r*36,212,6,2,'#8a6a46');for(let i=0;i<10;i++){const cl=['#e0364b','#ffd23d','#3da55a','#4aa3ff','#ff8f3d'][(i+r)%5];R(18+i*20,22+r*36+(i%3),15,18-(i%3),3,cl)}}R(10,16,6,170,2,'#6a4f30');R(224,16,6,170,2,'#6a4f30');
+    R(244,30,100,150,8,'#dfe6ee');R(250,38,88,134,4,clGrad(c,0,38,0,172,['#b7e4ff','#e7f6ff']));for(let r=0;r<3;r++){R(256,52+r*38,76,5,2,'#b0bac8');for(let i=0;i<5;i++)R(260+i*15,34+r*38+14,11,18,3,['#fff','#ffd23d','#e0364b','#3da55a','#4aa3ff'][(i+r)%5])}
+    R(120,146,120,50,6,clGrad(c,0,146,0,196,['#a8723a','#7c5226']));R(130,128,36,22,4,'#2b2f3a');R(136,132,24,10,2,'#7ee8a8');
+  }else if(s==='boatin'){
+    R(0,0,360,260,0,clGrad(c,0,0,0,260,['#c79a63','#9b6e3c']));c.strokeStyle='rgba(60,35,10,.3)';c.lineWidth=2;for(let x=0;x<360;x+=30){c.beginPath();c.moveTo(x,0);c.lineTo(x,200);c.stroke()}
+    for(const x of[40,260]){R(x-6,34,72,72,36,'#c0c7d2');c.fillStyle=clGrad(c,0,40,0,100,['#5fb7ec','#c8ecff']);c.beginPath();c.arc(x+30,70,28,0,6.283);c.fill()}
+    R(20,104,100,50,8,clGrad(c,0,104,0,154,['#fff','#cfd8e4']));R(26,110,88,20,6,'#4aa3ff');R(120,126,120,50,6,'#7a4a22');R(130,108,26,20,4,'#f6d36a');R(0,200,360,60,0,clGrad(c,0,200,0,260,['#7a5a38','#553b22']));c.strokeStyle='rgba(0,0,0,.3)';c.lineWidth=2;for(let y=210;y<260;y+=14){c.beginPath();c.moveTo(0,y);c.lineTo(360,y);c.stroke()}
   }
   c.restore();
 }
@@ -3734,7 +3753,7 @@ function jbNavUI(G){
 function jbGo(G,to){
   if(G.tr||G.fin||to<0||to>=G.job.st.length||to===G.si)return;
   G.down=false;jbSnd(false);
-  if(G.job.st[G.si]==='car_ext'&&to===G.si+1)G.tr={k:'door',t:0,dur:1.7,to,loaded:false};
+  if(G.sd.dr&&JB_ST[G.job.st[to]].inside)G.tr={k:'door',t:0,dur:1.7,to,loaded:false,dr:G.sd.dr,hw:G.sd};
   else{const dir=to>G.si?1:-1,from=G.cur;G.tr={k:'slide',t:0,dur:.8,dir,from};G.camT+=dir*G.W;jbLoad(G,to)}
 }
 function jbSave(G){sv('tv_cljobact',{off:G.off,dn:G.dn,time:G.time,wrong:G.wrong})}
@@ -3819,7 +3838,8 @@ function jbFinish(G){
   $('jb_dbl').classList.remove('hidden');show('jb_win',true);
 }
 function jbStart(off,res){
-  const J=JB_JOB[off.k],n=J.st.length,dn=res&&res.dn?res.dn.slice():new Array(n).fill(false),G={off,job:J,tier:off.tier,seed:off.seed,time:res?res.time||0:0,wrong:res?res.wrong||0:0,wt:-9,t:0,down:false,lx:null,ly:null,px:0,py:0,started:false,parts:[],foam:[],acc:0,tr:{k:'in',t:0,dur:.9},msg:null,fin:false,S:[],dn,camx:0,camT:0,chx:0,chv:0,wph:0};
+  const J=JB_JOB[off.k],n=J.st.length;if(res&&(!res.dn||res.dn.length!==n))res=null;
+  const dn=res&&res.dn?res.dn.slice():new Array(n).fill(false),G={off,job:J,tier:off.tier,seed:off.seed,time:res?res.time||0:0,wrong:res?res.wrong||0:0,wt:-9,t:0,down:false,lx:null,ly:null,px:0,py:0,started:false,parts:[],foam:[],acc:0,tr:{k:'in',t:0,dur:.9},msg:null,fin:false,S:[],dn,camx:0,camT:0,chx:0,chv:0,wph:0};
   jb.G=G;show('jb_off',false);show('jb_win',false);jbLayout(G);G.chx=G.W*.3;
   let first=dn.findIndex(x=>!x);if(first<0)first=0;jbLoad(G,first);$('jb_ti').textContent=J.e+' '+J.n;$('jb_hint').textContent=res?'Kaldığın yerden devam ediyorsun':'Önce alet seç, sonra kirin üstünde parmağını sürükle';$('jb_hint').style.opacity=1;
   jbSave(G);
@@ -3880,10 +3900,10 @@ function jbDraw(G,now){
   if(tr&&tr.k==='slide'){const p=Math.min(1,tr.t/tr.dur),e=p*p*(3-2*p);jbDrawStage(c,G,tr.from,-tr.dir*W*e,false);jbDrawStage(c,G,G.cur,tr.dir*W*(1-e),true)}
   else jbDrawStage(c,G,G.cur,0,true);
   // kapı animasyonu
-  if(tr&&tr.k==='door'&&tr.t<1.3){const p=Math.min(1,tr.t/.9),e=p*p*(3-2*p),th=e*1.15,hx=ox+195*sc,y0=oy+110*sc,y1=oy+188*sc,fw=85*sc*Math.cos(th),skew=26*sc*Math.sin(th);
-    c.fillStyle='#14151b';c.beginPath();c.moveTo(hx-85*sc,y0);c.lineTo(hx,y0);c.lineTo(hx,y1);c.lineTo(hx-85*sc,y1);c.fill();c.fillStyle='#d8c9ac';c.fillRect(hx-70*sc,y0+22*sc,50*sc,40*sc);
-    c.fillStyle=clGrad(c,hx,y0,hx,y1,['#ff6a7d','#e0293f','#a8132a']);c.strokeStyle='rgba(0,0,0,.4)';c.lineWidth=2;c.beginPath();c.moveTo(hx,y0);c.lineTo(hx-fw,y0-skew*.5);c.lineTo(hx-fw,y1+skew*.8);c.lineTo(hx,y1);c.closePath();c.fill();c.stroke();
-    c.fillStyle='rgba(124,196,234,.9)';c.beginPath();c.moveTo(hx-4*sc,y0+4*sc);c.lineTo(hx-fw+4*sc*Math.cos(th),y0+4*sc-skew*.5);c.lineTo(hx-fw+4*sc*Math.cos(th),y0+30*sc-skew*.4);c.lineTo(hx-4*sc,y0+30*sc);c.fill()}
+  if(tr&&tr.k==='door'&&tr.t<1.15&&tr.dr){const [dx0,dy0,dw,dh,hg,cols,gl]=tr.dr,p=Math.min(1,tr.t/.9),e=p*p*(3-2*p),th=e*1.15,rt=hg==='r',dn=rt?-1:1,hx=ox+(dx0+(rt?dw:0))*sc,y0=oy+dy0*sc,y1=oy+(dy0+dh)*sc,W2=dw*sc,fw=W2*Math.cos(th),skew=26*sc*Math.sin(th)*(dh>70?1:.5),fx=hx+dn*fw;
+    c.fillStyle='#14151b';c.fillRect(ox+dx0*sc,y0,W2,y1-y0);c.fillStyle='rgba(216,201,172,.9)';c.fillRect(ox+(dx0+dw*.15)*sc,y0+(y1-y0)*.25,W2*.6,(y1-y0)*.4);
+    c.fillStyle=clGrad(c,hx,y0,hx,y1,cols);c.strokeStyle='rgba(0,0,0,.4)';c.lineWidth=2;c.beginPath();c.moveTo(hx,y0);c.lineTo(fx,y0-skew*.5);c.lineTo(fx,y1+skew*.8);c.lineTo(hx,y1);c.closePath();c.fill();c.stroke();
+    if(gl){const ga=y0+(y1-y0)*gl[0],gb=y0+(y1-y0)*gl[1],ix=hx+dn*3*sc*Math.cos(th),fx2=hx+dn*(fw-3*sc*Math.cos(th));c.fillStyle='rgba(150,205,240,.9)';c.beginPath();c.moveTo(ix,ga);c.lineTo(fx2,ga-skew*.5);c.lineTo(fx2,gb-skew*.4);c.lineTo(ix,gb);c.fill()}}
   for(const s of G.spark){if(s.t<0||s.t>1)continue;const a=Math.sin(s.t*3.14159),r=s.s*a;c.save();c.translate(s.x,s.y);c.fillStyle='rgba(255,255,255,'+a+')';c.shadowColor='#fff';c.shadowBlur=10;c.beginPath();c.moveTo(0,-r);c.quadraticCurveTo(0,0,r,0);c.quadraticCurveTo(0,0,0,r);c.quadraticCurveTo(0,0,-r,0);c.quadraticCurveTo(0,0,0,-r);c.fill();c.restore()}
   c.restore();
   jbChar(c,G,now);
