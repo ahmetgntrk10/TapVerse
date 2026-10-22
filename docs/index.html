@@ -300,7 +300,6 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
   <div class="row"><div class="tx">🎵 Müzik</div><button id="swMus" class="tgl"></button></div>
   <div class="row"><div class="tx">📳 Titreşim</div><button id="swVib" class="tgl"></button></div>
   <div class="row hidden" id="notRow"><div class="tx">🔔 Günlük hatırlatma<small>Her akşam 20:00</small></div><button id="swNot" class="tgl"></button></div>
-  <button id="notTest" class="alt hidden" style="width:100%;margin-top:8px">🔔 Test bildirimi gönder (5 sn)</button>
   <button id="howBtn" style="width:100%;margin-top:10px">❓ Nasıl oynanır?</button>
   <div style="text-align:center;color:var(--mute);font-size:12px;margin-top:12px">TapVerse · sürüm 1.0</div>
 </div>
@@ -4330,18 +4329,10 @@ async function notToggle(){
   if(ok){notOn=true;sv('tv_notif',true);toast('Hatırlatma açıldı')}else toast('İzin verilmedi');
   refreshSw();
 }
-function refreshSw(){swSet('swSfx',!muted);swSet('swMus',!noMusic);swSet('swVib',vib);swSet('swNot',notOn);$('notRow').classList.toggle('hidden',!LN);$('notTest').classList.toggle('hidden',!LN)}
+function refreshSw(){swSet('swSfx',!muted);swSet('swMus',!noMusic);swSet('swVib',vib);swSet('swNot',notOn);$('notRow').classList.toggle('hidden',!LN)}
 $('swSfx').onclick=()=>{muted=!muted;sv('tv_mute',muted);if(muted)stopMusic();else sfx.coin();refreshSw()};
 $('swMus').onclick=()=>{noMusic=!noMusic;sv('tv_nomusic',noMusic);if(noMusic)stopMusic();else if(state==='run')startMusic();refreshSw()};
 $('swNot').onclick=notToggle;
-$('notTest').onclick=async()=>{
-  if(!LN){toast('Bildirim eklentisi yok');return}
-  try{
-    const r=await LN.requestPermissions();if(r.display!=='granted'){toast('İzin yok: telefon ayarlarından bildirimi aç');return}
-    await LN.schedule({notifications:[{id:2,title:'TapVerse 🎮',body:'Test bildirimi çalışıyor!',smallIcon:'ic_stat_tv',iconColor:'#8B5CF6',schedule:{at:new Date(Date.now()+5000)}}]});
-    toast('5 saniye sonra gelecek. Uygulamadan çıkabilirsin.');
-  }catch(e){toast('Hata: '+(e&&e.message||e))}
-};
 $('swVib').onclick=()=>{vib=!vib;sv('tv_vib',vib);if(vib)buzz(60);refreshSw()};
 $('mute').onclick=()=>{refreshSw();show('settings',true)};
 $('setBack').onclick=()=>show('settings',false);
