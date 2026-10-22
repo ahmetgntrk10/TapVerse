@@ -2725,7 +2725,7 @@ document.head.insertAdjacentHTML('beforeend','<style>#sk_bot{padding:0!important
 $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardSk" style="background:linear-gradient(135deg,#38bdf8,#6366f1 60%,#a855f7)"><div class="gicon">🏝️</div><div class="gtx"><b>Gök Adaları</b><small>Adaları büyüt.</small><span class="gtag" id="hsSk">☁️ 0</span></div></div>');
 ACH.push({id:'sk1',name:'Gökyüzü Sahibi',text:'Gök Adaları: 2. dünyayı aç',get:()=>sk.l.filter(l=>l.on).length-1,target:1,reward:300},{id:'sk2',name:'Gök Baronu',text:'Gök Adaları: 4 dünya aç',get:()=>sk.l.filter(l=>l.on).length-1,target:3,reward:1500});
 function skSave(){sk.last=Date.now();sv('tv_sky',sk)}
-addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){skSave();if(jb.G&&!jb.G.fin&&state==='job')jbSave(jb.G)}});addEventListener('pagehide',skSave);
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){skSave();if(jb.G&&!jb.G.fin&&state==='job')jbSave(jb.G);if(state==='clean')clSave(cl.G)}});addEventListener('pagehide',skSave);
 const skRaf={on:false,last:0,acc:0,save:0},skFx={T:0},skG={sh:0,tw:50,th:25,ox:0,oy:0,W:0,H:0,dpr:1,ctx:null};
 let skSel=null,skFloat=[],skParts=[],skFlash={};
 const skCostTxt=(t,b)=>SK_T[t].cur+' '+fmt(b.own)+(b.pre?' + '+SK_T[SK_T[t].prev].cur+' '+fmt(b.pre):'');
@@ -3487,12 +3487,20 @@ function clMeasure(G){
   G.mx.clearRect(0,0,sw,sh);G.mx.drawImage(G.grime,0,0,sw,sh);G.mx.drawImage(G.crust,0,0,sw,sh);
   const d=G.mx.getImageData(0,0,sw,sh).data;let s=0;for(let i=3;i<d.length;i+=4)s+=d[i];return s;
 }
+function clSamp(cv){const t=clMk(GW,GH),x=t.getContext('2d',{willReadFrequently:true});x.drawImage(cv,0,0,GW,GH);const d=x.getImageData(0,0,GW,GH).data,a=new Uint8Array(GW*GH);for(let i=0;i<a.length;i++)a[i]=d[i*4+3];return a}
+function clSave(G){if(!G||G.done||!G.started||!G.a0)return;try{const out=[G.grime,G.crust].map((cv,k)=>{const a=clSamp(cv),r=new Uint8Array(a.length);for(let i=0;i<a.length;i++)r[i]=G.a0[k][i]>0?Math.round(Math.min(1,a[i]/G.a0[k][i])*255):0;return jbB64(r)});sv('tv_clfree',{level:G.level,g:out,time:G.time})}catch(e){}}
+function clResume(G){
+  const s=ld('tv_clfree',null);if(!s||s.level!==G.level||!s.g)return;
+  const W=CL_OW*CL_Q,H=CL_OH*CL_Q;
+  [[G.grime,G.gx,0],[G.crust,G.cx,1]].forEach(([cv,cx,k])=>{const a=jbUn(s.g[k]),t=clMk(GW,GH),x=t.getContext('2d'),im=x.createImageData(GW,GH);for(let i=0;i<a.length;i++){im.data[i*4]=255;im.data[i*4+1]=255;im.data[i*4+2]=255;im.data[i*4+3]=a[i]}x.putImageData(im,0,0);cx.globalCompositeOperation='destination-in';cx.imageSmoothingEnabled=true;cx.drawImage(t,0,0,W,H);cx.globalCompositeOperation='source-over'});
+  G.time=s.time||0;G.started=true;G.pct=Math.max(0,Math.min(1,1-clMeasure(G)/G.init));
+}
 function clStart(lv){
   if(lv)cl.lv=lv;else cl.lv=clLevel;
   const f=CL_OBJ[(cl.lv-1)%CL_OBJ.length],G={level:cl.lv,def:f,obj:clMk(CL_OW*CL_Q,CL_OH*CL_Q),parts:[],foam:[],t:0,down:false,px:0,py:0,lx:null,ly:null,pct:0,time:0,started:false,done:false,shine:-1,acc:0,spark:[]};
-  clDrawObj(G.obj.getContext('2d'),f.f,Math.floor((G.level-1)/4));clMakeDirt(G,cl.lv);G.init=clMeasure(G);
+  clDrawObj(G.obj.getContext('2d'),f.f,Math.floor((G.level-1)/4));clMakeDirt(G,cl.lv);G.init=clMeasure(G);G.a0=[clSamp(G.grime),clSamp(G.crust)];clResume(G);
   clLayout(G);cl.G=G;$('cl_lv').textContent='Seviye '+G.level;$('cl_name').textContent=f.n+' · kirli!';
-  $('cl_fill').style.width='0%';$('cl_pct').textContent='0%';$('cl_hint').style.opacity=1;show('cl_win',false);clUpd();
+  $('cl_fill').style.width=(G.pct*100)+'%';$('cl_pct').textContent=Math.floor(G.pct*100)+'%';$('cl_hint').style.opacity=G.started?0:1;show('cl_win',false);clUpd();
   if(!cl.raf){cl.raf=true;cl.last=performance.now();requestAnimationFrame(clFrame)}
 }
 const clRad=()=>20+clUp.nz*5,clPow=()=>1+clUp.pw*0.4,clCost=(k)=>Math.round((k==='nz'?35:45)*Math.pow(clUp[k]+1,1.5));
@@ -3530,7 +3538,7 @@ function clScrub(G,dt){
   G.acc+=dt;if(G.acc>0.22){G.acc=0;const rem=clMeasure(G);G.pct=Math.max(0,Math.min(1,1-rem/G.init));$('cl_fill').style.width=(G.pct*100)+'%';$('cl_pct').textContent=Math.floor(G.pct*100)+'%';if(G.pct>=0.965)clWin(G)}
 }
 function clWin(G){
-  if(G.done)return;G.done=true;G.down=false;clSound(false);G.shine=0;G.pct=1;$('cl_fill').style.width='100%';$('cl_pct').textContent='100%';
+  if(G.done)return;sv('tv_clfree',null);G.done=true;G.down=false;clSound(false);G.shine=0;G.pct=1;$('cl_fill').style.width='100%';$('cl_pct').textContent='100%';
   G.gx.clearRect(0,0,9999,9999);G.cx.clearRect(0,0,9999,9999);
   const lvl=Math.min(5,1+Math.floor((G.level-1)/4)),par=14+lvl*5;G.stars=G.time<par?3:G.time<par*1.8?2:1;
   const fresh=G.level>=clLevel;G.reward=8+G.level*2+G.stars*4+(fresh?0:-6);G.reward=Math.max(4,G.reward);
@@ -3583,10 +3591,10 @@ function clFrame(now){
 function clPt(e){const G=cl.G;G.px=e.clientX;G.py=e.clientY}
 $('clean').addEventListener('pointerdown',e=>{if(state!=='clean'||e.target.closest('button')||e.target.closest('.overlay')||!cl.G||cl.G.done)return;clPt(e);cl.G.down=true;cl.G.lx=null;clSound(true)});
 $('clean').addEventListener('pointermove',e=>{if(state==='clean'&&cl.G&&cl.G.down)clPt(e)});
-const clUp_=()=>{if(cl.G){cl.G.down=false;cl.G.lx=null}clSound(false)};
+const clUp_=()=>{if(cl.G){const was=cl.G.down;cl.G.down=false;cl.G.lx=null;if(was)clSave(cl.G)}clSound(false)};
 $('clean').addEventListener('pointerup',clUp_);$('clean').addEventListener('pointercancel',clUp_);
-$('cardCl').onclick=()=>openLobby('cl');$('cl_back').onclick=()=>{clSound(false);openLobby('cl')};$('cl_wh').onclick=()=>openHub();
-$('cl_next').onclick=()=>clStart(clLevel);$('cl_rs').onclick=()=>{if(cl.G)clStart(cl.G.level)};
+$('cardCl').onclick=()=>openLobby('cl');$('cl_back').onclick=()=>{clSound(false);clSave(cl.G);openLobby('cl')};$('cl_wh').onclick=()=>openHub();
+$('cl_next').onclick=()=>clStart(clLevel);$('cl_rs').onclick=()=>{if(cl.G){sv('tv_clfree',null);clStart(cl.G.level)}};
 $('cl_nz').onclick=()=>clBuy('nz');$('cl_pw').onclick=()=>clBuy('pw');
 $('cl_dbl').onclick=()=>Ads.rewarded(()=>{const G=cl.G;credit('clean',G.reward);refreshCoins();$('cl_dbl').classList.add('hidden');$('cl_wi').textContent+=' · 2 kat yapıldı!'});
 
