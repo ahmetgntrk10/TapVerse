@@ -226,8 +226,6 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
     <div class="gcard g4" id="cardMt"><div class="gicon">🎹</div><div class="gtx"><b>Melodi Karoları</b><small>Siyah karolara dokun, şarkıyı sen çal.</small><span class="gtag" id="hsMt">⭐ 0/18</span></div><div class="gplay">▶</div></div>
   </div>
   <div class="nav">
-    <button id="hubDaily" class="n"><span class="ic">📆</span>Günlük<span class="dot" id="hddot"></span></button>
-    <button id="hubBall" class="n"><span class="ic">🎨</span>Top</button>
     <button id="hubWheel" class="n"><span class="ic">🎡</span>Çark<span class="dot" id="hwdot"></span></button>
     <button id="hubAch" class="n"><span class="ic">🏆</span>Başarım<span class="dot" id="hadot"></span></button>
   </div>
@@ -323,6 +321,7 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
 </div>
 <div id="ach" class="sheet hidden">
   <div class="top"><span>🏆 Başarımlar</span><span></span><button id="aback" class="alt">✕</button></div>
+  <div class="tabs"><button id="achTabA" class="on">🏆 Başarımlar</button><button id="achTabW">📅 Haftalık<span id="achWdot" style="margin-left:4px"></span></button></div>
   <div id="alist"></div>
 </div>
 <div id="quests" class="sheet hidden">
@@ -585,7 +584,6 @@ let curW='run',totalCoins=WALLET.run||0;
 function saveW(){WALLET[curW]=totalCoins;sv('tv_wallets',WALLET)}
 function useW(k){WALLET[curW]=totalCoins;curW=k;totalCoins=WALLET[k]||0;if(typeof refreshCoins==='function')refreshCoins()}
 function credit(k,n){if(k===curW)totalCoins+=n;else WALLET[k]=(WALLET[k]||0)+n;saveW()}
-function rndW(){return WKEYS[Math.floor(Math.random()*WKEYS.length)]}
 let owned=ld('tv_owned',['klasik']),selected=ld('tv_sel','klasik');
 let pets=ld('tv_pets',[]),petSel=ld('tv_pet','');
 const BALLS=[
@@ -630,66 +628,120 @@ function worldStep(f){
 function worldInstant(){worldStep(1);trees.forEach(t=>setTreeKind(t,WORLDS[worldIdx].tree))}
 function showBanner(txt){const e=$('banner');e.textContent=txt;e.style.opacity=1;clearTimeout(showBanner.h);showBanner.h=setTimeout(()=>e.style.opacity=0,2200)}
 
-// ---- Günlük görevler ----
+// ---- Görevler (günlük + haftalık) ----
 const todayStr=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
 const yestStr=()=>{const d=new Date(Date.now()-864e5);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
-const QPOOL=[
- {type:'coins',target:200,text:'Bugün 200 altın topla',reward:100},
- {type:'coins',target:500,text:'Bugün 500 altın topla',reward:250},
- {type:'score',target:2500,text:'Tek oyunda 2500 puan yap',reward:150},
- {type:'score',target:5000,text:'Tek oyunda 5000 puan yap',reward:300},
- {type:'runcoins',target:80,text:'Tek oyunda 80 altın topla',reward:150},
- {type:'play',target:8,text:'8 oyun oyna',reward:100},
- {type:'tile',target:150,text:'Melodi Karoları: 150 karo çal',reward:150},
- {type:'song',target:2,text:'Melodi Karoları: 2 şarkı bitir',reward:150},
- {type:'city',target:30,text:'Şehir oyununda 30 puan yap',reward:150},
- {type:'cjump',target:60,text:'Şehir oyununda 60 kez zıpla',reward:100},
- {type:'jump',target:100,text:'100 kez zıpla',reward:100},
- {type:'slide',target:60,text:'60 kez kay',reward:100},
- {type:'power',target:6,text:'6 güçlendirme topla',reward:150},
- {type:'world',target:3,text:"Çöl Dünyası'na ulaş",reward:150},
- {type:'world',target:4,text:"Lav Dünyası'na ulaş",reward:250},
- {type:'maze',target:6,text:'6 labirent seviyesi bitir',reward:120}
+const weekId=()=>{const d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5-4)/7)};
+const weekLeft=()=>{const d=new Date(),dow=(d.getDay()+6)%7;const end=new Date(d.getFullYear(),d.getMonth(),d.getDate()+(7-dow));return Math.max(0,end-d)};
+// Oyun tablosu: n=ad, e=simge, w=ödülün yatacağı cüzdan (parası olmayan oyunlar Sonsuz Koşu cüzdanına yazar)
+const QG={run:{n:'Sonsuz Koşu',e:'🏃',w:'run'},maze:{n:'Labirent',e:'🌀',w:'maze'},city:{n:'Tek Tuş Şehir',e:'🏙️',w:'run'},tiles:{n:'Melodi Karoları',e:'🎹',w:'tiles'},arrows:{n:'Ok Kaçışı',e:'🎯',w:'arrows'},sort:{n:'Su Sıralama',e:'🧪',w:'sort'},clean:{n:'Temizlik',e:'🧼',w:'clean'},ghost:{n:'Hayalet Takım',e:'👻',w:'ghost'},lock:{n:'Kasa Uzmanı',e:'🔐',w:'lock'},shadow:{n:'Gölge Bahçesi',e:'🌙',w:'shadow'},mini:{n:'Mini Oyunlar',e:'🎮',w:'run'},any:{n:'Genel',e:'⭐',w:'run'}};
+const WNAME={run:'Sonsuz Koşu',maze:'Labirent',tiles:'Melodi Karoları',arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik',ghost:'Hayalet Takım',lock:'Kasa Uzmanı',shadow:'Gölge Bahçesi'};
+// t: günlük [kolay,orta,zor], w: haftalık [kolay,orta,zor], x: metin ({n} sayı yerine geçer)
+const QT=[
+ {k:'play',g:'run',m:'sum',x:'{n} kez koş',t:[2,4,8],w:[8,16,30]},
+ {k:'score',g:'run',m:'max',x:'tek oyunda {n} puan yap',t:[300,1000,2500],w:[600,2000,5000]},
+ {k:'runcoins',g:'run',m:'max',x:'tek oyunda {n} altın topla',t:[15,40,90],w:[30,70,150]},
+ {k:'c_run',g:'run',m:'sum',x:'toplam {n} altın topla',t:[40,100,220],w:[200,450,900]},
+ {k:'jump',g:'run',m:'sum',x:'{n} kez zıpla',t:[30,80,160],w:[150,400,800]},
+ {k:'slide',g:'run',m:'sum',x:'{n} kez kay',t:[20,50,100],w:[80,200,400]},
+ {k:'power',g:'run',m:'sum',x:'{n} güçlendirme topla',t:[2,5,10],w:[10,25,50]},
+ {k:'boss',g:'run',m:'sum',x:'{n} boss geç',t:[1,2,3],w:[3,6,10]},
+ {k:'world',g:'run',m:'max',x:'',t:[2,3,4],w:[3,4,4]},
+ {k:'maze',g:'maze',m:'sum',x:'{n} seviye bitir',t:[2,4,8],w:[8,16,30]},
+ {k:'c_maze',g:'maze',m:'sum',x:'toplam {n} altın kazan',t:[30,80,160],w:[150,350,700]},
+ {k:'city',g:'city',m:'max',x:'tek oyunda {n} puan yap',t:[10,25,50],w:[20,45,90]},
+ {k:'cjump',g:'city',m:'sum',x:'{n} kez zıpla',t:[30,80,160],w:[150,400,800]},
+ {k:'tile',g:'tiles',m:'sum',x:'{n} karo çal',t:[60,150,350],w:[300,800,1800]},
+ {k:'song',g:'tiles',m:'sum',x:'{n} şarkı bitir',t:[1,2,4],w:[4,8,15]},
+ {k:'arrows',g:'arrows',m:'sum',x:'{n} seviye bitir',t:[2,4,8],w:[8,16,30]},
+ {k:'sort',g:'sort',m:'sum',x:'{n} seviye bitir',t:[2,4,7],w:[7,14,26]},
+ {k:'clean',g:'clean',m:'sum',x:'{n} iş bitir',t:[2,3,5],w:[5,10,18]},
+ {k:'ghost',g:'ghost',m:'sum',x:'{n} seviye bitir',t:[1,3,5],w:[4,8,14]},
+ {k:'lock',g:'lock',m:'sum',x:'{n} kasa aç',t:[1,3,5],w:[4,8,14]},
+ {k:'shadow',g:'shadow',m:'sum',x:'{n} bahçe bitir',t:[1,3,5],w:[4,8,14]},
+ {k:'mgplay',g:'mini',m:'sum',x:'{n} tur oyna',t:[3,6,12],w:[12,25,45]},
+ {k:'diff',g:'any',m:'diff',x:'{n} farklı oyun oyna',t:[2,3,5],w:[4,7,10]}
 ];
+const WORLD_TX=['','',"Buz Dünyası'na ulaş","Çöl Dünyası'na ulaş","Lav Dünyası'na ulaş"];
+const QRW={d:[40,90,180],w:[120,280,550]},QRF={run:1.5};
+const DIFFN=['Kolay','Orta','Zor'],DIFFC=['#52e08a','#ffd34d','#ff6b7a'];
 const GIFTS=[30,40,50,60,80,100,150];
-let daily=ld('tv_daily',null),streak=ld('tv_streak',{last:'',count:0});
-function pickQuests(){
-  let h=0;for(const ch of todayStr())h=(h*31+ch.charCodeAt(0))>>>0;
+const GOF={play:'run',score:'run',runcoins:'run',c_run:'run',jump:'run',slide:'run',power:'run',world:'run',boss:'run',maze:'maze',c_maze:'maze',city:'city',cjump:'city',tile:'tiles',song:'tiles',c_tiles:'tiles',arrows:'arrows',c_arrows:'arrows',sort:'sort',c_sort:'sort',clean:'clean',c_clean:'clean',ghost:'ghost',c_ghost:'ghost',lock:'lock',c_lock:'lock',shadow:'shadow',c_shadow:'shadow'};
+function gameOf(t){return GOF[t]||(t.indexOf('g_')===0?t.slice(2):t.indexOf('gp_')===0?t.slice(3):null)}
+let daily=ld('tv_daily',null),weekly=ld('tv_weekly',null),streak=ld('tv_streak',{last:'',count:0});
+let gs=ld('tv_gs',{});if(!gs.pl)gs.pl={};
+function qMake(qt,ti,kind){
+  const target=Math.max(1,Math.round((kind==='w'?qt.w:qt.t)[ti]));
+  const text=qt.k==='world'?WORLD_TX[Math.min(4,target)]:qt.x.replace('{n}',target);
+  return{k:qt.k,g:qt.g,m:qt.m,d:ti,text:text,target:target,reward:Math.round(QRW[kind][ti]*(QRF[qt.g]||1)/5)*5,p:0,claimed:false};
+}
+function pickSet(seed,tiers,kind){
+  let h=0;for(const ch of seed)h=(h*31+ch.charCodeAt(0))>>>0;
   const rnd=()=>{h=(h+0x6D2B79F5)>>>0;let t=h;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296};
-  const pool=QPOOL.slice().sort((a,b)=>a.type<b.type?-1:a.type>b.type?1:0);for(let i=pool.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
-  const out=[],types={};
-  for(const q of pool){if(out.length>=3)break;if(types[q.type])continue;types[q.type]=1;out.push(Object.assign({p:0,claimed:false},q))}
+  const pool=QT.slice().sort((a,b)=>a.k<b.k?-1:a.k>b.k?1:0);for(let i=pool.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+  const out=[],usedG={},usedK={};
+  for(const ti of tiers){
+    let qt=pool.find(q=>!usedG[q.g]&&!usedK[q.k])||pool.find(q=>!usedK[q.k]);
+    if(!qt)break;usedG[qt.g]=1;usedK[qt.k]=1;out.push(qMake(qt,ti,kind));
+  }
   return out;
 }
-function ensureDaily(){if(!daily||daily.date!==todayStr()||daily.v!==3){daily={date:todayStr(),v:3,quests:pickQuests()};sv('tv_daily',daily)}}
-function saveDaily(){sv('tv_daily',daily);sv('tv_streak',streak);sv('tv_stats',stats);sv('tv_ach',achClaimed);sv('tv_achseen',achSeen)}
+function ensureDaily(){
+  if(!daily||daily.date!==todayStr()||daily.v!==4){daily={date:todayStr(),v:4,pl:{},quests:pickSet(todayStr(),[0,0,1,1,2],'d')};gs.days=(gs.days||0)+1;sv('tv_daily',daily);sv('tv_gs',gs)}
+  if(!weekly||weekly.w!==weekId()||weekly.v!==1){weekly={w:weekId(),v:1,pl:{},quests:pickSet('w'+weekId(),[0,0,1,1,2,2],'w')};sv('tv_weekly',weekly)}
+}
+function saveDaily(){sv('tv_daily',daily);sv('tv_weekly',weekly);sv('tv_gs',gs);sv('tv_streak',streak);sv('tv_stats',stats);sv('tv_ach',achClaimed);sv('tv_achseen',achSeen)}
 function addProg(type,n,mode){
   ensureDaily();
-  for(const q of daily.quests)if(q.type===type)q.p=mode==='max'?Math.max(q.p,n):q.p+n;
+  const apply=(set)=>{for(const q of set.quests)if(q.k===type&&q.m!=='diff')q.p=mode==='max'?Math.max(q.p,n):q.p+n};
+  apply(daily);apply(weekly);
+  if(mode==='max')gs[type]=Math.max(gs[type]||0,n);else gs[type]=(gs[type]||0)+n;
+  const gm=gameOf(type);
+  if(gm){
+    if(!gs.pl[gm])gs.pl[gm]=1;
+    for(const set of [daily,weekly]){if(!set.pl[gm]){set.pl[gm]=1;const c=Object.keys(set.pl).length;for(const q of set.quests)if(q.m==='diff')q.p=c}}
+  }
 }
-function questAlert(){ensureDaily();return streak.last!==todayStr()||daily.quests.some(q=>q.p>=q.target&&!q.claimed)}
-function updateBadge(){const q=questAlert()?'🔴':'',a=ACH.some(x=>x.get()>=x.target&&!achClaimed.includes(x.id))?'🔴':'',w=wheelAvail()?'🔴':'';['qdot','hqdot'].forEach(i=>$(i).textContent=q);['adot','hadot'].forEach(i=>$(i).textContent=a);['wdot','hwdot'].forEach(i=>$(i).textContent=w);$('hddot').textContent=mzDay.date!==todayStr()?'🔴':''}
-addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){saveDaily();saveW()}});
+const qDone=q=>q.p>=q.target;
+function qAlert(set){return set.quests.some(q=>qDone(q)&&!q.claimed)}
+function questAlert(){ensureDaily();return streak.last!==todayStr()||qAlert(daily)}
+function achAlert(){return ACH.some(x=>x.get()>=x.target&&!achClaimed.includes(x.id))}
+function updateBadge(){ensureDaily();const q=questAlert()?'🔴':'',a=(achAlert()||qAlert(weekly))?'🔴':'',w=wheelAvail()?'🔴':'';['qdot','hqdot'].forEach(i=>$(i).textContent=q);['adot','hadot'].forEach(i=>$(i).textContent=a);['wdot','hwdot'].forEach(i=>$(i).textContent=w)}
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){saveDaily();saveW();try{if(actx&&actx.state==='running')actx.suspend()}catch(e){}}else{try{if(actx&&actx.state==='suspended')actx.resume()}catch(e){}}});
 addEventListener('pagehide',()=>{saveDaily();saveW()});
+// Ödülün yazılacağı cüzdan: son oynadığın oyunun parası
+function giftW(){return WKEYS.includes(curW)?curW:'run'}
+function payTo(w,n,label){credit(w,n);sfx.power();refreshCoins();toast('+'+n+' 🪙 '+(WNAME[w]||WN[w]||''))}
+function qRow(q,kind,rerender){
+  const done=qDone(q),row=document.createElement('div');row.className='row'+(done&&!q.claimed?' sel':'');
+  const pr=Math.min(1,q.p/q.target),G=QG[q.g]||QG.any;
+  const wn=WNAME[G.w]||'';
+  row.innerHTML='<div class="tx">'+G.e+' '+G.n+': '+q.text+'<small><span style="color:'+DIFFC[q.d]+'">'+DIFFN[q.d]+'</span> · '+Math.min(q.p,q.target)+' / '+q.target+' · 🪙 '+q.reward+' '+wn+'</small><div class="bar"><i style="width:'+Math.round(pr*100)+'%"></i></div></div>';
+  const b=document.createElement('button');
+  b.textContent=q.claimed?'Alındı ✓':done?'Al 🪙 '+q.reward:'Devam';b.disabled=q.claimed||!done;if(done&&!q.claimed)b.className='gold';
+  b.onclick=()=>{if(q.claimed||!qDone(q))return;q.claimed=true;if(kind==='w')gs.wdone=(gs.wdone||0)+1;else gs.qdone=(gs.qdone||0)+1;payTo(G.w,q.reward);saveDaily();checkAch();rerender();updateBadge()};
+  row.appendChild(b);return row;
+}
+function claimAllBtn(set,kind,rerender){
+  const n=set.quests.filter(q=>qDone(q)&&!q.claimed).length;if(n<2)return null;
+  const b=document.createElement('button');b.className='gold';b.style.cssText='width:100%;margin:0 0 8px';b.textContent='🎁 Hepsini al ('+n+')';
+  b.onclick=()=>{for(const q of set.quests){if(qDone(q)&&!q.claimed){q.claimed=true;if(kind==='w')gs.wdone=(gs.wdone||0)+1;else gs.qdone=(gs.qdone||0)+1;credit(QG[q.g].w,q.reward)}}sfx.power();refreshCoins();toast('🎁 Hepsi alındı');saveDaily();checkAch();rerender();updateBadge()};
+  return b;
+}
 function renderQuests(){
   ensureDaily();
   const list=$('qlist');list.innerHTML='';
   const canGift=streak.last!==todayStr();
   const nextCount=canGift?(streak.last===yestStr()?streak.count%7+1:1):streak.count;
+  const gw=giftW(),gv=GIFTS[(nextCount-1)%7];
   const g=document.createElement('div');g.className='row';
-  g.innerHTML='<div class="tx">🎁 Günlük Hediye<small>Seri: '+streak.count+' gün · Bugünkü: 🪙 '+GIFTS[(nextCount-1)%7]+'</small></div>';
+  g.innerHTML='<div class="tx">🎁 Günlük Hediye<small>Seri: '+streak.count+' gün · Bugünkü: 🪙 '+gv+' '+(WNAME[gw]||'')+'</small></div>';
   const gb=document.createElement('button');gb.textContent=canGift?'Al':'Alındı ✓';gb.disabled=!canGift;if(canGift)gb.className='gold';
-  gb.onclick=()=>{const w=rndW();credit(w,GIFTS[(nextCount-1)%7]);streak={last:todayStr(),count:nextCount};saveDaily();sfx.power();toast('+'+GIFTS[(nextCount-1)%7]+' 🪙 '+WN[w]);refreshCoins();renderQuests();updateBadge()};
+  gb.onclick=()=>{payTo(giftW(),gv);streak={last:todayStr(),count:nextCount};gs.streakMax=Math.max(gs.streakMax||0,nextCount);saveDaily();checkAch();renderQuests();updateBadge()};
   g.appendChild(gb);list.appendChild(g);
-  for(const q of daily.quests){
-    const done=q.p>=q.target,row=document.createElement('div');row.className='row'+(done&&!q.claimed?' sel':'');
-    const pr=Math.min(1,q.p/q.target);
-    row.innerHTML='<div class="tx">'+q.text+'<small>'+Math.min(q.p,q.target)+' / '+q.target+' · Ödül: 🪙 '+q.reward+'</small><div class="bar"><i style="width:'+Math.round(pr*100)+'%"></i></div></div>';
-    const b=document.createElement('button');
-    b.textContent=q.claimed?'Alındı ✓':done?'Al 🪙 '+q.reward:'Devam';b.disabled=q.claimed||!done;if(done&&!q.claimed)b.className='gold';
-    b.onclick=()=>{q.claimed=true;const w=rndW();credit(w,q.reward);saveDaily();sfx.power();toast('+'+q.reward+' 🪙 '+WN[w]);refreshCoins();renderQuests();updateBadge()};
-    row.appendChild(b);list.appendChild(row);
-  }
+  const all=claimAllBtn(daily,'d',renderQuests);if(all)list.appendChild(all);
+  for(const q of daily.quests)list.appendChild(qRow(q,'d',renderQuests));
+  const nt=document.createElement('div');nt.style.cssText='text-align:center;color:var(--mute);font-size:12px;margin:6px 0';nt.textContent='Her gün yeni görevler gelir · Haftalık görevler Başarımlar bölümünde';list.appendChild(nt);
 }
 
 // ---- Skor tablosu (Supabase) ----
@@ -699,7 +751,8 @@ let pid=ld('tv_pid',null);if(!pid){pid=(crypto.randomUUID?crypto.randomUUID():Da
 let pname=ld('tv_name','');if(!pname){pname='Oyuncu'+Math.floor(1000+Math.random()*9000);sv('tv_name',pname)}
 const sbOn=()=>!!(SB.url&&SB.key);
 
-// ---- Başarımlar ----
+// ---- Başarımlar (kalıcı) ----
+// w: ödülün yazılacağı cüzdan. Bir kez kazanılır, yenilenmez. Yenilenen kısım: Haftalık görevler.
 const ACH=[
  {id:'play1',name:'İlk Adım',text:'1 oyun oyna',get:()=>stats.games,target:1,reward:50},
  {id:'play25',name:'Alışkanlık',text:'25 oyun oyna',get:()=>stats.games,target:25,reward:300},
@@ -714,26 +767,98 @@ const ACH=[
  {id:'boss3',name:'Boss Avcısı',text:'3 boss geç',get:()=>stats.bosses,target:3,reward:300},
  {id:'cos',name:'Moda Meraklısı',text:'Bir kostüm satın al',get:()=>owned.length-1,target:1,reward:100},
  {id:'pet',name:'Hayvansever',text:'Bir evcil hayvan edin',get:()=>pets.length,target:1,reward:150},
- {id:'maze10',name:'Yol Bulucu',text:'10 labirent seviyesi bitir',get:()=>stats.mazeLevels,target:10,reward:200},
- {id:'maze30',name:'Labirent Ustası',text:'30 labirent seviyesi bitir',get:()=>stats.mazeLevels,target:30,reward:600},
+ {id:'maze10',name:'Yol Bulucu',text:'10 labirent seviyesi bitir',get:()=>stats.mazeLevels,target:10,reward:200,w:'maze'},
+ {id:'maze30',name:'Labirent Ustası',text:'30 labirent seviyesi bitir',get:()=>stats.mazeLevels,target:30,reward:600,w:'maze'},
  {id:'city10',name:'Çatı Atlayıcı',text:'Şehirde tek oyunda 25 puan yap',get:()=>cityBest,target:25,reward:150},
  {id:'city40',name:'Şehir Efsanesi',text:'Şehirde tek oyunda 100 puan yap',get:()=>cityBest,target:100,reward:500},
- {id:'mt1',name:'Pianist',text:'Bir şarkıyı bitir',get:()=>stats.songs||0,target:1,reward:100},
- {id:'mt2',name:'Usta Pianist',text:'Karolarda toplam 10 yıldız topla',get:()=>mtStarsTotal(),target:10,reward:400}
+ {id:'mt1',name:'Pianist',text:'Bir şarkıyı bitir',get:()=>stats.songs||0,target:1,reward:100,w:'tiles'},
+ {id:'mt2',name:'Usta Pianist',text:'Karolarda toplam 10 yıldız topla',get:()=>mtStarsTotal(),target:10,reward:400,w:'tiles'}
 ];
+const GSK=k=>()=>gs[k]||0;
+// Yeni başarımlar: üçlü kademe (Çırak / Usta / Efsane)
+function ACH3(id,g,txt,get,ts,rs,w){const nm=['Çırağı','Ustası','Efsanesi'];for(let i=0;i<3;i++)ACH.push({id:id+(i+1),name:QG[g].n+' '+nm[i],text:QG[g].n+': '+txt.replace('{n}',ts[i]),get:get,target:ts[i],reward:rs[i],w:w||QG[g].w})}
+const RS=[60,250,800];
+ACH3('t_maze','maze','{n} seviye bitir',()=>stats.mazeLevels,[5,60,120],RS);
+ACH3('t_ar','arrows','{n} seviye bitir',()=>arLevel-1,[5,25,60],RS);
+ACH3('t_so','sort','{n} seviye bitir',()=>soLevel-1,[5,25,60],RS);
+ACH3('t_cl','clean','{n} seviye bitir',()=>clLevel-1,[5,25,60],RS);
+ACH3('t_gh','ghost','{n} seviye bitir',()=>ghLevel-1,[5,25,60],RS);
+ACH3('t_lk','lock','{n} kasa aç',()=>lkLevel-1,[5,25,60],RS);
+ACH3('t_sg','shadow','{n} bahçe bitir',()=>sgLevel-1,[5,25,60],RS);
+ACH3('t_run','run','{n} kez koş',()=>stats.games,[10,60,250],[80,300,900]);
+ACH3('t_tile','tiles','{n} karo çal',GSK('tile'),[200,1500,8000],[80,300,900]);
+ACH3('t_cj','city','{n} kez zıpla',GSK('cjump'),[100,600,3000],[80,300,900]);
+ACH3('t_mini','mini','{n} tur oyna',GSK('mgplay'),[10,60,250],[80,300,900]);
+const AX=(id,name,text,get,target,reward,w)=>ACH.push({id,name,text,get,target,reward,w});
+AX('r_j','Zıplama Şampiyonu','Koşuda toplam 500 kez zıpla',GSK('jump'),500,150);
+AX('r_j2','Yaylı Ayaklar','Koşuda toplam 5000 kez zıpla',GSK('jump'),5000,500);
+AX('r_s','Kaygan Zemin','Koşuda toplam 300 kez kay',GSK('slide'),300,150);
+AX('r_s2','Buz Pateni','Koşuda toplam 2500 kez kay',GSK('slide'),2500,500);
+AX('r_c','Altın Avcısı','Koşuda toplam 1000 altın topla',GSK('c_run'),1000,200);
+AX('r_c2','Altın Madeni','Koşuda toplam 10000 altın topla',GSK('c_run'),10000,900);
+AX('r_rc','Dolu Cepler','Tek koşuda 60 altın topla',GSK('runcoins'),60,150);
+AX('r_rc2','Altın Yağmuru','Tek koşuda 150 altın topla',GSK('runcoins'),150,500);
+AX('r_pw','Güç Ustası','100 güçlendirme topla',()=>stats.powers,100,400);
+AX('r_pw2','Güç Efsanesi','400 güçlendirme topla',()=>stats.powers,400,900);
+AX('r_b','Boss Kâbusu','10 boss geç',()=>stats.bosses,10,500);
+AX('r_b2','Boss Efendisi','30 boss geç',()=>stats.bosses,30,1200);
+AX('r_sc','Uçan Koşucu','Tek oyunda 12000 puan yap',()=>best,12000,900);
+AX('r_w3','Çöl Kaşifi',"Çöl Dünyası'na ulaş",()=>stats.worldMax,3,200);
+AX('r_esc','Kurtulma Ustası','Canavardan 25 kez kurtul',()=>stats.escapes,25,500);
+AX('c25k','Servet','Toplam 25000 altın topla',()=>stats.coins,25000,1500);
+AX('cos4','Gardırop','4 kostüm satın al',()=>owned.length-1,4,500);
+AX('pet3','Hayvanat Bahçesi','3 evcil hayvan edin',()=>pets.length,3,500);
+AX('ball3','Top Koleksiyoncusu','3 top rengi satın al',()=>balls.length-1,3,300,'maze');
+AX('ball5','Renk Krallığı','5 top rengi satın al',()=>balls.length-1,5,900,'maze');
+AX('city200','Gökdelen Atlayıcı','Şehirde tek oyunda 200 puan yap',()=>cityBest,200,900);
+AX('mt3','Yıldız Toplayıcı','Karolarda toplam 24 yıldız topla',()=>mtStarsTotal(),24,900,'tiles');
+AX('mtS','Şarkı Koleksiyoncusu','5 şarkı bitir',()=>stats.songs||0,5,300,'tiles');
+AX('gez1','Gezgin','3 farklı oyun dene',()=>Object.keys(gs.pl||{}).length,3,150);
+AX('gez2','Dünya Turu','6 farklı oyun dene',()=>Object.keys(gs.pl||{}).length,6,400);
+AX('gez3','Oyun Kralı','10 farklı oyun dene',()=>Object.keys(gs.pl||{}).length,10,1000);
+AX('day3','Sadık Oyuncu','3 farklı gün oyna',GSK('days'),3,150);
+AX('day14','Düzenli Oyuncu','14 farklı gün oyna',GSK('days'),14,600);
+AX('day60','TapVerse Sakini','60 farklı gün oyna',GSK('days'),60,2000);
+AX('str7','Haftalık Seri','7 günlük hediye serisine ulaş',()=>Math.max(gs.streakMax||0,streak.count),7,400);
+AX('qd5','Görev Avcısı','5 günlük görev tamamla',GSK('qdone'),5,200);
+AX('qd25','Görev Ustası','25 günlük görev tamamla',GSK('qdone'),25,700);
+AX('qd100','Görev Efsanesi','100 günlük görev tamamla',GSK('qdone'),100,2000);
+AX('wk1','Haftanın Yıldızı','1 haftalık görev tamamla',GSK('wdone'),1,200);
+AX('wk5','Haftalık Usta','5 haftalık görev tamamla',GSK('wdone'),5,600);
+AX('wk20','Haftalık Efsane','20 haftalık görev tamamla',GSK('wdone'),20,1800);
+AX('sp5','Şanslı','Çarkı 5 kez çevir',GSK('spins'),5,150);
+AX('sp25','Çark Ustası','Çarkı 25 kez çevir',GSK('spins'),25,500);
 function checkAch(){
   for(const a of ACH)if(a.get()>=a.target&&!achSeen.includes(a.id)){achSeen.push(a.id);showBanner('🏆 '+a.name);sfx.power()}
   saveDaily();
 }
+const achWallet=a=>a.w||(a.id.indexOf('mt')===0?'tiles':a.id.indexOf('so')===0?'sort':a.id.indexOf('ar')===0?'arrows':a.id.indexOf('cl')===0?'clean':a.id.indexOf('gh')===0?'ghost':a.id.indexOf('lk')===0?'lock':a.id.indexOf('sg')===0?'shadow':'run');
+let achTab='ach';
 function renderAch(){
   const list=$('alist');list.innerHTML='';
+  $('achTabA').classList.toggle('on',achTab==='ach');$('achTabW').classList.toggle('on',achTab==='wk');
+  $('achWdot').textContent=qAlert(weekly)?'🔴':'';
+  if(achTab==='wk'){
+    ensureDaily();
+    const ms=weekLeft(),dd=Math.floor(ms/864e5),hh=Math.floor(ms%864e5/36e5);
+    const hd=document.createElement('div');hd.style.cssText='text-align:center;color:var(--mute);font-size:13px;margin:0 0 8px';hd.textContent='Her Pazartesi yenilenir · Kalan: '+dd+'d '+hh+'h';list.appendChild(hd);
+    const all=claimAllBtn(weekly,'w',renderAch);if(all)list.appendChild(all);
+    for(const q of weekly.quests)list.appendChild(qRow(q,'w',renderAch));
+    return;
+  }
+  const open=ACH.filter(a=>a.get()>=a.target&&!achClaimed.includes(a.id));
+  if(open.length>1){const b=document.createElement('button');b.className='gold';b.style.cssText='width:100%;margin:0 0 8px';b.textContent='🎁 Hepsini al ('+open.length+')';
+    b.onclick=()=>{for(const a of open){achClaimed.push(a.id);credit(achWallet(a),a.reward)}sfx.power();refreshCoins();toast('🎁 Hepsi alındı');saveDaily();renderAch();updateBadge()};list.appendChild(b)}
+  const done=ACH.filter(a=>achClaimed.includes(a.id)).length;
+  const hd=document.createElement('div');hd.style.cssText='text-align:center;color:var(--mute);font-size:13px;margin:0 0 8px';hd.textContent='Kazanılan: '+done+' / '+ACH.length;list.appendChild(hd);
   const sorted=ACH.slice().sort((a,b)=>{const ca=a.get()>=a.target&&!achClaimed.includes(a.id),cb=b.get()>=b.target&&!achClaimed.includes(b.id);return (cb-ca)||(achClaimed.includes(a.id)-achClaimed.includes(b.id))});
   for(const a of sorted){
-    const v=a.get(),done=v>=a.target,cl=achClaimed.includes(a.id),row=document.createElement('div');
-    row.className='row'+(done&&!cl?' sel':'');
-    row.innerHTML='<div class="tx">🏆 '+a.name+'<small>'+a.text+' · '+Math.min(v,a.target)+' / '+a.target+' · Ödül: 🪙 '+a.reward+'</small><div class="bar"><i style="width:'+Math.round(Math.min(1,v/a.target)*100)+'%"></i></div></div>';
-    const b=document.createElement('button');b.textContent=cl?'Alındı ✓':done?'Al 🪙 '+a.reward:'Devam';b.disabled=cl||!done;if(done&&!cl)b.className='gold';
-    b.onclick=()=>{achClaimed.push(a.id);const w=rndW();credit(w,a.reward);saveDaily();sfx.power();toast('+'+a.reward+' 🪙 '+WN[w]);refreshCoins();renderAch();updateBadge()};
+    const v=a.get(),dn=v>=a.target,cl=achClaimed.includes(a.id),row=document.createElement('div');
+    row.className='row'+(dn&&!cl?' sel':'');
+    const w=achWallet(a);
+    row.innerHTML='<div class="tx">🏆 '+a.name+'<small>'+a.text+' · '+Math.min(v,a.target)+' / '+a.target+' · 🪙 '+a.reward+' '+(WNAME[w]||'')+'</small><div class="bar"><i style="width:'+Math.round(Math.min(1,v/a.target)*100)+'%"></i></div></div>';
+    const b=document.createElement('button');b.textContent=cl?'Alındı ✓':dn?'Al 🪙 '+a.reward:'Devam';b.disabled=cl||!dn;if(dn&&!cl)b.className='gold';
+    b.onclick=()=>{achClaimed.push(a.id);payTo(w,a.reward);saveDaily();renderAch();updateBadge()};
     row.appendChild(b);list.appendChild(row);
   }
 }
@@ -768,8 +893,8 @@ function spinWheel(onDone){
   const cv=$('wcv');cv.style.transition='transform 4s cubic-bezier(.12,.7,.1,1)';cv.style.transform='rotate('+wRot+'deg)';
   $('wmsg').textContent='Dönüyor...';
   setTimeout(()=>{
-    const v=WVALS[idx],ww=rndW();credit(ww,v);refreshCoins();sfx.power();
-    $('wmsg').textContent='🎉 +'+v+' 🪙 '+WN[ww]+' parası!';wSpinning=false;onDone();sv('tv_wheel',wh);refreshWheelBtns();updateBadge();
+    const v=WVALS[idx],ww=giftW();credit(ww,v);gs.spins=(gs.spins||0)+1;saveDaily();checkAch();refreshCoins();sfx.power();
+    $('wmsg').textContent='🎉 +'+v+' 🪙 '+(WNAME[ww]||'');wSpinning=false;onDone();sv('tv_wheel',wh);refreshWheelBtns();updateBadge();
   },4200);
 }
 $('spinBtn').onclick=()=>{ensureWheel();if(!wh.free)return;wh.free=false;spinWheel(()=>{})};
@@ -777,6 +902,8 @@ $('spinAd').onclick=()=>{ensureWheel();if(wh.free||wh.ads>=2||wSpinning)return;A
 on(['wheelBtn','hubWheel'],()=>{leaveHome();show('wheel',true);drawWheel();$('wmsg').textContent='';refreshWheelBtns()});
 $('wback').onclick=()=>{if(wSpinning)return;show('wheel',false);goHome();updateBadge()};
 on(['achBtn','hubAch'],()=>{leaveHome();show('ach',true);renderAch()});
+$('achTabA').onclick=()=>{achTab='ach';renderAch()};
+$('achTabW').onclick=()=>{achTab='wk';renderAch()};
 $('aback').onclick=()=>{show('ach',false);goHome();updateBadge()};
 
 // ---- Kostümler ----
@@ -1031,7 +1158,7 @@ $('qback').onclick=()=>{show('quests',false);goHome();updateBadge()};
 
 // ---- Oyun seçimi (ana ekran) ----
 let curHome='hub';
-function leaveHome(){show('menu',false);show('hub',false)}
+function leaveHome(){if(curHome!=='hub')show('menu',false)}
 function goHome(){show(curHome==='hub'?'hub':'menu',true)}
 function refreshHub(){for(const k in MG)$('tag_'+k).textContent='Rekor: '+(mgBest[k]||0);const wl=k=>' · 🪙 '+(k===curW?totalCoins:(WALLET[k]||0));$('hsMt').textContent='⭐ '+mtStarsTotal()+'/'+SONGS.length*3+wl('tiles');$('hsCity').textContent='Rekor: '+cityBest;$('hsRun').textContent='En iyi: '+best+wl('run');if($('hsSk'))$('hsSk').textContent='Dünya '+(sk.cur+1)+' · '+SK_T.c.cur+' '+fmt(sk.c);if($('hsCl'))$('hsCl').textContent='Seviye '+clLevel+wl('clean');if($('hsSo'))$('hsSo').textContent='Seviye '+soLevel+wl('sort');if($('hsAr'))$('hsAr').textContent='Seviye '+arLevel+wl('arrows');$('hsMaze').textContent='Seviye '+mz.best+wl('maze')}
 const SCR=['hub','menu','over','shop','maze','city','mt','mtsel'];
@@ -1046,8 +1173,6 @@ $('cardRun').onclick=()=>{show('hub',false);toMenu()};
 $('cardMaze').onclick=()=>openMaze();
 $('cardCity').onclick=()=>openCity();
 $('cardMt').onclick=()=>openSongs();
-$('hubBall').onclick=()=>openShop('ball');
-$('hubDaily').onclick=()=>openMaze(true);
 $('hubBtn').onclick=()=>openHub();
 
 // ---- Oyun 2: Tek Parmak Labirent ----
@@ -1143,7 +1268,7 @@ function mzWin(){
   let firstDaily=false;
   if(g.daily){firstDaily=mzDay.date!==todayStr();g.reward=firstDaily?40+10*stars:0;if(firstDaily){mzDay={date:todayStr(),stars};sv('tv_mzday',mzDay)}}
   else g.reward=10+5*stars;
-  totalCoins+=g.reward;stats.coins+=g.reward;stats.mazeLevels++;addProg('maze',1);addProg('coins',g.reward);
+  totalCoins+=g.reward;stats.coins+=g.reward;stats.mazeLevels++;addProg('maze',1);addProg('coins',g.reward);addProg('c_maze',g.reward);
   if(!g.daily&&mz.cur>=mz.best){mz.best=mz.cur+1;sv('tv_mzlevel',mz.best)}
   saveW();saveDaily();sfx.power();mzSpark(g.exit.x,g.exit.y,40,'#ffd34d',260);
   $('mwStars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
@@ -1559,7 +1684,7 @@ function mtFail(msg,lane){
   sfx.hit();buzz(120);
   if(G.endless){
     const c=Math.min(80,Math.floor(G.score/40))-G.paid;G.paid+=Math.max(0,c);G.coins=G.paid;
-    if(c>0){totalCoins+=c;stats.coins+=c;addProg('coins',c)}
+    if(c>0){totalCoins+=c;stats.coins+=c;addProg('coins',c);addProg('c_tiles',c)}
     const prev=mtData[G.song.id]||{s:0,b:0};
     if(G.score>(prev.e||0)){mtData[G.song.id]=Object.assign({},prev,{e:G.score});G.newBest=true}
     sv('tv_mtdata',mtData);saveW();saveDaily();checkAch();refreshCoins();
@@ -1610,7 +1735,7 @@ function mtFinish(){
   const r=G.score/G.max;G.stars=r>=0.6?3:r>=0.42?2:1;
   const prev=mtData[G.song.id]||{s:0,b:0};
   let reward=4+G.stars*3+Math.max(0,G.stars-prev.s)*8;
-  G.coins=reward;totalCoins+=reward;stats.coins+=reward;addProg('coins',reward);addProg('song',1);
+  G.coins=reward;totalCoins+=reward;stats.coins+=reward;addProg('coins',reward);addProg('c_tiles',reward);addProg('song',1);
   stats.songs=(stats.songs||0)+1;
   mtData[G.song.id]={s:Math.max(prev.s,G.stars),b:Math.max(prev.b,G.score)};
   sv('tv_mtdata',mtData);saveW();saveDaily();checkAch();refreshCoins();
@@ -1800,7 +1925,9 @@ function mgRegister(d){
   scr.addEventListener('pointermove',e=>{if(state===id&&mgR.G&&!mgR.G.over&&d.move)d.move(mgR.G,e.clientX,e.clientY,e.pointerId)});
   ACH.push({id:'g_'+id+'1',name:d.ach[0].name,text:d.ach[0].text,get:()=>mgBest[id]||0,target:d.ach[0].t,reward:d.ach[0].r});
   ACH.push({id:'g_'+id+'2',name:d.ach[1].name,text:d.ach[1].text,get:()=>mgBest[id]||0,target:d.ach[1].t,reward:d.ach[1].r});
-  QPOOL.push({type:'g_'+id,target:d.q.t,text:d.q.text,reward:d.q.r});
+  QG[id]={n:d.title,e:d.emo,w:'run'};
+  {const a0=d.ach[0].t,a1=d.ach[1].t,R=Math.round;QT.push({k:'g_'+id,g:id,m:'max',x:'tek oyunda {n} puan yap',t:[Math.max(3,R(a0*.5)),a0,R(a1*.8)],w:[Math.max(5,R(a0*.8)),R(a0*1.5),R(a1*1.2)]})}
+  ACH.push({id:'g_'+id+'3',name:d.title+' Efsanesi',text:d.title+': tek oyunda '+Math.round(d.ach[1].t*2.5)+' puan yap',get:()=>mgBest[id]||0,target:Math.round(d.ach[1].t*2.5),reward:900})
 }
 function mgOpen(id){state=id;stopMusic();hideAll();show('g_'+id,true);mgStart(id)}
 function mgStart(id){
@@ -1819,7 +1946,7 @@ function mgEnd(G,msg){
   if(G.over)return;const d=G.d,id=d.id;
   G.over=true;G.overT=0;G.msg=msg||'Bitti!';G.coins=0;
   sfx.hit();buzz(100);
-  addProg('g_'+id,G.score,'max');
+  addProg('g_'+id,G.score,'max');addProg('gp_'+id,1);addProg('mgplay',1);
   if(G.score>(mgBest[id]||0)){mgBest[id]=G.score;sv('tv_mgbest',mgBest);G.newBest=true}
   wkRec(id,G.score);
   saveDaily();checkAch();
@@ -2511,7 +2638,6 @@ document.body.insertAdjacentHTML('beforeend','<div id="arrows" class="hidden mgs
 SCR.push('arrows');WKEYS.push('arrows');
 $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardAr" style="background:linear-gradient(135deg,#0ea5e9,#6366f1 60%,#d946ef)"><div class="gicon">🎯</div><div class="gtx"><b>Ok Kaçışı</b><small>Oklara dokun, yönüne kayıp çıksınlar. Yolu tıkalıysa çıkmaz!</small><span class="gtag" id="hsAr">Seviye 1</span></div><div class="gplay" style="color:#6366f1">▶</div></div>');
 ACH.push({id:'ar1',name:'Ok Avcısı',text:'Ok Kaçışı: 10. seviyeye ulaş',get:()=>arLevel-1,target:10,reward:200},{id:'ar2',name:'Ok Ustası',text:'Ok Kaçışı: 40. seviyeye ulaş',get:()=>arLevel-1,target:40,reward:600});
-QPOOL.push({type:'arrows',target:3,text:'Ok Kaçışı: 3 seviye geç',reward:150});
 const ar={G:null,raf:false,last:0};
 const arCell=W=>Math.max(15,Math.min(26,Math.floor((W-16)/19)));
 function arLayout(G){
@@ -2575,7 +2701,7 @@ function arTap(x,y){
 }
 function arWin(){
   const G=ar.G;G.done=true;const fresh=arCur===arLevel,coins=fresh?8+Math.min(arCur,40)*2+(arCur%5===0?20:0):0;G.reward=coins;
-  if(fresh){credit('arrows',coins);stats.coins+=coins;addProg('arrows',1);addProg('coins',coins);arLevel++;sv('tv_arlevel',arLevel);saveDaily();checkAch();refreshCoins()}
+  if(fresh){credit('arrows',coins);stats.coins+=coins;addProg('arrows',1);addProg('coins',coins);addProg('c_arrows',coins);arLevel++;sv('tv_arlevel',arLevel);saveDaily();checkAch();refreshCoins()}
   sfx.power();buzz(30);
   $('ar_wt').textContent='Seviye tamam! 🎉';$('ar_wi').textContent=fresh?'🪙 +'+coins:'Tekrar oynadın (altın yok)';$('ar_dbl').classList.toggle('hidden',!fresh);
   setTimeout(()=>{show('ar_win',true);if((ar.wins=(ar.wins||0)+1)%3===0)Ads.interstitial()},500);
@@ -3257,7 +3383,7 @@ function soFinish(G){
 function soWin(G){
   G.won=true;const fresh=G.level>=soLevel;
   const coins=Math.round((6+G.nc*2+(fresh?0:-4))*(G.boss?1.5:1));G.reward=Math.max(3,coins);
-  credit('sort',G.reward);stats.coins+=G.reward;addProg('coins',G.reward);addProg('sort',1);
+  credit('sort',G.reward);stats.coins+=G.reward;addProg('coins',G.reward);addProg('c_sort',G.reward);addProg('sort',1);
   if(fresh){soLevel=G.level+1;sv('tv_solevel',soLevel)}
   saveDaily();checkAch();refreshCoins();sfx.power();
   for(let k=0;k<70;k++){const ang=Math.random()*6.283,v=100+Math.random()*320;G.parts.push({x:G.W/2,y:G.H*0.42,vx:Math.cos(ang)*v,vy:Math.sin(ang)*v-220,life:1.4,max:1.4,c:SO_COL[k%SO_COL.length][0],r:3+Math.random()*4,g:420,sq:1})}
@@ -3427,7 +3553,6 @@ document.head.insertAdjacentHTML('beforeend','<style>#cl_prog{position:absolute;
 SCR.push('clean');
 $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardCl" style="background:linear-gradient(135deg,#10b981,#06b6d4 60%,#3b82f6)"><div class="gicon">🧼</div><div class="gtx"><b>Temizlik Simülatörü</b><small>Basınçlı suyla kirli eşyaları pırıl pırıl yap.</small><span class="gtag" id="hsCl">Seviye 1</span></div><div class="gplay" style="color:#0ea5e9">▶</div></div>');
 ACH.push({id:'cl1',name:'Temizlik Çırağı',text:'Temizlik: 8 nesne parlat',get:()=>clLevel-1,target:8,reward:250},{id:'cl2',name:'Temizlik Ustası',text:'Temizlik: 30 nesne parlat',get:()=>clLevel-1,target:30,reward:800});
-QPOOL.push({type:'clean',target:2,text:'Temizlik: 2 nesne parlat',reward:120},{type:'sort',target:3,text:'Su Sıralama: 3 seviye geç',reward:130});
 const CL_Q=2,CL_OW=360,CL_OH=260;
 const CL_OBJ=[{n:'🚗 Araba',f:'car'},{n:'👟 Spor Ayakkabı',f:'shoe'},{n:'🧶 Halı',f:'rug'},{n:'🪟 Pencere',f:'win'}];
 const cl={G:null,raf:false,last:0,snd:null};
@@ -3578,7 +3703,7 @@ function clWin(G){
   G.gx.clearRect(0,0,9999,9999);G.cx.clearRect(0,0,9999,9999);
   const lvl=Math.min(5,1+Math.floor((G.level-1)/4)),par=14+lvl*5+((G.level>=10&&G.level%10===0)?10:0);G.stars=G.time<par?3:G.time<par*1.8?2:1;
   const fresh=G.level>=clLevel;G.reward=8+G.level*2+G.stars*4+(fresh?0:-6);if(G.level>=10&&G.level%10===0)G.reward=Math.round(G.reward*1.5);G.reward=Math.max(4,G.reward);
-  credit('clean',G.reward);stats.coins+=G.reward;addProg('coins',G.reward);addProg('clean',1);
+  credit('clean',G.reward);stats.coins+=G.reward;addProg('coins',G.reward);addProg('c_clean',G.reward);addProg('clean',1);
   if(fresh){clLevel=G.level+1;sv('tv_cllevel',clLevel)}
   saveDaily();checkAch();refreshCoins();sfx.power();buzz(30);
   for(let i=0;i<26;i++)G.spark.push({x:G.ox+Math.random()*CL_OW*G.sc,y:G.oy+Math.random()*CL_OH*G.sc,t:-Math.random()*0.9,s:6+Math.random()*12});
@@ -3900,7 +4025,7 @@ function jbStageDone(G){
 function jbFinish(G){
   const par=G.off.par,t=G.time;let stars=t<par&&G.wrong<=2?3:t<par*1.6?2:1;if(G.wrong>=8&&stars>1)stars--;
   const base=G.off.pay,mul=stars===3?1.15:stars===2?1:.8,tip=G.wrong===0?Math.round(base*.15/5)*5:0,pay=Math.round(base*mul/5)*5+tip;
-  G.pay=pay;credit('clean',pay);stats.coins+=pay;addProg('coins',pay);addProg('clean',1);sv('tv_cljobs',ld('tv_cljobs',0)+1);sv('tv_cljob',{day:todayStr(),stars,pay,k:G.off.k});sv('tv_cljobact',null);
+  G.pay=pay;credit('clean',pay);stats.coins+=pay;addProg('coins',pay);addProg('c_clean',pay);addProg('clean',1);sv('tv_cljobs',ld('tv_cljobs',0)+1);sv('tv_cljob',{day:todayStr(),stars,pay,k:G.off.k});sv('tv_cljobact',null);
   saveDaily();checkAch();refreshCoins();sfx.power();buzz(40);G.fin=true;
   $('jb_st').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
   $('jb_wi').textContent=G.job.e+' '+G.job.n+'\n⏱ '+Math.round(t)+' sn (hedef '+par+' sn) · ⚠ '+G.wrong+' yanlış alet\n🪙 +'+pay+(tip?' (iz bırakmadın: +'+tip+' bonus)':'');
@@ -4175,7 +4300,7 @@ function ghWin(G){
   const fresh=G.level>=ghLevel;
   let coins=8+G.minG*4+stars*3+Math.floor(G.level/5);if(G.boss)coins=Math.round(coins*1.5);if(!fresh)coins=Math.max(3,Math.round(coins*0.4));
   G.reward=coins;G.stars=stars;
-  credit('ghost',coins);stats.coins+=coins;addProg('coins',coins);addProg('ghost',1);
+  credit('ghost',coins);stats.coins+=coins;addProg('coins',coins);addProg('c_ghost',coins);addProg('ghost',1);
   if(fresh){ghLevel=G.level+1;sv('tv_ghlevel',ghLevel)}
   saveDaily();checkAch();refreshCoins();sfx.power();
   for(let k=0;k<60;k++){const a=Math.random()*6.283,v=100+Math.random()*300;G.parts.push({x:(G.p.x-G.cam)*G.u+8,y:G.gy-30,vx:Math.cos(a)*v,vy:Math.sin(a)*v-200,life:1.2,c:GH_C[k%6]})}
@@ -4388,7 +4513,7 @@ function lkWin(G){
   G.won=true;
   let coins=10+G.level*2+G.total*3;if(G.broken===0)coins=Math.round(coins*1.5);if(lkHard)coins=Math.round(coins*1.5);if(G.boss)coins=Math.round(coins*1.5);
   const fresh=G.level>=lkLevel;if(!fresh)coins=Math.max(4,Math.round(coins*0.4));
-  G.reward=coins;credit('lock',coins);stats.coins+=coins;addProg('coins',coins);addProg('lock',1);
+  G.reward=coins;credit('lock',coins);stats.coins+=coins;addProg('coins',coins);addProg('c_lock',coins);addProg('lock',1);
   if(fresh){lkLevel=G.level+1;sv('tv_lklevel',lkLevel)}
   saveDaily();checkAch();refreshCoins();sfx.power();buzz([40,40,40,40,120]);
   $('lk_t').textContent=G.boss?'BOSS kasa açıldı! 🏆':'Kasa açıldı! 🔓';$('lk_next').textContent='▶ Sonraki Kasa';$('lk_dbl').textContent='📺 Altını 2 kat yap';$('lk_dbl').classList.remove('hidden');
@@ -4546,7 +4671,7 @@ function sgWin(G){
   G.won=true;G.pc=1;G.sn0={L:G.L.slice(),phi:G.phi};G.snT=0;G.flash=0;
   const stars=G.t<35?3:G.t<80?2:1,fresh=G.level>=sgLevel;
   let coins=8+G.n*3+stars*3+Math.floor(G.level/5);if(G.boss)coins=Math.round(coins*1.5);if(!fresh)coins=Math.max(3,Math.round(coins*0.4));
-  G.reward=coins;credit('shadow',coins);stats.coins+=coins;addProg('coins',coins);addProg('shadow',1);
+  G.reward=coins;credit('shadow',coins);stats.coins+=coins;addProg('coins',coins);addProg('c_shadow',coins);addProg('shadow',1);
   if(fresh){sgLevel=G.level+1;sv('tv_sglevel',sgLevel)}
   saveDaily();checkAch();refreshCoins();sfx.power();buzz([30,30,80]);
   $('sg_stars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);$('sg_wi').textContent='🪙 +'+coins+' · '+Math.round(G.t)+' sn';$('sg_dbl').classList.remove('hidden');
@@ -4703,7 +4828,7 @@ function frame(now){
       if(bossRows>0){
         spawnZ-=Math.max(13,speed*0.45);spawnBossRow(spawnZ,BOSS_PATTERNS[BOSS_PATTERNS.length-bossRows]);bossRows--;
         if(bossRows===0){
-          addMark(spawnZ-3,()=>{showBanner('✅ Boss geçildi! +60🪙');totalCoins+=60;runCoins+=60;saveW();stats.bosses++;addProg('coins',60);$('rc').textContent=runCoins;sfx.power();checkAch()},0);
+          addMark(spawnZ-3,()=>{showBanner('✅ Boss geçildi! +60🪙');totalCoins+=60;runCoins+=60;saveW();stats.bosses++;addProg('boss',1);addProg('coins',60);addProg('c_run',60);$('rc').textContent=runCoins;sfx.power();checkAch()},0);
           for(let l=0;l<3;l++){spawnCoins(l,spawnZ-6);spawnCoins(l,spawnZ-12)}
           spawnZ-=26;
         }
@@ -4731,7 +4856,7 @@ function frame(now){
     for(let i=coins.length-1;i>=0;i--){
       const c=coins[i];
       if(Math.abs(c.position.z)<0.8&&Math.abs(c.position.x-px)<0.9&&pBot<1.35&&pTop>0.65){
-        scene.remove(c);coins.splice(i,1);const val=pw.x2>0?2:1;runCoins+=val;totalCoins+=val;stats.coins+=val;addProg('coins',val);addProg('runcoins',runCoins,'max');sfx.coin();
+        scene.remove(c);coins.splice(i,1);const val=pw.x2>0?2:1;runCoins+=val;totalCoins+=val;stats.coins+=val;addProg('coins',val);addProg('c_run',val);addProg('runcoins',runCoins,'max');sfx.coin();
         burst(c.position.x,c.position.y,0,0xffd54f,7,4,0.1,2,speed*0.5);
         $('rc').textContent=runCoins;
       }
@@ -6016,6 +6141,92 @@ Oyunu kapatmak istediğinden emin misin?|Are you sure you want to close the game
 Hayır, devam et|No, keep playing|No, seguir jugando|Não, continuar|Nein, weiterspielen|Non, continuer|Нет, продолжить|Tidak, lanjut main
 Evet, çık|Yes, exit|Sí, salir|Sim, sair|Ja, beenden|Oui, quitter|Да, выйти|Ya, keluar
 Mini oyunlar evreni|Mini game universe|Universo de minijuegos|Universo de minijogos|Mini-Spiel-Universum|Univers des mini-jeux|Вселенная мини-игр|Semesta mini game
+Kolay|Easy|Fácil|Fácil|Leicht|Facile|Легко|Mudah
+Orta|Medium|Medio|Médio|Mittel|Moyen|Средне|Sedang
+Zor|Hard|Difícil|Difícil|Schwer|Difficile|Сложно|Sulit
+Çırağı|Apprentice|Aprendiz|Aprendiz|Lehrling|Apprenti|Ученик|Murid
+Ustası|Master|Maestro|Mestre|Meister|Maître|Мастер|Master
+Efsanesi|Legend|Leyenda|Lenda|Legende|Légende|Легенда|Legenda
+Mini Oyunlar|Mini Games|Minijuegos|Minijogos|Minispiele|Mini-jeux|Мини-игры|Mini Game
+{} kez koş|run {} times|corre {} veces|corra {} vezes|laufe {} Mal|cours {} fois|пробеги {} раз|lari {} kali
+tek oyunda {} puan yap|score {} points in one game|haz {} puntos en una partida|faça {} pontos em uma partida|erreiche {} Punkte in einem Spiel|fais {} points en une partie|набери {} очков за игру|raih {} poin dalam satu game
+tek oyunda {} altın topla|collect {} coins in one game|recoge {} monedas en una partida|colete {} moedas em uma partida|sammle {} Münzen in einem Spiel|ramasse {} pièces en une partie|собери {} монет за игру|kumpulkan {} koin dalam satu game
+toplam {} altın topla|collect {} coins in total|recoge {} monedas en total|colete {} moedas no total|sammle insgesamt {} Münzen|ramasse {} pièces au total|собери всего {} монет|kumpulkan total {} koin
+{} kez zıpla|jump {} times|salta {} veces|pule {} vezes|springe {} Mal|saute {} fois|прыгни {} раз|lompat {} kali
+{} kez kay|slide {} times|desliza {} veces|deslize {} vezes|rutsche {} Mal|glisse {} fois|скользни {} раз|slide {} kali
+{} güçlendirme topla|collect {} power-ups|recoge {} potenciadores|colete {} poderes|sammle {} Power-ups|ramasse {} bonus|собери {} усилений|kumpulkan {} power-up
+{} boss geç|beat {} bosses|supera {} jefes|vença {} chefes|besiege {} Bosse|bats {} boss|пройди {} боссов|kalahkan {} boss
+{} seviye bitir|finish {} levels|termina {} niveles|termine {} níveis|schließe {} Level ab|termine {} niveaux|пройди {} уровней|selesaikan {} level
+toplam {} altın kazan|earn {} coins in total|gana {} monedas en total|ganhe {} moedas no total|verdiene insgesamt {} Münzen|gagne {} pièces au total|заработай всего {} монет|dapatkan total {} koin
+{} karo çal|play {} tiles|toca {} baldosas|toque {} blocos|spiele {} Kacheln|joue {} tuiles|сыграй {} плиток|mainkan {} ubin
+{} şarkı bitir|finish {} songs|termina {} canciones|termine {} músicas|beende {} Lieder|termine {} chansons|заверши {} песен|selesaikan {} lagu
+{} iş bitir|finish {} jobs|termina {} trabajos|termine {} trabalhos|erledige {} Aufträge|termine {} tâches|выполни {} заказов|selesaikan {} pekerjaan
+{} kasa aç|open {} safes|abre {} cajas fuertes|abra {} cofres|öffne {} Tresore|ouvre {} coffres|открой {} сейфов|buka {} brankas
+{} bahçe bitir|finish {} gardens|termina {} jardines|termine {} jardins|schließe {} Gärten ab|termine {} jardins|пройди {} садов|selesaikan {} taman
+{} tur oyna|play {} rounds|juega {} rondas|jogue {} rodadas|spiele {} Runden|joue {} tours|сыграй {} раундов|mainkan {} ronde
+{} farklı oyun oyna|play {} different games|juega {} juegos distintos|jogue {} jogos diferentes|spiele {} verschiedene Spiele|joue à {} jeux différents|сыграй в {} разных игр|mainkan {} game berbeda
+Hepsini al ({})|Claim all ({})|Reclamar todo ({})|Resgatar tudo ({})|Alle abholen ({})|Tout récupérer ({})|Забрать всё ({})|Ambil semua ({})
+Hepsi alındı|All claimed|Todo reclamado|Tudo resgatado|Alles abgeholt|Tout récupéré|Всё получено|Semua diambil
+Her Pazartesi yenilenir|Renews every Monday|Se renueva cada lunes|Renova toda segunda|Erneuert sich jeden Montag|Se renouvelle chaque lundi|Обновляется каждый понедельник|Diperbarui tiap Senin
+Kalan|Left|Restante|Restante|Übrig|Restant|Осталось|Sisa
+Kazanılan|Earned|Ganados|Ganhos|Erreicht|Obtenus|Получено|Diperoleh
+Başarımlar|Achievements|Logros|Conquistas|Erfolge|Succès|Достижения|Pencapaian
+Haftalık|Weekly|Semanal|Semanal|Wöchentlich|Hebdo|Неделя|Mingguan
+Her gün yeni görevler gelir|New quests every day|Nuevas misiones cada día|Novas missões todo dia|Jeden Tag neue Aufgaben|De nouvelles quêtes chaque jour|Новые задания каждый день|Misi baru setiap hari
+Haftalık görevler Başarımlar bölümünde|Weekly quests are in Achievements|Las misiones semanales están en Logros|Missões semanais ficam em Conquistas|Wöchentliche Aufgaben sind bei Erfolgen|Les quêtes hebdo sont dans Succès|Недельные задания в разделе Достижения|Misi mingguan ada di Pencapaian
+Zıplama Şampiyonu|Jump Champion|Campeón de Saltos|Campeão de Pulos|Sprungmeister|Champion du saut|Чемпион прыжков|Juara Lompat
+Yaylı Ayaklar|Spring Legs|Piernas de Resorte|Pernas de Mola|Federbeine|Jambes à ressort|Пружинные ноги|Kaki Pegas
+Kaygan Zemin|Slippery Floor|Suelo Resbaladizo|Chão Escorregadio|Rutschiger Boden|Sol glissant|Скользкий пол|Lantai Licin
+Buz Pateni|Ice Skating|Patinaje|Patinação|Eislaufen|Patinage|Фигурное катание|Seluncur Es
+Altın Avcısı|Gold Hunter|Cazador de Oro|Caçador de Ouro|Goldjäger|Chasseur d'or|Охотник за золотом|Pemburu Emas
+Altın Madeni|Gold Mine|Mina de Oro|Mina de Ouro|Goldmine|Mine d'or|Золотой рудник|Tambang Emas
+Dolu Cepler|Full Pockets|Bolsillos Llenos|Bolsos Cheios|Volle Taschen|Poches pleines|Полные карманы|Kantong Penuh
+Altın Yağmuru|Gold Rain|Lluvia de Oro|Chuva de Ouro|Goldregen|Pluie d'or|Золотой дождь|Hujan Emas
+Güç Ustası|Power Master|Maestro del Poder|Mestre do Poder|Kraftmeister|Maître de puissance|Мастер силы|Master Kekuatan
+Güç Efsanesi|Power Legend|Leyenda del Poder|Lenda do Poder|Kraftlegende|Légende de puissance|Легенда силы|Legenda Kekuatan
+Boss Kâbusu|Boss Nightmare|Pesadilla de Jefes|Pesadelo dos Chefes|Boss-Albtraum|Cauchemar des boss|Кошмар боссов|Mimpi Buruk Boss
+Boss Efendisi|Boss Lord|Señor de Jefes|Senhor dos Chefes|Boss-Herr|Seigneur des boss|Повелитель боссов|Penguasa Boss
+Uçan Koşucu|Flying Runner|Corredor Volador|Corredor Voador|Fliegender Läufer|Coureur volant|Летящий бегун|Pelari Terbang
+Çöl Kaşifi|Desert Explorer|Explorador del Desierto|Explorador do Deserto|Wüstenforscher|Explorateur du désert|Исследователь пустыни|Penjelajah Gurun
+Kurtulma Ustası|Escape Master|Maestro del Escape|Mestre da Fuga|Fluchtmeister|Maître de l'évasion|Мастер побега|Master Kabur
+Servet|Fortune|Fortuna|Fortuna|Vermögen|Fortune|Состояние|Kekayaan
+Gardırop|Wardrobe|Armario|Guarda-roupa|Kleiderschrank|Garde-robe|Гардероб|Lemari Baju
+Hayvanat Bahçesi|Zoo|Zoológico|Zoológico|Zoo|Zoo|Зоопарк|Kebun Binatang
+Top Koleksiyoncusu|Ball Collector|Coleccionista de Bolas|Colecionador de Bolas|Ballsammler|Collectionneur de balles|Коллекционер шаров|Kolektor Bola
+Renk Krallığı|Color Kingdom|Reino de Color|Reino de Cores|Farbenreich|Royaume des couleurs|Царство цвета|Kerajaan Warna
+Gökdelen Atlayıcı|Skyscraper Jumper|Saltador de Rascacielos|Saltador de Arranha-céus|Wolkenkratzer-Springer|Sauteur de gratte-ciel|Прыгун по небоскрёбам|Pelompat Gedung Pencakar
+Yıldız Toplayıcı|Star Collector|Coleccionista de Estrellas|Colecionador de Estrelas|Sternensammler|Collectionneur d'étoiles|Собиратель звёзд|Kolektor Bintang
+Şarkı Koleksiyoncusu|Song Collector|Coleccionista de Canciones|Colecionador de Músicas|Liedersammler|Collectionneur de chansons|Коллекционер песен|Kolektor Lagu
+Gezgin|Traveler|Viajero|Viajante|Reisender|Voyageur|Путешественник|Penjelajah
+Dünya Turu|World Tour|Vuelta al Mundo|Volta ao Mundo|Weltreise|Tour du monde|Кругосветка|Keliling Dunia
+Oyun Kralı|Game King|Rey del Juego|Rei do Jogo|Spielkönig|Roi du jeu|Король игр|Raja Game
+Sadık Oyuncu|Loyal Player|Jugador Leal|Jogador Fiel|Treuer Spieler|Joueur fidèle|Верный игрок|Pemain Setia
+Düzenli Oyuncu|Regular Player|Jugador Habitual|Jogador Regular|Stammspieler|Joueur régulier|Постоянный игрок|Pemain Rutin
+TapVerse Sakini|TapVerse Resident|Residente de TapVerse|Morador do TapVerse|TapVerse-Bewohner|Habitant de TapVerse|Житель TapVerse|Penghuni TapVerse
+Haftalık Seri|Weekly Streak|Racha Semanal|Sequência Semanal|Wochenserie|Série hebdo|Недельная серия|Seri Mingguan
+Görev Avcısı|Quest Hunter|Cazador de Misiones|Caçador de Missões|Aufgabenjäger|Chasseur de quêtes|Охотник за заданиями|Pemburu Misi
+Görev Ustası|Quest Master|Maestro de Misiones|Mestre de Missões|Aufgabenmeister|Maître des quêtes|Мастер заданий|Master Misi
+Görev Efsanesi|Quest Legend|Leyenda de Misiones|Lenda de Missões|Aufgabenlegende|Légende des quêtes|Легенда заданий|Legenda Misi
+Haftanın Yıldızı|Star of the Week|Estrella de la Semana|Estrela da Semana|Stern der Woche|Star de la semaine|Звезда недели|Bintang Minggu Ini
+Haftalık Usta|Weekly Master|Maestro Semanal|Mestre Semanal|Wochenmeister|Maître hebdo|Мастер недели|Master Mingguan
+Haftalık Efsane|Weekly Legend|Leyenda Semanal|Lenda Semanal|Wochenlegende|Légende hebdo|Легенда недели|Legenda Mingguan
+Şanslı|Lucky|Afortunado|Sortudo|Glückspilz|Chanceux|Везунчик|Beruntung
+Çark Ustası|Wheel Master|Maestro de la Rueda|Mestre da Roleta|Radmeister|Maître de la roue|Мастер колеса|Master Roda
+Koşuda toplam {} kez zıpla|Jump {} times in total while running|Salta {} veces en total corriendo|Pule {} vezes no total correndo|Springe insgesamt {} Mal beim Laufen|Saute {} fois au total en courant|Прыгни всего {} раз на бегу|Lompat total {} kali saat berlari
+Koşuda toplam {} kez kay|Slide {} times in total while running|Desliza {} veces en total corriendo|Deslize {} vezes no total correndo|Rutsche insgesamt {} Mal beim Laufen|Glisse {} fois au total en courant|Скользни всего {} раз на бегу|Slide total {} kali saat berlari
+Koşuda toplam {} altın topla|Collect {} coins in total while running|Recoge {} monedas en total corriendo|Colete {} moedas no total correndo|Sammle insgesamt {} Münzen beim Laufen|Ramasse {} pièces au total en courant|Собери всего {} монет на бегу|Kumpulkan total {} koin saat berlari
+Tek koşuda {} altın topla|Collect {} coins in one run|Recoge {} monedas en una carrera|Colete {} moedas em uma corrida|Sammle {} Münzen in einem Lauf|Ramasse {} pièces en une course|Собери {} монет за один забег|Kumpulkan {} koin dalam satu lari
+{} kostüm satın al|Buy {} costumes|Compra {} trajes|Compre {} fantasias|Kaufe {} Kostüme|Achète {} costumes|Купи {} костюмов|Beli {} kostum
+{} evcil hayvan edin|Get {} pets|Consigue {} mascotas|Ganhe {} bichos|Hole dir {} Haustiere|Obtiens {} animaux|Заведи {} питомцев|Dapatkan {} hewan
+{} top rengi satın al|Buy {} ball colors|Compra {} colores de bola|Compre {} cores de bola|Kaufe {} Ballfarben|Achète {} couleurs de balle|Купи {} цветов шара|Beli {} warna bola
+{} şarkı bitir|Finish {} songs|Termina {} canciones|Termine {} músicas|Beende {} Lieder|Termine {} chansons|Заверши {} песен|Selesaikan {} lagu
+{} farklı oyun dene|Try {} different games|Prueba {} juegos distintos|Experimente {} jogos diferentes|Probiere {} verschiedene Spiele aus|Essaie {} jeux différents|Попробуй {} разных игр|Coba {} game berbeda
+{} farklı gün oyna|Play on {} different days|Juega en {} días distintos|Jogue em {} dias diferentes|Spiele an {} verschiedenen Tagen|Joue pendant {} jours différents|Играй в {} разных дней|Main di {} hari berbeda
+{} günlük hediye serisine ulaş|Reach a {}-day gift streak|Alcanza una racha de {} días de regalo|Alcance uma sequência de {} dias de presente|Erreiche eine {}-Tage-Geschenkserie|Atteins une série de {} jours de cadeau|Достигни серии подарков в {} дней|Capai seri hadiah {} hari
+{} günlük görev tamamla|Complete {} daily quests|Completa {} misiones diarias|Complete {} missões diárias|Schließe {} Tagesaufgaben ab|Termine {} quêtes quotidiennes|Выполни {} ежедневных заданий|Selesaikan {} misi harian
+{} haftalık görev tamamla|Complete {} weekly quests|Completa {} misiones semanales|Complete {} missões semanais|Schließe {} Wochenaufgaben ab|Termine {} quêtes hebdo|Выполни {} недельных заданий|Selesaikan {} misi mingguan
+Çarkı {} kez çevir|Spin the wheel {} times|Gira la rueda {} veces|Gire a roleta {} vezes|Drehe das Rad {} Mal|Tourne la roue {} fois|Крутани колесо {} раз|Putar roda {} kali
+Tek oyunda {} puan yap|Score {} points in one game|Haz {} puntos en una partida|Faça {} pontos em uma partida|Erreiche {} Punkte in einem Spiel|Fais {} points en une partie|Набери {} очков за игру|Raih {} poin dalam satu game
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];
