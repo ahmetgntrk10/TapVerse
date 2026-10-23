@@ -1020,7 +1020,7 @@ function openHub(){
   state='hub';curHome='hub';stopMusic();
   hideAll();
   $('coinhud').style.display='none';$('pw').textContent='';scoreEl.textContent='';
-  show('hub',true);refreshCoins();updateBadge();refreshHub();
+  show('hub',true);refreshCoins();updateBadge();refreshHub();try{$('hsGh').textContent='Seviye '+ghLevel}catch(e){}
 }
 $('cardRun').onclick=()=>{show('hub',false);toMenu()};
 $('cardMaze').onclick=()=>openMaze();
@@ -4017,8 +4017,217 @@ $('jb_dbl').onclick=()=>Ads.rewarded(()=>{const G=jb.G;credit('clean',G.pay);ref
 function freeBig(){
   if(state!=='sort'){so.G=null;const c=$('c_so');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='clean'){cl.G=null;const c=$('c_cl');if(c&&c.width>1){c.width=1;c.height=1}}
+  if(state!=='gh'){gh.G=null;const c=$('c_gh');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='job'){jb.G=null;const c=$('c_jb');if(c&&c.width>1){c.width=1;c.height=1}}
 }
+// ---- Hayalet Takım ----
+WN.ghost='Hayalet Takım';WKEYS.push('ghost');
+let ghLevel=ld('tv_ghlevel',1);
+const gh={G:null,raf:false,last:0,acc:0,inp:{l:0,r:0,jb:0}};
+const GH_C=['#ff6b8a','#ffb938','#62e88f','#42dcec','#ad74ff','#ff82dc'];
+const GH_DT=1/60,GH_SPD=4.2,GH_JV=9.0,GH_G=24,GH_HW=0.32,GH_VIS=11,GH_MAXT=1800;
+document.body.insertAdjacentHTML('beforeend','<div id="gh" class="hidden mgscr"><canvas id="c_gh"></canvas>'
+ +'<div class="mtop"><button id="gh_back" class="ibtn alt">‹</button><div class="pill" id="gh_lv">Seviye 1</div><div class="pill sm" id="gh_rd">Tur 1</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
+ +'<div class="ghact"><button id="gh_done">✓ Kaydı Bitir</button><button id="gh_redo">↺ Turu Sil</button><button id="gh_hint">💡</button><button id="gh_rs">🔄</button></div>'
+ +'<div class="ghpad"><div class="lr"><button id="gh_l">◀</button><button id="gh_r">▶</button></div><button id="gh_j">⤒</button></div>'
+ +'<div id="gh_win" class="overlay hidden"><div class="card"><div class="ttl" style="color:var(--gold)">Harika! 🎉</div><div id="gh_stars" style="font-size:34px"></div><div id="gh_wi" style="color:var(--mute);margin:6px 0"></div><button id="gh_next" class="gold">▶ Sonraki Seviye</button><button id="gh_dbl" class="alt">📺 Altını 2 kat yap</button><button id="gh_wh" class="alt">🎮 Oyunlar</button></div></div></div>');
+document.head.insertAdjacentHTML('beforeend','<style>#gh_lv,#gh_rd{white-space:nowrap}#gh_lv{font-size:15px;padding:6px 11px}.ghact{position:absolute;left:0;right:0;top:calc(66px + env(safe-area-inset-top));display:flex;gap:8px;padding:0 12px}.ghact button{flex:1;padding:8px 4px;min-width:0;font-size:13px;font-weight:700;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:linear-gradient(#3b2f86,#251c5c);color:#fff;font-family:inherit}.ghact #gh_done{flex:2.4;background:linear-gradient(#22c55e,#15803d)}.ghact button.off{opacity:.4}.ghpad{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:flex-end;padding:10px 14px calc(16px + env(safe-area-inset-bottom));touch-action:none;user-select:none;-webkit-user-select:none}.ghpad .lr{display:flex;gap:10px}.ghpad button{width:86px;height:86px;min-width:0;padding:0;border-radius:24px;font-size:34px;border:1px solid rgba(255,255,255,.2);background:linear-gradient(#4a3aa8,#2a1f6e);color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.4);touch-action:none}.ghpad button.dn{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.4);filter:brightness(1.3)}.ghpad #gh_j{width:104px;height:104px;border-radius:30px;background:linear-gradient(#ffb938,#e07a06)}</style>');
+SCR.push('gh');
+$('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardGh" style="background:linear-gradient(135deg,#0f766e,#6366f1 60%,#c084fc)"><div class="gicon">👻</div><div class="gtx"><b>Hayalet Takım</b><small>Kendi hayaletlerinle iş birliği yap, kapıları aç.</small><span class="gtag" id="hsGh">Seviye 1</span></div><div class="gplay" style="color:#6366f1">▶</div></div>');
+ACH.push({id:'gh1',name:'Takım Oyuncusu',text:'Hayalet Takım: 10. seviyeye ulaş',get:()=>ghLevel-1,target:10,reward:200},{id:'gh2',name:'Hayalet Avcısı',text:'Hayalet Takım: 40. seviyeye ulaş',get:()=>ghLevel-1,target:40,reward:600});
+const _lbCfg0=lbCfg;
+lbCfg=function(id){
+  if(id==='gh'){const wl=k=>'🪙 '+(k===curW?totalCoins:(WALLET[k]||0));return{emo:'👻',t:'Hayalet Takım',d:'Turu oynarsın, kaydın hayalet olarak geri döner. Hayalet plakada beklerken kapıdan geç. Sonra yeni hayalet kaydet!',i:'Seviye '+ghLevel,w:wl('ghost'),wk:'ghost',play:()=>openGh(ghLevel),x:[],levels:true,cur:()=>ghLevel,open:openGh}}
+  return _lbCfg0(id);
+};
+// seviye üretimi (aynı seviye = hep aynı bölüm)
+function ghGen(level){
+  const rnd=mzRng(level*7919+13),boss=level>=10&&level%10===0;
+  let nd=1+(level>=6?1:0)+(level>=16?1:0)+(level>=30?1:0)+(boss?1:0);nd=Math.min(4,nd);
+  const doors=[],plates=[],spikes=[],pits=[];let cur=1.4,ghosts=0;
+  for(let i=0;i<nd;i++){
+    const timed=level>=12&&i>0&&rnd()<0.3;
+    let need=1;if(!timed&&level>=20&&i>0&&ghosts<=2&&rnd()<0.4)need=2;
+    plates.push({x:cur+0.6,need,c:i});cur+=1.2+1.4;
+    const hz=level>=3?(rnd()<Math.min(0.85,0.35+level*0.03)?1:0):0;
+    const addH=()=>{if(level>=6&&rnd()<0.5){const w=1.2+rnd()*0.7;pits.push([cur+1.2,cur+1.2+w]);cur+=w+3.4}else{spikes.push(cur+1.0);cur+=3.4}};
+    if(hz)addH();
+    if(level>=9&&rnd()<0.35&&!timed)addH();
+    doors.push({x:cur+0.2,linger:timed?3:0,c:i});if(!timed)ghosts+=need;cur+=1.4;
+  }
+  if(level>=5&&rnd()<0.6){spikes.push(cur+1.0);cur+=3.2}
+  const exitX=cur+0.6;return{L:exitX+1.2,plates,doors,spikes,pits,exitX,minG:ghosts,nd,boss};
+}
+function ghSolid(G,x){for(const p of G.pits)if(x>p[0]+0.14&&x<p[1]-0.14)return false;return true}
+function ghReset(G){
+  G.p={x:0.9,y:0,vy:0,g:true,f:1};G.tick=0;G.rec=[];G.dead=0;G.jbuf=0;
+  G.dst=G.doors.map(()=>({open:false,t:0}));G.press=G.plates.map(()=>0);
+}
+function ghActors(G){
+  const a=[G.p];for(const g of G.ghosts){const r=g.rec,k=Math.min(Math.max(G.tick-1,0),r.length-1);if(k>=0)a.push({x:r[k][0],y:r[k][1],f:r[k][2],ghost:1,gi:g.i})}return a;
+}
+function ghStep(G){
+  const P=G.p,I=gh.inp;
+  if(G.dead>0){G.dead-=GH_DT;if(G.dead<=0){ghReset(G)}return}
+  const dir=(I.r?1:0)-(I.l?1:0);
+  if(I.jb>0)G.jbuf=7;
+  P.x+=dir*GH_SPD*GH_DT;if(dir)P.f=dir;
+  G.doors.forEach((d,i)=>{if(!G.dst[i].open&&P.x+GH_HW>d.x-0.15&&P.x-GH_HW<d.x+0.15)P.x=P.x<d.x?d.x-0.15-GH_HW:d.x+0.15+GH_HW});
+  P.x=Math.max(GH_HW,Math.min(G.L-GH_HW,P.x));
+  const sup=ghSolid(G,P.x);
+  if(P.g&&!sup)P.g=false;
+  if(P.g&&G.jbuf>0){P.vy=GH_JV;P.g=false;G.jbuf=0;sfx.jump&&sfx.jump()}
+  if(G.jbuf>0)G.jbuf--;
+  if(!P.g){P.vy-=GH_G*GH_DT;P.y+=P.vy*GH_DT;if(P.y<=0&&sup&&P.vy<=0){P.y=0;P.vy=0;P.g=true}}
+  I.jb=0;
+  let die=P.y<-2.5;
+  for(const s of G.spikes)if(Math.abs(P.x-s)<0.45&&P.y<0.4)die=true;
+  if(die){G.dead=0.7;G.deaths++;G.shake=0.4;buzz(40);tone(300,90,0.25,'sawtooth',0.07);return}
+  G.rec.push([P.x,P.y,P.f]);
+  G.tick++;
+  // plaka ve kapı durumu
+  const act=ghActors(G);
+  G.plates.forEach((pl,i)=>{let n=0;for(const a of act)if(a.y<0.06&&Math.abs(a.x-pl.x)<0.55)n++;G.press[i]=n});
+  G.doors.forEach((d,i)=>{const s=G.dst[i],on=G.press[i]>=G.plates[i].need;const was=s.open;if(on)s.t=d.linger;else if(s.t>0)s.t-=GH_DT;s.open=on||s.t>0;if(s.open&&!was){tone(500,900,0.12,'triangle',0.06);G.fl.push({x:d.x,t:0.5})}});
+  if(P.x>=G.exitX&&P.g)return ghWin(G);
+  if(G.tick>=GH_MAXT)ghDone(G,true);
+}
+function ghDone(G,auto){
+  if(G.won||G.dead>0)return;
+  if(G.rec.length<10){toast('Biraz hareket et ✋');return}
+  if(G.ghosts.length>=8){toast('En fazla 8 hayalet');return}
+  G.ghosts.push({rec:G.rec,i:G.ghosts.length});
+  if(auto)toast('Süre doldu, kayıt bitti');
+  ghReset(G);ghHud();
+}
+function ghHud(){const G=gh.G;if(!G)return;
+  $('gh_lv').textContent=(G.boss?'🔥 Zor Seviye ':'Seviye ')+G.level;
+  $('gh_rd').textContent='👻 '+G.ghosts.length+' · Tur '+(G.ghosts.length+1);
+  $('gh_hint').textContent=totalCoins>=15?'💡15':'💡📺';
+}
+function ghStart(lv){
+  const L=lv||ghLevel;const g=ghGen(L);
+  const G=Object.assign({level:L,ghosts:[],deaths:0,won:false,shake:0,fl:[],t:0,hint:-1,hintT:0,parts:[],cam:0,resets:0},g);
+  ghReset(G);gh.G=G;ghLayout(G);ghHud();show('gh_win',false);
+  if(!gh.raf){gh.raf=true;gh.last=performance.now();requestAnimationFrame(ghFrame)}
+}
+function openGh(lv){state='gh';useW('ghost');stopMusic();hideAll();show('gh',true);ghStart(lv)}
+function ghLayout(G){
+  const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_gh');
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
+  G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;
+  G.u=(W-16)/Math.min(GH_VIS,G.L);G.gy=Math.round(H*0.5);
+}
+function ghWin(G){
+  if(G.won)return;G.won=true;
+  const extra=Math.max(0,G.ghosts.length-G.minG);
+  const stars=(extra===0&&G.deaths===0)?3:(extra<=1&&G.deaths<=2)?2:1;
+  const fresh=G.level>=ghLevel;
+  let coins=8+G.minG*4+stars*3+Math.floor(G.level/5);if(G.boss)coins=Math.round(coins*1.5);if(!fresh)coins=Math.max(3,Math.round(coins*0.4));
+  G.reward=coins;G.stars=stars;
+  credit('ghost',coins);stats.coins+=coins;addProg('coins',coins);addProg('ghost',1);
+  if(fresh){ghLevel=G.level+1;sv('tv_ghlevel',ghLevel)}
+  saveDaily();checkAch();refreshCoins();sfx.power();
+  for(let k=0;k<60;k++){const a=Math.random()*6.283,v=100+Math.random()*300;G.parts.push({x:(G.p.x-G.cam)*G.u+8,y:G.gy-30,vx:Math.cos(a)*v,vy:Math.sin(a)*v-200,life:1.2,c:GH_C[k%6]})}
+  $('gh_stars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+  $('gh_wi').textContent='🪙 +'+coins+' · '+G.ghosts.length+' hayalet'+(G.deaths?' · '+G.deaths+' düşme':'');
+  $('gh_dbl').classList.remove('hidden');
+  setTimeout(()=>{if(state==='gh'&&gh.G===G)show('gh_win',true)},900);
+}
+function ghHint(){
+  const G=gh.G;if(!G||G.won)return;
+  const go=()=>{
+    // hayaletlerin son durduğu yerlere bakıp eksik plakayı bul
+    let want=-1;const last=G.ghosts.map(g=>g.rec[g.rec.length-1]);
+    for(let i=0;i<G.plates.length;i++){if(G.doors[i].linger>0)continue;let n=0;for(const l of last)if(l[1]<0.06&&Math.abs(l[0]-G.plates[i].x)<0.55)n++;if(n<G.plates[i].need){want=i;break}}
+    G.hint=want;G.hintT=6;if(want<0)toast('Plakalar hazır: kapılardan geç!');
+  };
+  if(totalCoins>=15){totalCoins-=15;saveW();refreshCoins();go();ghHud()}else Ads.rewarded(go);
+}
+function ghDraw(G,now){
+  const c=G.ctx;if(!c)return;const W=G.W,H=G.H,u=G.u,gy=G.gy;
+  c.setTransform(G.dpr,0,0,G.dpr,0,0);
+  const sh=G.shake>0?(Math.random()-.5)*8*G.shake:0;
+  c.save();c.translate(sh,0);
+  // arka plan
+  const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#1c1450');bg.addColorStop(1,'#0b0720');c.fillStyle=bg;c.fillRect(-10,0,W+20,H);
+  for(let i=0;i<40;i++){const x=((i*97+G.cam*u*0.15)%W+W)%W,y=(i*53)%(gy-60)+30;c.fillStyle='rgba(255,255,255,'+(0.15+((i*7)%5)*0.06)+')';c.fillRect(x,y,2,2)}
+  G.cam+=(Math.max(0,Math.min(G.L-GH_VIS,G.p.x-GH_VIS/2))-G.cam)*0.12;if(G.L<=GH_VIS)G.cam=0;
+  const X=x=>(x-G.cam)*u+8;
+  // zemin (çukurlar boş)
+  c.fillStyle='#2a2070';c.fillRect(0,gy,W,H-gy);
+  c.fillStyle='#5b4fd1';
+  let sx=0;const segs=[];let a0=0;for(const p of [...G.pits].sort((a,b)=>a[0]-b[0])){segs.push([a0,p[0]]);a0=p[1]}segs.push([a0,G.L+2]);
+  c.fillStyle='#0b0720';for(const p of G.pits)c.fillRect(X(p[0]),gy,(p[1]-p[0])*u,H-gy);
+  c.fillStyle='#6d5ff0';for(const s of segs)c.fillRect(X(s[0]),gy,(s[1]-s[0])*u,6);
+  c.fillStyle='#3a2f95';for(const s of segs)c.fillRect(X(s[0]),gy+6,(s[1]-s[0])*u,14);
+  // çıkış
+  const ex=X(G.exitX);c.fillStyle='rgba(255,230,120,.2)';c.fillRect(ex-u*0.6,gy-u*2.2,u*1.2,u*2.2);c.strokeStyle='#ffe66d';c.lineWidth=2;c.setLineDash([5,4]);c.strokeRect(ex-u*0.6,gy-u*2.2,u*1.2,u*2.2);c.setLineDash([]);
+  c.font=Math.round(u*0.9)+'px sans-serif';c.textAlign='center';c.fillText('🏁',ex,gy-u*0.9);
+  // plakalar
+  G.plates.forEach((pl,i)=>{const col=GH_C[pl.c],pr=G.press[i]>=pl.need,x=X(pl.x),w=1.2*u,hh=pr?3:7;
+    c.fillStyle=col;c.globalAlpha=pr?1:0.8;c.beginPath();c.roundRect?c.roundRect(x-w/2,gy-hh,w,hh,3):c.rect(x-w/2,gy-hh,w,hh);c.fill();c.globalAlpha=1;
+    if(pl.need>1){c.fillStyle='#fff';c.font='bold '+Math.round(u*0.55)+'px sans-serif';c.fillText('×'+pl.need,x,gy+u*0.8)}
+    if(G.hint===i&&G.hintT>0){c.strokeStyle='#fff';c.lineWidth=3;const r=u*(0.9+0.15*Math.sin(now/120));c.beginPath();c.arc(x,gy-u*0.4,r,0,6.283);c.stroke()}
+  });
+  // kapılar
+  G.doors.forEach((d,i)=>{const s=G.dst[i],col=GH_C[d.c],x=X(d.x),h=u*2.4,w=Math.max(8,u*0.3);
+    const k=s.open?0.12:1;c.fillStyle=col;c.globalAlpha=s.open?0.35:1;c.fillRect(x-w/2,gy-h*k,w,h*k);
+    c.globalAlpha=1;c.fillStyle='rgba(0,0,0,.25)';if(!s.open)for(let j=1;j<4;j++)c.fillRect(x-w/2,gy-h*j/4,w,2);
+    c.fillStyle='#fff';c.font=Math.round(u*0.55)+'px sans-serif';c.textAlign='center';c.fillText(d.linger>0?'⏱':(s.open?'🔓':'🔒'),x,gy-h-6);
+    c.strokeStyle=col;c.globalAlpha=0.35;c.setLineDash([3,5]);c.beginPath();c.moveTo(X(G.plates[i].x),gy+10);c.lineTo(x,gy+10);c.stroke();c.setLineDash([]);c.globalAlpha=1;
+  });
+  // dikenler
+  c.fillStyle='#ff4d6d';for(const s of G.spikes){const x=X(s),w=u*0.9,h=u*0.55;for(let j=0;j<2;j++){const cx=x+(j-0.5)*w/2;c.beginPath();c.moveTo(cx-w/4,gy);c.lineTo(cx,gy-h);c.lineTo(cx+w/4,gy);c.fill()}}
+  // karakterler
+  const drawC=(x,y,f,col,alpha,eyes,t)=>{
+    const px=X(x),py=gy-y*u,bw=u*0.7,bh=u*0.9;c.globalAlpha=alpha;
+    c.fillStyle=col;c.beginPath();c.roundRect?c.roundRect(px-bw/2,py-bh,bw,bh,bw*0.4):c.rect(px-bw/2,py-bh,bw,bh);c.fill();
+    c.fillStyle='#fff';c.beginPath();c.arc(px+f*bw*0.12-bw*0.16,py-bh*0.62,bw*0.14,0,6.283);c.arc(px+f*bw*0.12+bw*0.16,py-bh*0.62,bw*0.14,0,6.283);c.fill();
+    c.fillStyle='#111';c.beginPath();c.arc(px+f*bw*0.2-bw*0.16,py-bh*0.62,bw*0.07,0,6.283);c.arc(px+f*bw*0.2+bw*0.16,py-bh*0.62,bw*0.07,0,6.283);c.fill();c.globalAlpha=1};
+  G.ghosts.forEach((g,i)=>{const r=g.rec,k=Math.min(Math.max(G.tick-1,0),r.length-1),f=r[k];if(f)drawC(f[0],f[1],f[2],GH_C[i%6],0.55,0)});
+  if(G.dead<=0||Math.floor(now/80)%2)drawC(G.p.x,G.p.y,G.p.f,'#fff7c2',1,1);
+  // kapı açılma parıltısı
+  G.fl.forEach(f=>{c.strokeStyle='rgba(255,255,255,'+f.t*2+')';c.lineWidth=3;c.beginPath();c.arc(X(f.x),gy-u,u*(1.4-f.t*1.5),0,6.283);c.stroke()});
+  // süre çubuğu
+  const pr=Math.min(1,G.tick/GH_MAXT);c.fillStyle='rgba(255,255,255,.12)';c.fillRect(12,gy+u*1.6,W-24,5);c.fillStyle=pr>0.8?'#ff4d6d':'#6ee7b7';c.fillRect(12,gy+u*1.6,(W-24)*(1-pr),5);
+  c.fillStyle='rgba(255,255,255,.6)';c.font='12px sans-serif';c.textAlign='left';c.fillText('⏱ tur süresi',14,gy+u*1.6+20);
+  if(G.level<=2&&!G.won){c.fillStyle='rgba(255,255,255,.9)';c.font='600 14px sans-serif';c.textAlign='center';
+    const tx=G.level===1?['1) Renkli plakanın üstüne git ve dur','2) "Kaydı Bitir"e bas: hayaletin plakada bekler','3) Yeni turda kapıdan geç, 🏁\'e ulaş']:['Dikenlerin üstünden ⤒ ile zıpla','Çukurdan da zıplayarak geç'];
+    tx.forEach((t,i)=>c.fillText(t,W/2,gy+u*3.2+i*22))}
+  // parçacıklar
+  for(const p of G.parts){c.globalAlpha=Math.max(0,p.life);c.fillStyle=p.c;c.fillRect(p.x,p.y,5,5)}c.globalAlpha=1;
+  if(G.dead>0){c.fillStyle='rgba(255,60,90,'+Math.min(0.35,G.dead)+')';c.fillRect(-10,0,W+20,H)}
+  c.restore();
+}
+function ghFrame(now){
+  if(state!=='gh'){gh.raf=false;return}
+  requestAnimationFrame(ghFrame);
+  const G=gh.G;const dt=Math.min((now-gh.last)/1000||0,0.1);gh.last=now;if(!G)return;
+  G.t+=dt;G.hintT=Math.max(0,G.hintT-dt);G.shake=Math.max(0,G.shake-dt);
+  G.fl=G.fl.filter(f=>(f.t-=dt)>0);
+  for(const p of G.parts){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=500*dt}G.parts=G.parts.filter(p=>p.life>0);
+  if(!G.won){gh.acc+=dt;let n=0;while(gh.acc>=GH_DT&&n<8){ghStep(G);gh.acc-=GH_DT;n++;if(G.won)break}if(n>=8)gh.acc=0}
+  ghDraw(G,now);
+}
+// kontroller
+(function(){
+  const bind=(id,fn)=>{const b=$(id);const dn=e=>{e.preventDefault();b.classList.add('dn');fn(1)};const up=e=>{b.classList.remove('dn');fn(0)};
+    b.addEventListener('pointerdown',dn);b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('pointerleave',up);b.addEventListener('contextmenu',e=>e.preventDefault())};
+  bind('gh_l',v=>gh.inp.l=v);bind('gh_r',v=>gh.inp.r=v);bind('gh_j',v=>{if(v)gh.inp.jb=1});
+  addEventListener('keydown',e=>{if(state!=='gh')return;if(e.code==='ArrowLeft'||e.code==='KeyA')gh.inp.l=1;if(e.code==='ArrowRight'||e.code==='KeyD')gh.inp.r=1;if(e.code==='ArrowUp'||e.code==='Space'||e.code==='KeyW'){gh.inp.jb=1;e.preventDefault()}});
+  addEventListener('keyup',e=>{if(e.code==='ArrowLeft'||e.code==='KeyA')gh.inp.l=0;if(e.code==='ArrowRight'||e.code==='KeyD')gh.inp.r=0});
+})();
+addEventListener('blur',()=>{gh.inp.l=gh.inp.r=0});
+$('cardGh').onclick=()=>openLobby('gh');
+$('gh_back').onclick=()=>{gh.inp.l=gh.inp.r=0;openLobby('gh')};$('gh_wh').onclick=()=>openHub();
+$('gh_next').onclick=()=>ghStart(ghLevel);
+$('gh_done').onclick=()=>{const G=gh.G;if(G)ghDone(G,false)};
+$('gh_redo').onclick=()=>{const G=gh.G;if(G&&!G.won){G.resets++;ghReset(G)}};
+$('gh_rs').onclick=()=>{const G=gh.G;if(G)ghStart(G.level)};
+$('gh_hint').onclick=ghHint;
+$('gh_dbl').onclick=()=>Ads.rewarded(()=>{const G=gh.G;credit('ghost',G.reward);refreshCoins();$('gh_dbl').classList.add('hidden');$('gh_wi').textContent+=' · 2 kat yapıldı!'});
+
 // ---- Kontroller ----
 function moveLane(d){if(state!=='run')return;lane=Math.max(0,Math.min(2,lane+d));targetX=LANES[lane]}
 function jump(){if(state==='run'&&y<=0.001){vy=9;sliding=0;sfx.jump();addProg('jump',1);burst(player.position.x,0.1,0,0xb39ddb,8,3,0.12,1,speed*0.6)}}
@@ -4076,7 +4285,7 @@ const cP=new THREE.Vector3(0,1.7,4.4),cL=new THREE.Vector3(0,0.8,0),dP=new THREE
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min(Math.max((now-last)/1000||0,0),0.05);last=now;
-  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||state==='pause'||MG[state])return;
+  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||state==='gh'||state==='pause'||MG[state])return;
   if(state==='run'){
     speedMul+=(1-speedMul)*Math.min(1,dt*0.45);
     speed=Math.min(14+score*0.02,40)*speedMul;   // zamanla hızlanır
@@ -4368,7 +4577,7 @@ $('pvExit').onclick=()=>{show('pauseOv',false);state='run';toMenu()};
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')pauseRun()});
 addEventListener('pagehide',pauseRun);
 setInterval(()=>{const on=state==='run';const b=$('pauseBtn');if(b)b.style.display=on?'':'none'},150);
-const BACKS=['pvResume','setBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','lb_back'];
+const BACKS=['pvResume','setBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','lb_back'];
 function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
 function goBack(){
   if(state==='pause'){resumeRun();return true}
