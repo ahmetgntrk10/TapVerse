@@ -144,6 +144,7 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
 .mtop .sp{flex:1}
 #lname{flex:1;font:inherit;font-size:17px;padding:9px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:#fff;outline:none;min-width:0}
 #langSel{background:#2c2363;color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:8px 10px;font:inherit;font-size:14px;max-width:48%}
+#mute.upd{box-shadow:0 0 0 3px #ef4444,0 0 14px #ef4444}
 </style>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}
@@ -301,6 +302,7 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
   <div class="row"><div class="tx">🎵 Müzik</div><button id="swMus" class="tgl"></button></div>
   <div class="row"><div class="tx">📳 Titreşim</div><button id="swVib" class="tgl"></button></div>
   <div class="row"><div class="tx">🌐 Dil</div><select id="langSel"></select></div>
+  <div class="row hidden" id="updRow"><div class="tx">🔄 Yeni sürüm var<small>Daha iyi oyun için güncelle</small></div><button id="updBtn" class="gold" style="width:auto;padding:8px 16px;font-size:14px">Güncelle</button></div>
   <div class="row hidden" id="notRow"><div class="tx">🔔 Günlük hatırlatma<small>Her akşam 20:00</small></div><button id="swNot" class="tgl"></button></div>
   <button id="howBtn" style="width:100%;margin-top:10px">❓ Nasıl oynanır?</button>
   <div style="text-align:center;color:var(--mute);font-size:12px;margin-top:12px">TapVerse · sürüm 1.0</div>
@@ -4870,6 +4872,21 @@ mring.position.y=1.15;mring.visible=false;player.add(mring);
 let invuln=0,shakeT=0,wasAir=false,dustT=0,hudStr='';
 muted=ld('tv_mute',false);noMusic=ld('tv_nomusic',false);vib=ld('tv_vib',true);
 const swSet=(id,on)=>$(id).classList.toggle('on',on);
+// ---- Güncelleme kontrolü ----
+const UPD_URL='https://ahmetgntrk10.github.io/TapVerse/version.json';
+let updInfo=null;
+async function updCheck(){
+  try{
+    const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform()||typeof C.registerPlugin!=='function')return;
+    const inf=await C.registerPlugin('App').getInfo();const cur=parseInt(inf.build)||0;
+    const r=await fetch(UPD_URL+'?t='+Date.now(),{cache:'no-store'});const d=await r.json();
+    updInfo=(d&&d.code>cur)?d:null;
+    $('updRow').classList.toggle('hidden',!updInfo);$('mute').classList.toggle('upd',!!updInfo);
+  }catch(e){}
+}
+$('updBtn').onclick=()=>{location.href=(updInfo&&updInfo.url)||'https://play.google.com/store/apps/details?id=com.tapverse.game'};
+setTimeout(updCheck,5000);
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')updCheck()});
 const LN=(()=>{try{const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return null;if(typeof C.registerPlugin==='function')return C.registerPlugin('LocalNotifications');return(C.Plugins&&C.Plugins.LocalNotifications)||null}catch(e){return null}})();
 let notOn=ld('tv_notif',false);
 async function notSchedule(){
@@ -4957,6 +4974,10 @@ function armBack(){if(backArmed)return;try{history.pushState({tv:1},'');backArme
 addEventListener('popstate',()=>{backArmed=false;let ok=false;try{ok=goBack()}catch(e){}if(ok)armBack()});
 setInterval(()=>{if(state!=='hub'||visEl($('lobby'))||visEl($('settings'))||visEl($('shop'))||visEl($('lb'))||visEl($('ach'))||visEl($('quests'))||visEl($('wheel')))armBack()},300);
 const I18N=String.raw`
+Yeni sürüm var|New version available|Hay una versión nueva|Há uma nova versão|Neue Version verfügbar|Nouvelle version disponible|Доступна новая версия|Versi baru tersedia
+Daha iyi oyun için güncelle|Update for a better game|Actualiza para un mejor juego|Atualize para um jogo melhor|Aktualisiere für ein besseres Spiel|Mets à jour pour un meilleur jeu|Обнови для лучшей игры|Perbarui untuk game yang lebih baik
+🔄 Yeni sürüm var|🔄 New version available|🔄 Hay una versión nueva|🔄 Há uma nova versão|🔄 Neue Version verfügbar|🔄 Nouvelle version disponible|🔄 Доступна новая версия|🔄 Versi baru tersedia
+Güncelle|Update|Actualizar|Atualizar|Aktualisieren|Mettre à jour|Обновить|Perbarui
 Oyunlar|Games|Juegos|Jogos|Spiele|Jeux|Игры|Permainan
 OYUN SEÇ|CHOOSE A GAME|ELIGE UN JUEGO|ESCOLHA UM JOGO|SPIEL WÄHLEN|CHOISIS UN JEU|ВЫБЕРИ ИГРУ|PILIH GAME
 Ayarlar|Settings|Ajustes|Configurações|Einstellungen|Réglages|Настройки|Pengaturan

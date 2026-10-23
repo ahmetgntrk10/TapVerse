@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths-ignore: ['README.md', 'db/**']
+    paths-ignore: ['README.md', 'db/**', 'docs/version.json']
 
 jobs:
   apk:
@@ -50,13 +50,61 @@ jobs:
           printf '<?xml version="1.0" encoding="utf-8"?>\n<resources><color name="ic_launcher_background">#1B1045</color></resources>\n' > $R/values/ic_launcher_background.xml
           sed -i 's#<application#<uses-permission android:name="android.permission.VIBRATE"/><application#' android/app/src/main/AndroidManifest.xml
 
-      - name: APK derle
+      - name: Surum numarasi (her derlemede artar)
+        run: |
+          python3 - <<'PY'
+          import re
+          p='android/app/build.gradle'
+          s=open(p).read()
+          s=re.sub(r'versionCode\s+\d+','versionCode ${{ github.run_number }}',s)
+          s=re.sub(r'versionName\s+"[^"]*"','versionName "1.0.${{ github.run_number }}"',s)
+          open(p,'w').write(s)
+          PY
+          grep -n "versionCode\|versionName" android/app/build.gradle
+
+      - name: Imza anahtari (varsa)
+        env:
+          KS: ${{ secrets.KEYSTORE_B64 }}
+          KS_PASS: ${{ secrets.KEYSTORE_PASS }}
+        run: |
+          if [ -n "$KS" ] && [ -n "$KS_PASS" ]; then
+            echo "$KS" | base64 -d > android/tapverse.jks
+            python3 - <<'PY'
+          p='android/app/build.gradle'
+          s=open(p).read()
+          assert 'buildTypes {' in s and 'minifyEnabled false' in s
+          s=s.replace('buildTypes {',"signingConfigs {\n        release {\n            storeFile file('../tapverse.jks')\n            storePassword System.getenv('KS_PASS')\n            keyAlias 'tapverse'\n            keyPassword System.getenv('KS_PASS')\n        }\n    }\n    buildTypes {",1)
+          s=s.replace('minifyEnabled false','minifyEnabled false\n            signingConfig signingConfigs.release',1)
+          open(p,'w').write(s)
+          PY
+            echo "SIGNED=1" >> $GITHUB_ENV
+          else
+            echo "Imza anahtari yok: test (debug) APK uretilecek"
+          fi
+
+      - name: APK ve AAB derle
         working-directory: android
+        env:
+          KS_PASS: ${{ secrets.KEYSTORE_PASS }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          if [ "$SIGNED" = "1" ]; then
+            ./gradlew assembleRelease bundleRelease
+          else
+            ./gradlew assembleDebug
+          fi
 
       - uses: actions/upload-artifact@v4
         with:
           name: TapVerse-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: |
+            android/app/build/outputs/apk/release/app-release.apk
+            android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v4
+        if: env.SIGNED == '1'
+        with:
+          name: TapVerse-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
