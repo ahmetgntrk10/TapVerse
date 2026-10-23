@@ -143,6 +143,7 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
 .mtop .ibtn{width:42px;height:42px;font-size:20px;border-radius:14px}
 .mtop .sp{flex:1}
 #lname{flex:1;font:inherit;font-size:17px;padding:9px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:#fff;outline:none;min-width:0}
+#langSel{background:#2c2363;color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:8px 10px;font:inherit;font-size:14px;max-width:48%}
 </style>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}
@@ -299,6 +300,7 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
   <div class="row"><div class="tx">🔊 Ses efektleri</div><button id="swSfx" class="tgl"></button></div>
   <div class="row"><div class="tx">🎵 Müzik</div><button id="swMus" class="tgl"></button></div>
   <div class="row"><div class="tx">📳 Titreşim</div><button id="swVib" class="tgl"></button></div>
+  <div class="row"><div class="tx">🌐 Dil</div><select id="langSel"></select></div>
   <div class="row hidden" id="notRow"><div class="tx">🔔 Günlük hatırlatma<small>Her akşam 20:00</small></div><button id="swNot" class="tgl"></button></div>
   <button id="howBtn" style="width:100%;margin-top:10px">❓ Nasıl oynanır?</button>
   <div style="text-align:center;color:var(--mute);font-size:12px;margin-top:12px">TapVerse · sürüm 1.0</div>
@@ -4867,7 +4869,7 @@ async function notSchedule(){
   if(!LN)return false;
   try{
     await LN.cancel({notifications:[{id:1},{id:3},{id:4}]});
-    const N=(id,body,on)=>({id,title:'TapVerse 🎮',body,smallIcon:'ic_stat_tv',iconColor:'#8B5CF6',schedule:{on}});
+    const N=(id,body,on)=>({id,title:'TapVerse 🎮',body:trStr(body),smallIcon:'ic_stat_tv',iconColor:'#8B5CF6',schedule:{on}});
     await LN.schedule({notifications:[
       N(1,'Günlük görevlerin, çark hakkın ve günlük labirent seni bekliyor!',{hour:20,minute:0}),
       N(3,'Hafta sonu keyfi! Rekorunu kırmaya ne dersin? 🏆',{weekday:7,hour:13,minute:0}),
@@ -4881,7 +4883,7 @@ async function notSky(on){
     await LN.cancel({notifications:[{id:5}]});
     if(!on)return;
     const inc=sk.l.some((l,li)=>{const i=skInc(li);return i.c+i.e+i.k>0});if(!inc)return;
-    await LN.schedule({notifications:[{id:5,title:'Gök Adaları 🏝️',body:'Adaların depoları doldu! Gelip topla ve geliştir.',smallIcon:'ic_stat_tv',iconColor:'#8B5CF6',schedule:{at:new Date(Date.now()+10800000)}}]});
+    await LN.schedule({notifications:[{id:5,title:trStr('Gök Adaları 🏝️'),body:trStr('Adaların depoları doldu! Gelip topla ve geliştir.'),smallIcon:'ic_stat_tv',iconColor:'#8B5CF6',schedule:{at:new Date(Date.now()+10800000)}}]});
   }catch(e){}
 }
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&state==='sky')notSky(false)});
@@ -4946,6 +4948,818 @@ let backArmed=false;
 function armBack(){if(backArmed)return;try{history.pushState({tv:1},'');backArmed=true}catch(e){}}
 addEventListener('popstate',()=>{backArmed=false;let ok=false;try{ok=goBack()}catch(e){}if(ok)armBack()});
 setInterval(()=>{if(state!=='hub'||visEl($('lobby'))||visEl($('settings'))||visEl($('shop'))||visEl($('lb'))||visEl($('ach'))||visEl($('quests'))||visEl($('wheel')))armBack()},300);
+const I18N=String.raw`
+Oyunlar|Games|Juegos|Jogos|Spiele|Jeux|Игры|Permainan
+OYUN SEÇ|CHOOSE A GAME|ELIGE UN JUEGO|ESCOLHA UM JOGO|SPIEL WÄHLEN|CHOISIS UN JEU|ВЫБЕРИ ИГРУ|PILIH GAME
+Ayarlar|Settings|Ajustes|Configurações|Einstellungen|Réglages|Настройки|Pengaturan
+⚙️ Ayarlar|⚙️ Settings|⚙️ Ajustes|⚙️ Configurações|⚙️ Einstellungen|⚙️ Réglages|⚙️ Настройки|⚙️ Pengaturan
+🔊 Ses efektleri|🔊 Sound effects|🔊 Efectos de sonido|🔊 Efeitos sonoros|🔊 Soundeffekte|🔊 Effets sonores|🔊 Звуковые эффекты|🔊 Efek suara
+🎵 Müzik|🎵 Music|🎵 Música|🎵 Música|🎵 Musik|🎵 Musique|🎵 Музыка|🎵 Musik
+📳 Titreşim|📳 Vibration|📳 Vibración|📳 Vibração|📳 Vibration|📳 Vibration|📳 Вибрация|📳 Getaran
+🌐 Dil|🌐 Language|🌐 Idioma|🌐 Idioma|🌐 Sprache|🌐 Langue|🌐 Язык|🌐 Bahasa
+🔔 Günlük hatırlatma|🔔 Daily reminder|🔔 Recordatorio diario|🔔 Lembrete diário|🔔 Tägliche Erinnerung|🔔 Rappel quotidien|🔔 Ежедневное напоминание|🔔 Pengingat harian
+Her akşam 20:00|Every evening at 20:00|Cada tarde a las 20:00|Toda noite às 20:00|Jeden Abend um 20:00|Chaque soir à 20h00|Каждый вечер в 20:00|Setiap malam pukul 20:00
+❓ Nasıl oynanır?|❓ How to play?|❓ ¿Cómo se juega?|❓ Como jogar?|❓ Wie spielt man?|❓ Comment jouer ?|❓ Как играть?|❓ Cara bermain?
+TapVerse · sürüm {}|TapVerse · version {}|TapVerse · versión {}|TapVerse · versão {}|TapVerse · Version {}|TapVerse · version {}|TapVerse · версия {}|TapVerse · versi {}
+Hatırlatma açıldı|Reminder turned on|Recordatorio activado|Lembrete ativado|Erinnerung aktiviert|Rappel activé|Напоминание включено|Pengingat diaktifkan
+İzin verilmedi|Permission denied|Permiso denegado|Permissão negada|Berechtigung verweigert|Autorisation refusée|Разрешение не дано|Izin ditolak
+Kaydedildi|Saved|Guardado|Salvo|Gespeichert|Enregistré|Сохранено|Tersimpan
+Kaydet|Save|Guardar|Salvar|Speichern|Enregistrer|Сохранить|Simpan
+Sil|Delete|Borrar|Apagar|Löschen|Supprimer|Удалить|Hapus
+Kapat|Close|Cerrar|Fechar|Schließen|Fermer|Закрыть|Tutup
+Geri|Back|Atrás|Voltar|Zurück|Retour|Назад|Kembali
+İleri|Next|Siguiente|Próximo|Weiter|Suivant|Далее|Lanjut
+Geç|Skip|Omitir|Pular|Überspringen|Passer|Пропустить|Lewati
+Devam|Continue|Continuar|Continuar|Weiter|Continuer|Продолжить|Lanjut
+▶ Devam|▶ Resume|▶ Reanudar|▶ Continuar|▶ Weiter|▶ Reprendre|▶ Продолжить|▶ Lanjutkan
+🚪 Çık|🚪 Exit|🚪 Salir|🚪 Sair|🚪 Beenden|🚪 Quitter|🚪 Выйти|🚪 Keluar
+⏸ Duraklatıldı|⏸ Paused|⏸ En pausa|⏸ Pausado|⏸ Pausiert|⏸ En pause|⏸ Пауза|⏸ Dijeda
+Tamam!|Done!|¡Listo!|Pronto!|Fertig!|Terminé !|Готово!|Selesai!
+✔ Tamam|✔ OK|✔ OK|✔ OK|✔ OK|✔ OK|✔ ОК|✔ OK
+Seç|Select|Elegir|Escolher|Wählen|Choisir|Выбрать|Pilih
+Seçili|Selected|Seleccionado|Selecionado|Ausgewählt|Sélectionné|Выбрано|Dipilih
+Seçili ✓|Selected ✓|Seleccionado ✓|Selecionado ✓|Ausgewählt ✓|Sélectionné ✓|Выбрано ✓|Dipilih ✓
+Al|Buy|Comprar|Comprar|Kaufen|Acheter|Купить|Beli
+Yeni|New|Nuevo|Novo|Neu|Nouveau|Новое|Baru
+Yükleniyor...|Loading...|Cargando...|Carregando...|Lädt...|Chargement...|Загрузка...|Memuat...
+Bekle|Wait|Espera|Aguarde|Warte|Attends|Подожди|Tunggu
+Başla!|Start!|¡Empieza!|Comece!|Los geht's!|C'est parti !|Начали!|Mulai!
+BAŞLA|START|EMPEZAR|COMEÇAR|START|COMMENCER|НАЧАТЬ|MULAI
+OYNA|PLAY|JUGAR|JOGAR|SPIELEN|JOUER|ИГРАТЬ|MAIN
+▶ OYNA|▶ PLAY|▶ JUGAR|▶ JOGAR|▶ SPIELEN|▶ JOUER|▶ ИГРАТЬ|▶ MAIN
+Çal ▶|Play ▶|Tocar ▶|Tocar ▶|Spielen ▶|Jouer ▶|Играть ▶|Putar ▶
+🏠 Menü|🏠 Menu|🏠 Menú|🏠 Menu|🏠 Menü|🏠 Menu|🏠 Меню|🏠 Menu
+🎮 Oyunlar|🎮 Games|🎮 Juegos|🎮 Jogos|🎮 Spiele|🎮 Jeux|🎮 Игры|🎮 Permainan
+🎮 TapVerse|🎮 TapVerse|🎮 TapVerse|🎮 TapVerse|🎮 TapVerse|🎮 TapVerse|🎮 TapVerse|🎮 TapVerse
+Bitti!|Game over!|¡Fin!|Fim!|Vorbei!|Terminé !|Конец!|Selesai!
+Yakalandın!|Caught!|¡Te atraparon!|Te pegaram!|Erwischt!|Attrapé !|Поймали!|Tertangkap!
+Süre doldu!|Time's up!|¡Se acabó el tiempo!|Acabou o tempo!|Zeit abgelaufen!|Temps écoulé !|Время вышло!|Waktu habis!
+Düştün!|You fell!|¡Caíste!|Você caiu!|Du bist gefallen!|Tu es tombé !|Ты упал!|Kamu jatuh!
+Yere düştün!|You hit the ground!|¡Caíste al suelo!|Você caiu no chão!|Du bist am Boden!|Tu es tombé au sol !|Ты упал на землю!|Kamu jatuh ke tanah!
+Boşluğa düştün!|You fell into the gap!|¡Caíste al vacío!|Você caiu no vazio!|Du bist in die Lücke gefallen!|Tu es tombé dans le vide !|Ты упал в пропасть!|Kamu jatuh ke jurang!
+Boşluğa bastın!|You stepped into the gap!|¡Pisaste el vacío!|Você pisou no vazio!|Du bist in die Lücke getreten!|Tu as marché dans le vide !|Ты шагнул в пустоту!|Kamu menginjak celah!
+Duvara çarptın!|You hit the wall!|¡Chocaste con la pared!|Você bateu na parede!|Du bist gegen die Wand gefahren!|Tu as heurté le mur !|Ты врезался в стену!|Kamu menabrak dinding!
+Boruya çarptın!|You hit the pipe!|¡Chocaste con la tubería!|Você bateu no cano!|Du bist gegen das Rohr geflogen!|Tu as heurté le tuyau !|Ты врезался в трубу!|Kamu menabrak pipa!
+Kendini ısırdın!|You bit yourself!|¡Te mordiste a ti mismo!|Você se mordeu!|Du hast dich selbst gebissen!|Tu t'es mordu !|Ты укусил себя!|Kamu menggigit dirimu sendiri!
+Kule devrildi!|The tower fell!|¡La torre se cayó!|A torre caiu!|Der Turm ist umgefallen!|La tour s'est effondrée !|Башня рухнула!|Menara roboh!
+Sırayı atladın!|You skipped the order!|¡Te saltaste el orden!|Você pulou a ordem!|Falsche Reihenfolge!|Tu as sauté l'ordre !|Ты нарушил порядок!|Kamu melewati urutan!
+Karoyu kaçırdın!|You missed the tile!|¡Fallaste la baldosa!|Você errou o bloco!|Du hast die Kachel verpasst!|Tu as raté la tuile !|Ты пропустил плитку!|Kamu melewatkan ubin!
+Erken bıraktın!|You let go too early!|¡Soltaste muy pronto!|Soltou cedo demais!|Zu früh losgelassen!|Tu as lâché trop tôt !|Ты отпустил слишком рано!|Kamu melepas terlalu cepat!
+Parmağın kaydı!|Your finger slipped!|¡Se te resbaló el dedo!|Seu dedo escorregou!|Dein Finger ist abgerutscht!|Ton doigt a glissé !|Палец соскользнул!|Jarimu tergelincir!
+Yanlış renk!|Wrong color!|¡Color equivocado!|Cor errada!|Falsche Farbe!|Mauvaise couleur !|Неверный цвет!|Warna salah!
+Yer kalmadı!|No room left!|¡No queda espacio!|Sem espaço!|Kein Platz mehr!|Plus de place !|Нет места!|Tidak ada tempat!
+Canların bitti|You ran out of lives|Se te acabaron las vidas|Suas vidas acabaram|Keine Leben mehr|Plus de vies|Жизни закончились|Nyawamu habis
+Tıkalı oka dokunma!|Don't tap a blocked arrow!|¡No toques una flecha bloqueada!|Não toque numa seta bloqueada!|Tippe keinen blockierten Pfeil an!|Ne touche pas une flèche bloquée !|Не нажимай на заблокированную стрелку!|Jangan ketuk panah yang terhalang!
+Yeniden Dene ↻|Try Again ↻|Reintentar ↻|Tentar de novo ↻|Nochmal ↻|Réessayer ↻|Ещё раз ↻|Coba Lagi ↻
+↻ Tekrar dene|↻ Try again|↻ Reintentar|↻ Tentar de novo|↻ Nochmal versuchen|↻ Réessayer|↻ Повторить|↻ Coba lagi
+↻ Tekrar Oyna|↻ Play Again|↻ Jugar de nuevo|↻ Jogar de novo|↻ Nochmal spielen|↻ Rejouer|↻ Играть снова|↻ Main Lagi
+▶ Tekrar Oyna|▶ Play Again|▶ Jugar de nuevo|▶ Jogar de novo|▶ Nochmal spielen|▶ Rejouer|▶ Играть снова|▶ Main Lagi
+↻ Baştan Başla|↻ Start Over|↻ Empezar de nuevo|↻ Recomeçar|↻ Von vorn|↻ Recommencer|↻ Начать заново|↻ Mulai Ulang
+↻ Tekrar Çal|↻ Play Again|↻ Tocar de nuevo|↻ Tocar de novo|↻ Nochmal spielen|↻ Rejouer|↻ Сыграть снова|↻ Putar Lagi
+🔄 Tekrar Dene|🔄 Try Again|🔄 Reintentar|🔄 Tentar de novo|🔄 Nochmal|🔄 Réessayer|🔄 Ещё раз|🔄 Coba Lagi
+Yeniden|Restart|Reiniciar|Reiniciar|Neustart|Recommencer|Заново|Ulangi
+Baştan|Restart|Reiniciar|Reiniciar|Neu starten|Recommencer|Заново|Ulangi
+Geri Al|Undo|Deshacer|Desfazer|Rückgängig|Annuler|Отмена|Urungkan
+Geri Al ({})|Undo ({})|Deshacer ({})|Desfazer ({})|Rückgängig ({})|Annuler ({})|Отмена ({})|Urungkan ({})
+Geri Al 🪙{}|Undo 🪙{}|Deshacer 🪙{}|Desfazer 🪙{}|Rückgängig 🪙{}|Annuler 🪙{}|Отмена 🪙{}|Urungkan 🪙{}
+İpucu|Hint|Pista|Dica|Tipp|Indice|Подсказка|Petunjuk
+İpucu 📺|Hint 📺|Pista 📺|Dica 📺|Tipp 📺|Indice 📺|Подсказка 📺|Petunjuk 📺
+İpucu 🪙{}|Hint 🪙{}|Pista 🪙{}|Dica 🪙{}|Tipp 🪙{}|Indice 🪙{}|Подсказка 🪙{}|Petunjuk 🪙{}
+💡 İpucu 📺|💡 Hint 📺|💡 Pista 📺|💡 Dica 📺|💡 Tipp 📺|💡 Indice 📺|💡 Подсказка 📺|💡 Petunjuk 📺
+💡 İpucu|💡 Hint|💡 Pista|💡 Dica|💡 Tipp|💡 Indice|💡 Подсказка|💡 Petunjuk
+💡{}|💡{}|💡{}|💡{}|💡{}|💡{}|💡{}|💡{}
+İpucu bulunamadı, geri al ya da yeniden başla|No hint found, undo or restart|No hay pista, deshaz o reinicia|Sem dica, desfaça ou reinicie|Kein Tipp gefunden, mach rückgängig oder starte neu|Aucun indice, annule ou recommence|Подсказки нет, отмени ход или начни заново|Tidak ada petunjuk, urungkan atau mulai ulang
+Yeterli altın yok|Not enough coins|No tienes suficientes monedas|Moedas insuficientes|Nicht genug Münzen|Pas assez de pièces|Недостаточно монет|Koin tidak cukup
+Yeterli altın yok · {}|Not enough coins · {}|No tienes monedas suficientes · {}|Moedas insuficientes · {}|Nicht genug Münzen · {}|Pas assez de pièces · {}|Недостаточно монет · {}|Koin tidak cukup · {}
+Yeterli kaynak yok|Not enough resources|No tienes recursos suficientes|Recursos insuficientes|Nicht genug Ressourcen|Pas assez de ressources|Недостаточно ресурсов|Sumber daya tidak cukup
+Satın alındı!|Purchased!|¡Comprado!|Comprado!|Gekauft!|Acheté !|Куплено!|Dibeli!
+Alındı ✓|Bought ✓|Comprado ✓|Comprado ✓|Gekauft ✓|Acheté ✓|Куплено ✓|Dibeli ✓
+Yeni top alındı!|New ball bought!|¡Nueva bola comprada!|Nova bola comprada!|Neuer Ball gekauft!|Nouvelle balle achetée !|Новый мяч куплен!|Bola baru dibeli!
+Renk alındı!|Color bought!|¡Color comprado!|Cor comprada!|Farbe gekauft!|Couleur achetée !|Цвет куплен!|Warna dibeli!
+Yeni arkadaşın geldi!|You have a new friend!|¡Tienes un nuevo amigo!|Você ganhou um novo amigo!|Du hast einen neuen Freund!|Tu as un nouvel ami !|У тебя новый друг!|Kamu punya teman baru!
+Kaldığın yerden devam ediyorsun|You're continuing where you left off|Continúas donde lo dejaste|Você continua de onde parou|Du machst da weiter, wo du aufgehört hast|Tu reprends où tu t'étais arrêté|Ты продолжаешь с того же места|Kamu melanjutkan dari terakhir kali
+📺 Reklam|📺 Ad|📺 Anuncio|📺 Anúncio|📺 Werbung|📺 Pub|📺 Реклама|📺 Iklan
+Reklam... |Ad... |Anuncio... |Anúncio... |Werbung... |Pub... |Реклама... |Iklan... 
+Test reklamı. Gerçek reklam sonra bağlanacak.|Test ad. The real ad will be connected later.|Anuncio de prueba. El real se conectará después.|Anúncio de teste. O anúncio real será conectado depois.|Testwerbung. Die echte Werbung wird später angebunden.|Pub de test. La vraie pub sera connectée plus tard.|Тестовая реклама. Настоящая будет подключена позже.|Iklan uji. Iklan asli akan dihubungkan nanti.
+📺 Reklam izle, devam et|📺 Watch ad to continue|📺 Mira un anuncio y continúa|📺 Assista um anúncio e continue|📺 Werbung ansehen und weiter|📺 Regarde une pub pour continuer|📺 Смотри рекламу и продолжай|📺 Tonton iklan, lanjutkan
+📺 Reklam izle · Devam et|📺 Watch ad · Continue|📺 Mira un anuncio · Continuar|📺 Assista um anúncio · Continuar|📺 Werbung ansehen · Weiter|📺 Regarde une pub · Continuer|📺 Смотри рекламу · Продолжить|📺 Tonton iklan · Lanjutkan
+📺 Reklam izle, +1 can|📺 Watch ad, +1 life|📺 Mira un anuncio, +1 vida|📺 Assista um anúncio, +1 vida|📺 Werbung ansehen, +1 Leben|📺 Regarde une pub, +1 vie|📺 Смотри рекламу, +1 жизнь|📺 Tonton iklan, +1 nyawa
+📺 Devam et|📺 Continue|📺 Continuar|📺 Continuar|📺 Weiter|📺 Continuer|📺 Продолжить|📺 Lanjutkan
+📺 2 kat al|📺 Get double|📺 Consigue el doble|📺 Ganhe o dobro|📺 Doppelt kassieren|📺 Double tes gains|📺 Получить вдвое|📺 Dapat 2x lipat
+📺 Altınları 2 kat yap|📺 Double the coins|📺 Duplica las monedas|📺 Dobre as moedas|📺 Münzen verdoppeln|📺 Double les pièces|📺 Удвоить монеты|📺 Gandakan koin
+📺 Altınları 2 kat yap (+{})|📺 Double the coins (+{})|📺 Duplica las monedas (+{})|📺 Dobre as moedas (+{})|📺 Münzen verdoppeln (+{})|📺 Double les pièces (+{})|📺 Удвоить монеты (+{})|📺 Gandakan koin (+{})
+📺 Altını 2 kat yap|📺 Double the coins|📺 Duplica las monedas|📺 Dobre as moedas|📺 Münzen verdoppeln|📺 Double les pièces|📺 Удвоить монеты|📺 Gandakan koin
+📺 Ödülü 2 kat yap|📺 Double the reward|📺 Duplica la recompensa|📺 Dobre a recompensa|📺 Belohnung verdoppeln|📺 Double la récompense|📺 Удвоить награду|📺 Gandakan hadiah
+· 2 kat yapıldı!|· Doubled!|· ¡Duplicado!|· Dobrado!|· Verdoppelt!|· Doublé !|· Удвоено!|· Digandakan!
+2 kat yapıldı!|Doubled!|¡Duplicado!|Dobrado!|Verdoppelt!|Doublé !|Удвоено!|Digandakan!
+🎁 Reklam izle & al|🎁 Watch ad & claim|🎁 Mira un anuncio y reclama|🎁 Assista um anúncio e resgate|🎁 Werbung ansehen & abholen|🎁 Regarde une pub et récupère|🎁 Смотри рекламу и забирай|🎁 Tonton iklan & ambil
+Reklam izle · Çevir|Watch ad · Spin|Mira un anuncio · Girar|Assista um anúncio · Girar|Werbung ansehen · Drehen|Regarde une pub · Tourner|Смотри рекламу · Крутить|Tonton iklan · Putar
+📺 Reklam izle · Çevir|📺 Watch ad · Spin|📺 Mira un anuncio · Girar|📺 Assista um anúncio · Girar|📺 Werbung ansehen · Drehen|📺 Regarde une pub · Tourner|📺 Смотри рекламу · Крутить|📺 Tonton iklan · Putar
+📺 Reklam izle · Çevir ({})|📺 Watch ad · Spin ({})|📺 Mira un anuncio · Girar ({})|📺 Assista um anúncio · Girar ({})|📺 Werbung ansehen · Drehen ({})|📺 Regarde une pub · Tourner ({})|📺 Смотри рекламу · Крутить ({})|📺 Tonton iklan · Putar ({})
+Çevir|Spin|Girar|Girar|Drehen|Tourner|Крутить|Putar
+Çevir (bedava)|Spin (free)|Girar (gratis)|Girar (grátis)|Drehen (gratis)|Tourner (gratuit)|Крутить (бесплатно)|Putar (gratis)
+Dönüyor...|Spinning...|Girando...|Girando...|Dreht sich...|Ça tourne...|Крутится...|Berputar...
+Bugünkü bedava hakkın bitti|Your free spin for today is used|Se acabó tu giro gratis de hoy|Seu giro grátis de hoje acabou|Dein Gratis-Dreh für heute ist aufgebraucht|Ton tour gratuit du jour est utilisé|Бесплатная попытка на сегодня закончилась|Putaran gratis hari ini sudah habis
+🎡 Şans Çarkı|🎡 Wheel of Fortune|🎡 Rueda de la Fortuna|🎡 Roda da Fortuna|🎡 Glücksrad|🎡 Roue de la Fortune|🎡 Колесо удачи|🎡 Roda Keberuntungan
+Çark|Wheel|Rueda|Roda|Rad|Roue|Колесо|Roda
+Çarklar|Wheels|Ruedas|Rodas|Räder|Roues|Колёса|Roda
+Çark Atölyesi|Wheel Workshop|Taller de ruedas|Oficina de rodas|Rad-Werkstatt|Atelier de roues|Мастерская колёс|Bengkel Roda
+Yarın tekrar gel|Come back tomorrow|Vuelve mañana|Volte amanhã|Komm morgen wieder|Reviens demain|Приходи завтра|Kembali besok
+Yarın yeni teklifler gelecek.|New offers arrive tomorrow.|Mañana habrá nuevas ofertas.|Novas ofertas chegam amanhã.|Morgen gibt es neue Angebote.|De nouvelles offres arrivent demain.|Завтра будут новые предложения.|Penawaran baru datang besok.
+Sonsuz Koşu|Endless Run|Carrera Infinita|Corrida Infinita|Endloser Lauf|Course Infinie|Бесконечный бег|Lari Tanpa Akhir
+SONSUZ KOŞU|ENDLESS RUN|CARRERA INFINITA|CORRIDA INFINITA|ENDLOSER LAUF|COURSE INFINIE|БЕСКОНЕЧНЫЙ БЕГ|LARI TANPA AKHIR
+3 şeritte koş, engellerden kaç, altın topla.|Run in 3 lanes, dodge obstacles, collect coins.|Corre por 3 carriles, esquiva obstáculos y recoge monedas.|Corra em 3 faixas, desvie dos obstáculos e colete moedas.|Renne auf 3 Spuren, weiche Hindernissen aus und sammle Münzen.|Cours sur 3 voies, évite les obstacles et ramasse des pièces.|Беги по 3 дорожкам, уклоняйся от препятствий и собирай монеты.|Lari di 3 jalur, hindari rintangan, kumpulkan koin.
+Tek Parmak Labirent|One-Finger Maze|Laberinto de un dedo|Labirinto de um dedo|Ein-Finger-Labyrinth|Labyrinthe à un doigt|Лабиринт одним пальцем|Labirin Satu Jari
+Labirent|Maze|Laberinto|Labirinto|Labyrinth|Labyrinthe|Лабиринт|Labirin
+Parmağınla topu yönlendir, çıkışı bul.|Steer the ball with your finger and find the exit.|Guía la bola con el dedo y encuentra la salida.|Guie a bola com o dedo e encontre a saída.|Steuere den Ball mit dem Finger und finde den Ausgang.|Guide la balle avec ton doigt et trouve la sortie.|Направляй шар пальцем и найди выход.|Arahkan bola dengan jarimu dan temukan jalan keluar.
+Parmağını ekrana koy ve sürükle, top o yöne gider.|Put your finger on the screen and drag, the ball goes that way.|Pon el dedo en la pantalla y arrastra, la bola irá hacia allí.|Coloque o dedo na tela e arraste, a bola vai nessa direção.|Lege den Finger auf den Bildschirm und ziehe, der Ball rollt dorthin.|Pose ton doigt sur l'écran et glisse, la balle va dans cette direction.|Положи палец на экран и веди, шар покатится туда.|Letakkan jari di layar dan geser, bola akan bergerak ke arah itu.
+Çıkışa en hızlı ulaş, 3 yıldız kazan.|Reach the exit fastest to earn 3 stars.|Llega a la salida lo más rápido y gana 3 estrellas.|Chegue à saída o mais rápido para ganhar 3 estrelas.|Erreiche den Ausgang am schnellsten und hol 3 Sterne.|Atteins la sortie le plus vite pour gagner 3 étoiles.|Доберись до выхода быстрее всех и получи 3 звезды.|Capai pintu keluar tercepat untuk dapat 3 bintang.
+Tek Tuş Şehir|One-Button City|Ciudad de un botón|Cidade de um botão|Ein-Tasten-Stadt|Ville à un bouton|Город одной кнопкой|Kota Satu Tombol
+Basılı tut, çatıdan çatıya zıpla.|Hold to jump from roof to roof.|Mantén pulsado para saltar de tejado en tejado.|Segure para pular de telhado em telhado.|Halte gedrückt, um von Dach zu Dach zu springen.|Maintiens pour sauter de toit en toit.|Удерживай, чтобы прыгать с крыши на крышу.|Tahan untuk melompat dari atap ke atap.
+Basılı tut, çatıdan çatıya zıpla. Ne kadar uzun basarsan o kadar uzağa gidersin.|Hold to jump from roof to roof. The longer you hold, the farther you go.|Mantén pulsado para saltar de tejado en tejado. Cuanto más mantengas, más lejos irás.|Segure para pular de telhado em telhado. Quanto mais tempo segurar, mais longe você vai.|Halte gedrückt, um von Dach zu Dach zu springen. Je länger du hältst, desto weiter kommst du.|Maintiens pour sauter de toit en toit. Plus tu maintiens, plus tu vas loin.|Удерживай, чтобы прыгать с крыши на крышу. Чем дольше держишь, тем дальше прыжок.|Tahan untuk melompat dari atap ke atap. Makin lama menahan, makin jauh lompatanmu.
+Melodi Karoları|Melody Tiles|Baldosas Melódicas|Blocos Melódicos|Melodie-Kacheln|Tuiles Mélodie|Мелодичные плитки|Ubin Melodi
+Siyah karolara dokun, şarkıyı sen çal.|Tap the black tiles and play the song yourself.|Toca las baldosas negras y toca la canción tú mismo.|Toque nos blocos pretos e toque a música você mesmo.|Tippe auf die schwarzen Kacheln und spiele das Lied selbst.|Touche les tuiles noires et joue la chanson toi-même.|Нажимай на чёрные плитки и играй песню сам.|Ketuk ubin hitam dan mainkan lagunya sendiri.
+Siyah karolara sırayla dokun, şarkı çalsın.|Tap the black tiles in order to play the song.|Toca las baldosas negras en orden para que suene la canción.|Toque nos blocos pretos em ordem para tocar a música.|Tippe die schwarzen Kacheln der Reihe nach an, damit das Lied spielt.|Touche les tuiles noires dans l'ordre pour jouer la chanson.|Нажимай на чёрные плитки по порядку, и зазвучит песня.|Ketuk ubin hitam berurutan agar lagunya berbunyi.
+Uzun karoda parmağını basılı tut. Beyaz alana dokunma!|Hold your finger on long tiles. Don't touch the white area!|Mantén el dedo en las baldosas largas. ¡No toques la zona blanca!|Segure o dedo nos blocos longos. Não toque na área branca!|Halte den Finger auf langen Kacheln. Berühre nicht die weiße Fläche!|Maintiens ton doigt sur les longues tuiles. Ne touche pas la zone blanche !|Удерживай палец на длинных плитках. Не касайся белого поля!|Tahan jarimu pada ubin panjang. Jangan sentuh area putih!
+Ok Kaçışı|Arrow Escape|Escape de Flechas|Fuga de Setas|Pfeil-Flucht|Évasion des Flèches|Побег стрелок|Pelarian Panah
+Oklara dokun, yönüne kayıp çıksınlar. Yolu tıkalıysa çıkmaz!|Tap the arrows so they slide out in their direction. If the path is blocked, they can't leave!|Toca las flechas para que salgan deslizándose. ¡Si el camino está bloqueado, no salen!|Toque nas setas para que deslizem para fora. Se o caminho estiver bloqueado, elas não saem!|Tippe die Pfeile an, damit sie in ihre Richtung hinausgleiten. Ist der Weg blockiert, bleiben sie!|Touche les flèches pour qu'elles sortent en glissant. Si le chemin est bloqué, elles restent !|Нажимай на стрелки, и они выскользнут по направлению. Если путь закрыт, они не выйдут!|Ketuk panah agar meluncur keluar searah. Jika jalannya terhalang, tidak bisa keluar!
+Oka dokun: yönüne kayıp çıkar|Tap an arrow: it slides out|Toca una flecha: sale deslizándose|Toque numa seta: ela desliza para fora|Tippe einen Pfeil an: er gleitet hinaus|Touche une flèche : elle sort en glissant|Нажми на стрелку: она выскользнет|Ketuk panah: ia meluncur keluar
+Su Sıralama|Water Sort|Ordenar Agua|Separar Água|Wasser sortieren|Tri d'Eau|Сортировка воды|Urut Air
+Renkli suları tüplerde aynı renge sırala.|Sort the colored water so each tube has one color.|Ordena el agua de colores para que cada tubo tenga un solo color.|Separe a água colorida para que cada tubo tenha uma só cor.|Sortiere das bunte Wasser, sodass jede Röhre nur eine Farbe hat.|Trie l'eau colorée pour qu'il n'y ait qu'une couleur par tube.|Рассортируй цветную воду так, чтобы в каждой пробирке был один цвет.|Urutkan air berwarna agar tiap tabung hanya satu warna.
+Renkli suları tüplere ayır: her tüpte tek renk kalsın. Aynı renk ya da boş tüpe dökebilirsin.|Sort the colored water into tubes: each tube should hold one color. You can pour onto the same color or into an empty tube.|Separa el agua de colores en tubos: cada tubo debe tener un solo color. Puedes verter sobre el mismo color o en un tubo vacío.|Separe a água colorida nos tubos: cada tubo deve ter uma só cor. Você pode despejar na mesma cor ou num tubo vazio.|Verteile das bunte Wasser auf die Röhren: In jeder soll nur eine Farbe sein. Du kannst auf dieselbe Farbe oder in eine leere Röhre gießen.|Répartis l'eau colorée dans les tubes : chaque tube ne doit contenir qu'une couleur. Tu peux verser sur la même couleur ou dans un tube vide.|Раскидай цветную воду по пробиркам: в каждой должен остаться один цвет. Переливать можно на тот же цвет или в пустую пробирку.|Pisahkan air berwarna ke tabung: tiap tabung harus satu warna. Boleh menuang ke warna yang sama atau ke tabung kosong.
+Temizlik Simülatörü|Cleaning Simulator|Simulador de Limpieza|Simulador de Limpeza|Putzsimulator|Simulateur de Nettoyage|Симулятор уборки|Simulator Bersih-Bersih
+Temizlik|Cleaning|Limpieza|Limpeza|Reinigen|Nettoyage|Уборка|Bersih-Bersih
+Basınçlı suyla kirli eşyaları pırıl pırıl yap.|Make dirty things sparkle with a pressure washer.|Deja las cosas sucias relucientes con agua a presión.|Deixe as coisas sujas brilhando com água sob pressão.|Bring Schmutziges mit dem Hochdruckreiniger zum Glänzen.|Fais briller les objets sales avec un jet haute pression.|Отмой грязные вещи до блеска водой под давлением.|Buat benda kotor berkilau dengan air bertekanan.
+Serbest modda su sıkarak yıka. Günlük İş: müşteriden teklif al, doğru aletle doğru kiri temizle!|Free mode: wash by spraying water. Daily Job: get an offer from a customer and clean each dirt with the right tool!|Modo libre: lava con agua a presión. Trabajo diario: recibe una oferta del cliente y limpia cada suciedad con la herramienta correcta.|Modo livre: lave com jato de água. Trabalho diário: receba uma oferta do cliente e limpe cada sujeira com a ferramenta certa!|Freier Modus: Wasche mit Wasserstrahl. Tagesjob: Nimm ein Angebot an und reinige jeden Schmutz mit dem richtigen Werkzeug!|Mode libre : lave au jet d'eau. Job du jour : prends l'offre d'un client et nettoie chaque saleté avec le bon outil !|Свободный режим: мой водой. Задание дня: получи предложение от клиента и убери каждую грязь нужным инструментом!|Mode bebas: cuci dengan semprotan air. Pekerjaan harian: ambil tawaran pelanggan dan bersihkan tiap kotoran dengan alat yang tepat!
+Gök Adaları|Sky Islands|Islas del Cielo|Ilhas do Céu|Himmelsinseln|Îles du Ciel|Небесные острова|Pulau Langit
+Gök Adaları 🏝️|Sky Islands 🏝️|Islas del Cielo 🏝️|Ilhas do Céu 🏝️|Himmelsinseln 🏝️|Îles du Ciel 🏝️|Небесные острова 🏝️|Pulau Langit 🏝️
+Adaları büyüt.|Grow your islands.|Haz crecer tus islas.|Faça suas ilhas crescerem.|Lass deine Inseln wachsen.|Fais grandir tes îles.|Развивай свои острова.|Kembangkan pulaumu.
+10 dünya, her birinin kendi parası var. Birinin parasıyla sıradakini açarsın. Sen yokken de kazanır!|10 worlds, each with its own currency. Use one world's currency to unlock the next. It earns even while you're away!|10 mundos, cada uno con su propia moneda. Usa la de uno para abrir el siguiente. ¡Gana incluso cuando no estás!|10 mundos, cada um com sua própria moeda. Use a moeda de um para abrir o próximo. Rende mesmo quando você não está!|10 Welten, jede mit eigener Währung. Mit der Währung einer Welt schaltest du die nächste frei. Sie verdient auch, wenn du weg bist!|10 mondes, chacun avec sa monnaie. Utilise celle d'un monde pour débloquer le suivant. Ça rapporte même en ton absence !|10 миров, у каждого своя валюта. Валютой одного открываешь следующий. Доход идёт, даже когда тебя нет!|10 dunia, masing-masing punya mata uang sendiri. Gunakan mata uang satu dunia untuk membuka berikutnya. Tetap menghasilkan saat kamu pergi!
+Renk Değiştir|Color Switch|Cambio de Color|Troca de Cor|Farbwechsel|Changement de Couleur|Смена цвета|Ganti Warna
+Topla aynı renkteki yayın içinden geç.|Pass through the arc of the same color as your ball.|Pasa por el arco del mismo color que tu bola.|Passe pelo arco da mesma cor da sua bola.|Fliege durch den Bogen in der Farbe deines Balls.|Passe par l'arc de la même couleur que ta balle.|Проходи через дугу того же цвета, что и шар.|Lewati busur yang warnanya sama dengan bola.
+Dokun: top zıplar|Tap: the ball jumps|Toca: la bola salta|Toque: a bola pula|Tippen: Ball springt|Touche : la balle saute|Нажми: шар прыгает|Ketuk: bola melompat
+Balon Patlat|Pop Balloons|Explota Globos|Estoure Balões|Ballons platzen|Éclate les Ballons|Лопай шарики|Pecahkan Balon
+60 saniyede en çok balonu patlat, bombaya dokunma!|Pop as many balloons as you can in 60 seconds, don't touch the bombs!|Explota todos los globos que puedas en 60 segundos, ¡no toques las bombas!|Estoure o máximo de balões em 60 segundos, não toque nas bombas!|Lass in 60 Sekunden so viele Ballons wie möglich platzen, berühre keine Bomben!|Éclate un maximum de ballons en 60 secondes, ne touche pas les bombes !|Лопни как можно больше шариков за 60 секунд, не трогай бомбы!|Pecahkan balon sebanyak mungkin dalam 60 detik, jangan sentuh bom!
+Balonlara dokun, bombalardan kaç!|Tap balloons, avoid bombs!|¡Toca globos, evita bombas!|Toque nos balões, fuja das bombas!|Tippe Ballons an, meide Bomben!|Touche les ballons, évite les bombes !|Нажимай на шарики, избегай бомб!|Ketuk balon, hindari bom!
+Blok Bulmaca|Block Puzzle|Puzle de Bloques|Quebra-Cabeça de Blocos|Blockpuzzle|Puzzle de Blocs|Блок-пазл|Teka-teki Blok
+Şekilleri tahtaya yerleştir, satır ve sütunları doldur.|Place the shapes on the board, fill rows and columns.|Coloca las piezas en el tablero y completa filas y columnas.|Coloque as peças no tabuleiro e complete linhas e colunas.|Platziere die Formen auf dem Brett und fülle Reihen und Spalten.|Place les formes sur le plateau et remplis lignes et colonnes.|Размещай фигуры на поле, заполняй строки и столбцы.|Letakkan bentuk di papan, isi baris dan kolom.
+Şekli sürükle, tahtaya bırak|Drag the shape onto the board|Arrastra la pieza al tablero|Arraste a peça para o tabuleiro|Ziehe die Form aufs Brett|Glisse la forme sur le plateau|Перетащи фигуру на поле|Seret bentuk ke papan
+Kanat Çırp|Flap Wings|Aletea|Bata Asas|Flattern|Bats des Ailes|Взмах крыльев|Kepak Sayap
+Dokun, kuş kanat çırpsın. Borulara çarpmadan geç.|Tap to flap the bird's wings. Pass the pipes without hitting them.|Toca para que el pájaro aletee. Pasa las tuberías sin chocar.|Toque para o pássaro bater as asas. Passe pelos canos sem bater.|Tippe, damit der Vogel flattert. Fliege durch die Rohre, ohne anzustoßen.|Touche pour faire battre des ailes à l'oiseau. Passe les tuyaux sans les toucher.|Нажимай, чтобы птица махала крыльями. Пролетай между трубами, не задевая.|Ketuk agar burung mengepak. Lewati pipa tanpa menabrak.
+Dokun: kanat çırp|Tap: flap|Toca: aletear|Toque: bater asas|Tippen: flattern|Touche : battre des ailes|Нажми: взмах|Ketuk: kepak
+Yılan Neon|Neon Snake|Serpiente Neón|Cobra Neon|Neon-Schlange|Serpent Néon|Неоновая змейка|Ular Neon
+Yılanı yönlendir, yemleri ye, uzadıkça dikkat et.|Steer the snake, eat the food, and watch out as it grows.|Guía la serpiente, come la comida y ten cuidado al crecer.|Guie a cobra, coma a comida e cuidado ao crescer.|Steuere die Schlange, friss das Futter und pass beim Wachsen auf.|Dirige le serpent, mange la nourriture et fais attention en grandissant.|Направляй змейку, ешь еду и будь осторожен, пока она растёт.|Arahkan ular, makan makanan, dan waspada saat makin panjang.
+Parmağını kaydır: yılan o yöne döner|Swipe: the snake turns that way|Desliza: la serpiente gira hacia allí|Deslize: a cobra vira nessa direção|Wische: die Schlange biegt dorthin ab|Glisse : le serpent tourne dans cette direction|Проведи пальцем: змейка повернёт туда|Geser: ular berbelok ke arah itu
+Zıpla Kule|Stack Tower|Torre de Saltos|Torre de Pulos|Turmsprung|Tour à Empiler|Прыжок на башню|Menara Lompat
+Blokları tam üst üste bırak, kule yükselsin.|Drop blocks exactly on top of each other so the tower grows.|Suelta los bloques justo uno sobre otro para que la torre crezca.|Solte os blocos exatamente um sobre o outro para a torre crescer.|Setze die Blöcke genau übereinander, damit der Turm wächst.|Dépose les blocs pile l'un sur l'autre pour faire monter la tour.|Клади блоки точно друг на друга, чтобы башня росла.|Jatuhkan blok tepat di atas satu sama lain agar menara tumbuh.
+Dokun: bloğu bırak|Tap: drop the block|Toca: soltar el bloque|Toque: soltar o bloco|Tippen: Block fallen lassen|Touche : lâcher le bloc|Нажми: бросить блок|Ketuk: jatuhkan blok
+Hayalet Takım|Ghost Team|Equipo Fantasma|Time Fantasma|Geister-Team|Équipe Fantôme|Команда призраков|Tim Hantu
+Kendi hayaletlerinle iş birliği yap, kapıları aç.|Team up with your own ghosts to open the doors.|Colabora con tus propios fantasmas para abrir las puertas.|Trabalhe em equipe com seus próprios fantasmas para abrir as portas.|Arbeite mit deinen eigenen Geistern zusammen, um die Türen zu öffnen.|Fais équipe avec tes propres fantômes pour ouvrir les portes.|Работай вместе со своими призраками и открывай двери.|Bekerja sama dengan hantumu sendiri untuk membuka pintu.
+Turu oynarsın, kaydın hayalet olarak geri döner. Hayalet plakada beklerken kapıdan geç. İleride testere ve çukurlar çıkar. Her 10. seviye BOSS!|You play a round and your recording returns as a ghost. Walk through the door while the ghost waits on the plate. Saws and pits appear later. Every 10th level is a BOSS!|Juegas una ronda y tu grabación vuelve como fantasma. Cruza la puerta mientras el fantasma espera en la placa. Más adelante hay sierras y fosos. ¡Cada 10.º nivel es un JEFE!|Você joga uma rodada e sua gravação volta como fantasma. Passe pela porta enquanto o fantasma espera na placa. Depois surgem serras e buracos. Todo 10º nível é um CHEFE!|Du spielst eine Runde und deine Aufnahme kehrt als Geist zurück. Geh durch die Tür, während der Geist auf der Platte wartet. Später kommen Sägen und Gruben. Jedes 10. Level ist ein BOSS!|Tu joues un tour et ton enregistrement revient en fantôme. Passe la porte pendant que le fantôme attend sur la plaque. Plus tard, des scies et des fosses apparaissent. Chaque 10e niveau est un BOSS !|Ты проходишь раунд, и твоя запись возвращается призраком. Проходи через дверь, пока призрак ждёт на плите. Позже появятся пилы и ямы. Каждый 10-й уровень — БОСС!|Kamu bermain satu ronde dan rekamanmu kembali sebagai hantu. Lewati pintu saat hantu menunggu di pelat. Nanti ada gergaji dan lubang. Setiap level ke-10 adalah BOS!
+Kasa Uzmanı|Safe Cracker|Experto en Cajas Fuertes|Especialista em Cofres|Tresorknacker|Expert en Coffres|Мастер сейфов|Ahli Brankas
+Titreşimi hisset, kilidi aç. Gözünü kapat da oyna!|Feel the vibration, open the lock. Play with your eyes closed!|Siente la vibración y abre la cerradura. ¡Juega con los ojos cerrados!|Sinta a vibração e abra a fechadura. Jogue de olhos fechados!|Spüre die Vibration und öffne das Schloss. Spiel mit geschlossenen Augen!|Ressens la vibration et ouvre la serrure. Joue les yeux fermés !|Чувствуй вибрацию и открой замок. Играй с закрытыми глазами!|Rasakan getarannya, buka kuncinya. Main sambil menutup mata!
+Kadranı çevir, titreşim ve ses kilidin yerini söylesin. Parmağını doğru yerde sabit tut. Ok varsa o yönden gir. Sahte noktalarda pick kırılır. Her 10. kasa BOSS!|Turn the dial; vibration and sound reveal the lock position. Hold your finger still at the right spot. If there's an arrow, enter from that direction. Picks break on fake spots. Every 10th safe is a BOSS!|Gira el dial; la vibración y el sonido te dicen dónde está la cerradura. Mantén el dedo quieto en el punto correcto. Si hay flecha, entra desde esa dirección. Las ganzúas se rompen en puntos falsos. ¡Cada 10.ª caja es un JEFE!|Gire o disco; vibração e som mostram a posição da trava. Mantenha o dedo parado no ponto certo. Se houver seta, entre por aquela direção. Gazuas quebram em pontos falsos. Todo 10º cofre é um CHEFE!|Drehe das Rad; Vibration und Ton verraten die Position. Halte den Finger am richtigen Punkt still. Bei einem Pfeil komm aus dieser Richtung. An falschen Stellen brechen Dietriche. Jeder 10. Tresor ist ein BOSS!|Tourne le cadran ; vibration et son révèlent la position. Garde ton doigt immobile au bon endroit. S'il y a une flèche, entre dans ce sens. Les crochets cassent sur les faux points. Chaque 10e coffre est un BOSS !|Крути диск: вибрация и звук подскажут положение замка. Держи палец неподвижно в нужной точке. Если есть стрелка, входи с этой стороны. На ложных точках отмычки ломаются. Каждый 10-й сейф — БОСС!|Putar piringan; getaran dan suara menunjukkan posisi kunci. Tahan jarimu diam di titik yang tepat. Jika ada panah, masuk dari arah itu. Pick patah di titik palsu. Setiap brankas ke-10 adalah BOS!
+Gölge Bahçesi|Shadow Garden|Jardín de Sombras|Jardim das Sombras|Schattengarten|Jardin d'Ombres|Сад теней|Taman Bayangan
+Işığı kaydır, gölgeleri şekle oturt.|Slide the light to fit the shadows onto the shape.|Desliza la luz y encaja las sombras en la forma.|Deslize a luz e encaixe as sombras na forma.|Schiebe das Licht, bis die Schatten zur Form passen.|Fais glisser la lumière pour que les ombres épousent la forme.|Двигай свет, чтобы тени совпали с силуэтом.|Geser cahaya agar bayangan pas dengan bentuknya.
+Altın çizgideki şekil hedef. Işığı kaydır: yakın nesnelerin gölgesi çok, uzak olanlarınki az kayar. İleride nesneleri döndürmen de gerekir. Her 10. bahçe BOSS!|The shape inside the gold outline is the target. Slide the light: shadows of near objects move more, far ones less. Later you'll also need to rotate the objects. Every 10th garden is a BOSS!|La forma del contorno dorado es el objetivo. Desliza la luz: las sombras de los objetos cercanos se mueven más y las lejanas menos. Más adelante también tendrás que girar los objetos. ¡Cada 10.º jardín es un JEFE!|A forma no contorno dourado é o alvo. Deslize a luz: sombras de objetos próximos mexem mais, as distantes menos. Mais adiante você também vai girar os objetos. Todo 10º jardim é um CHEFE!|Die Form mit goldenem Rand ist das Ziel. Schiebe das Licht: Schatten naher Objekte wandern mehr, ferne weniger. Später musst du die Objekte auch drehen. Jeder 10. Garten ist ein BOSS!|La forme au contour doré est la cible. Fais glisser la lumière : les ombres des objets proches bougent plus, les lointaines moins. Plus tard, tu devras aussi tourner les objets. Chaque 10e jardin est un BOSS !|Цель — силуэт в золотой рамке. Двигай свет: тени близких предметов смещаются сильнее, дальних — слабее. Позже придётся ещё и вращать предметы. Каждый 10-й сад — БОСС!|Bentuk dalam garis emas adalah targetnya. Geser cahaya: bayangan benda dekat bergerak lebih jauh, benda jauh lebih sedikit. Nanti kamu juga perlu memutar bendanya. Setiap taman ke-10 adalah BOS!
+Dünya|World|Mundo|Mundo|Welt|Monde|Мир|Dunia
+ters yönde gir|enter counter-clockwise|entra en sentido antihorario|entre no sentido anti-horário|im Gegenuhrzeigersinn eingeben|entre dans le sens antihoraire|входи против часовой|masuk berlawanan arah jarum jam
+saat yönünde gir|enter clockwise|entra en sentido horario|entre no sentido horário|im Uhrzeigersinn eingeben|entre dans le sens horaire|входи по часовой|masuk searah jarum jam
+iz bırakmadın|no trace left|sin dejar rastro|sem deixar rastro|keine Spur hinterlassen|aucune trace laissée|без следов|tanpa jejak
+yönetici yok|no manager|sin gerente|sem gerente|kein Manager|pas de gérant|нет менеджера|tanpa manajer
+Taşıma|Transport|Transporte|Transporte|Transport|Transport|Перевозка|Angkut
+altın daha lazım|more gold needed|falta más oro|falta mais ouro|mehr Gold nötig|il faut plus d'or|нужно больше золота|butuh lebih banyak emas
+altın lazım|gold needed|se necesita oro|precisa de ouro|Gold nötig|or requis|нужно золото|butuh emas
+daha lazım|more needed|falta más|falta mais|mehr nötig|il en faut plus|нужно ещё|butuh lebih banyak
+lazım|needed|necesario|necessário|nötig|requis|нужно|dibutuhkan
+açıldı! Sıradaki:|unlocked! Next:|¡desbloqueado! Siguiente:|desbloqueado! Próximo:|freigeschaltet! Als Nächstes:|débloqué ! Suivant :|открыто! Далее:|terbuka! Berikutnya:
+birbirini besler: yükselt, dengele!|they feed each other: upgrade and balance!|se alimentan entre sí: ¡mejora y equilibra!|alimentam um ao outro: melhore e equilibre!|sie speisen sich gegenseitig: verbessern und ausbalancieren!|ils s'alimentent : améliore et équilibre !|они питают друг друга: улучшай и балансируй!|saling menopang: tingkatkan dan seimbangkan!
+bonus|bonus|bono|bônus|Bonus|bonus|бонус|bonus
+bölüm · hedef|stages · target|etapas · objetivo|etapas · meta|Abschnitte · Ziel|étapes · objectif|этапов · цель|tahap · target
+dakika boyunca adaların çalıştı.|minutes your islands were working.|minutos trabajaron tus islas.|minutos suas ilhas trabalharam.|Minuten haben deine Inseln gearbeitet.|minutes tes îles ont travaillé.|минут твои острова работали.|menit pulaumu bekerja.
+düşme|falling|caída|queda|Sturz|chute|падение|jatuh
+hamlede çözdün|moves to solve|movimientos para resolverlo|movimentos para resolver|Züge zum Lösen|coups pour résoudre|ходов на решение|langkah untuk menyelesaikan
+kazandın!|you won!|¡ganaste!|você ganhou!|gewonnen!|gagné !|ты выиграл!|kamu menang!
+parası|currency|moneda|moeda|Währung|monnaie|валюта|mata uang
+puan · en iyi seri|points · best streak|puntos · mejor racha|pontos · melhor sequência|Punkte · beste Serie|points · meilleure série|очков · лучшая серия|poin · seri terbaik
+puanda açılır|unlocks at points|se desbloquea con puntos|desbloqueia com pontos|wird bei Punkten freigeschaltet|se débloque aux points|открывается за очки|terbuka pada poin
+sn · Bugün|s · Today|s · Hoy|s · Hoje|s · Heute|s · Aujourd'hui|с · Сегодня|dtk · Hari ini
+sn (hedef|s (target|s (objetivo|s (meta|s (Ziel|s (objectif|с (цель|dtk (target
+yanlış alet|wrong tool|herramienta incorrecta|ferramenta errada|falsches Werkzeug|mauvais outil|не тот инструмент|alat salah
+Günlük ödülü bugün aldın|You claimed today's daily reward|Ya reclamaste la recompensa diaria de hoy|Você já pegou a recompensa diária de hoje|Du hast die heutige Tagesbelohnung abgeholt|Tu as déjà pris la récompense du jour|Ты уже забрал дневную награду|Kamu sudah mengambil hadiah harian hari ini
+hiç pick kırmadın!|you broke no picks!|¡no rompiste ninguna ganzúa!|você não quebrou nenhuma gazua!|du hast keinen Dietrich zerbrochen!|tu n'as cassé aucun crochet !|ни одна отмычка не сломана!|tidak ada pick yang patah!
+hız ×|speed ×|velocidad ×|velocidade ×|Tempo ×|vitesse ×|скорость ×|kecepatan ×
+kirli!|dirty!|¡sucio!|sujo!|schmutzig!|sale !|грязно!|kotor!
+zor mod|hard mode|modo difícil|modo difícil|schwerer Modus|mode difficile|сложный режим|mode sulit
+Ödül:|Reward:|Recompensa:|Recompensa:|Belohnung:|Récompense :|Награда:|Hadiah:
+çarpan x|multiplier x|multiplicador x|multiplicador x|Multiplikator x|multiplicateur x|множитель x|pengali x
+Altın madalya|Gold medal|Medalla de oro|Medalha de ouro|Goldmedaille|Médaille d'or|Золотая медаль|Medali emas
+Gümüş madalya|Silver medal|Medalla de plata|Medalha de prata|Silbermedaille|Médaille d'argent|Серебряная медаль|Medali perak
+Bronz madalya|Bronze medal|Medalla de bronce|Medalha de bronze|Bronzemedaille|Médaille de bronze|Бронзовая медаль|Medali perunggu
+Üretim|Production|Producción|Produção|Produktion|Production|Производство|Produksi
+kazanırsın (her 🌟 geliri %5 artırır). Emin misin?|you'll earn (each 🌟 raises income by 5%). Are you sure?|ganarás (cada 🌟 sube los ingresos un 5 %). ¿Seguro?|você ganha (cada 🌟 aumenta a renda em 5%). Tem certeza?|du bekommst (jedes 🌟 steigert das Einkommen um 5 %). Sicher?|tu gagnes (chaque 🌟 augmente le revenu de 5 %). Tu es sûr ?|получишь (каждая 🌟 повышает доход на 5%). Уверен?|kamu dapat (tiap 🌟 menaikkan pendapatan 5%). Yakin?
+Zor|Hard|Difícil|Difícil|Schwer|Difficile|Сложно|Sulit
+Kolay|Easy|Fácil|Fácil|Leicht|Facile|Легко|Mudah
+Orta|Medium|Medio|Médio|Mittel|Moyen|Средне|Sedang
+Yeni dünya açılabilir! 🗺️|A new world can be unlocked! 🗺️|¡Se puede abrir un mundo nuevo! 🗺️|Um novo mundo pode ser aberto! 🗺️|Eine neue Welt kann freigeschaltet werden! 🗺️|Un nouveau monde peut être débloqué ! 🗺️|Можно открыть новый мир! 🗺️|Dunia baru bisa dibuka! 🗺️
+Sonraki dünya:|Next world:|Siguiente mundo:|Próximo mundo:|Nächste Welt:|Monde suivant :|Следующий мир:|Dunia berikutnya:
+🗺️ Haritayı aç|🗺️ Open map|🗺️ Abrir mapa|🗺️ Abrir mapa|🗺️ Karte öffnen|🗺️ Ouvrir la carte|🗺️ Открыть карту|🗺️ Buka peta
+Şu an buradasın|You are here|Estás aquí|Você está aqui|Du bist hier|Tu es ici|Ты здесь|Kamu di sini
+Git ›|Go ›|Ir ›|Ir ›|Gehen ›|Aller ›|Идти ›|Pergi ›
+AÇ ›|OPEN ›|ABRIR ›|ABRIR ›|ÖFFNEN ›|OUVRIR ›|ОТКРЫТЬ ›|BUKA ›
+Önceki dünyayı aç|Unlock the previous world first|Abre primero el mundo anterior|Abra primeiro o mundo anterior|Schalte zuerst die vorherige Welt frei|Débloque d'abord le monde précédent|Сначала открой предыдущий мир|Buka dulu dunia sebelumnya
+Önce önceki dünyayı aç|Unlock the previous world first|Abre primero el mundo anterior|Abra primeiro o mundo anterior|Schalte zuerst die vorherige Welt frei|Débloque d'abord le monde précédent|Сначала открой предыдущий мир|Buka dulu dunia sebelumnya
+Önce önceki adayı aç|Unlock the previous island first|Abre primero la isla anterior|Abra primeiro a ilha anterior|Schalte zuerst die vorherige Insel frei|Débloque d'abord l'île précédente|Сначала открой предыдущий остров|Buka dulu pulau sebelumnya
+Önce önceki türde ada aç|Unlock an island of the previous type first|Abre primero una isla del tipo anterior|Abra primeiro uma ilha do tipo anterior|Schalte zuerst eine Insel des vorherigen Typs frei|Débloque d'abord une île du type précédent|Сначала открой остров предыдущего типа|Buka dulu pulau tipe sebelumnya
+Önce bu türde üretim başlat|Start producing this type first|Empieza primero a producir este tipo|Comece primeiro a produzir este tipo|Starte zuerst die Produktion dieses Typs|Lance d'abord la production de ce type|Сначала запусти производство этого типа|Mulai produksi tipe ini dulu
+bölüm|stage|etapa|etapa|Abschnitt|étape|этап|tahap
+Yarın yenilenir|Renews tomorrow|Se renueva mañana|Renova amanhã|Erneuert sich morgen|Se renouvelle demain|Обновится завтра|Diperbarui besok
+Renkli plakanın üstüne git ve dur|Go onto the colored plate and stop|Ve sobre la placa de color y detente|Vá sobre a placa colorida e pare|Geh auf die farbige Platte und bleib stehen|Va sur la plaque colorée et arrête-toi|Встань на цветную плиту и остановись|Pergi ke pelat berwarna lalu berhenti
+"Kaydı Bitir"e bas: hayaletin plakada bekler|Press "Finish Recording": your ghost waits on the plate|Pulsa "Terminar grabación": tu fantasma espera en la placa|Toque em "Terminar gravação": seu fantasma espera na placa|Drücke "Aufnahme beenden": dein Geist wartet auf der Platte|Appuie sur "Terminer": ton fantôme attend sur la plaque|Нажми «Закончить запись»: призрак ждёт на плите|Tekan "Selesai Rekam": hantumu menunggu di pelat
+Yeni turda kapıdan geç, 🏁'e ulaş|In the new round pass through the door and reach 🏁|En la nueva ronda cruza la puerta y llega a 🏁|Na nova rodada passe pela porta e chegue ao 🏁|Geh in der neuen Runde durch die Tür und erreiche 🏁|Au nouveau tour, passe la porte et atteins 🏁|В новом раунде пройди через дверь и доберись до 🏁|Di ronde baru lewati pintu dan capai 🏁
+100 kez zıpla|Jump 100 times|Salta 100 veces|Pule 100 vezes|Springe 100-mal|Saute 100 fois|Прыгни 100 раз|Lompat 100 kali
+2 dakikalık gelir kazan|Earn 2 minutes of income|Gana 2 minutos de ingresos|Ganhe 2 minutos de renda|Verdiene 2 Minuten Einkommen|Gagne 2 minutes de revenus|Получи доход за 2 минуты|Dapat pendapatan 2 menit
+25 güçlendirme topla|Collect 25 power-ups|Recoge 25 potenciadores|Colete 25 power-ups|Sammle 25 Power-ups|Ramasse 25 bonus|Собери 25 усилений|Kumpulkan 25 penguat
+6 güçlendirme topla|Collect 6 power-ups|Recoge 6 potenciadores|Colete 6 power-ups|Sammle 6 Power-ups|Ramasse 6 bonus|Собери 6 усилений|Kumpulkan 6 penguat
+3 boss geç|Beat 3 bosses|Supera 3 jefes|Vença 3 chefes|Besiege 3 Bosse|Bats 3 boss|Победи 3 боссов|Kalahkan 3 bos
+2. tüp için 80 altın lazım|80 gold needed for the 2nd tube|Se necesitan 80 de oro para el 2.º tubo|Precisa de 80 de ouro para o 2º tubo|80 Gold für die 2. Röhre nötig|80 d'or requis pour le 2e tube|Нужно 80 золота для 2-й пробирки|Butuh 80 emas untuk tabung ke-2
+5 altın lazım|5 gold needed|Se necesitan 5 de oro|Precisa de 5 de ouro|5 Gold nötig|5 d'or requis|Нужно 5 золота|Butuh 5 emas
+Adaların depoları doldu! Gelip topla ve geliştir.|Your islands' storage is full! Come collect and upgrade.|¡Los almacenes de tus islas están llenos! Ven a recoger y mejorar.|Os depósitos das suas ilhas encheram! Venha coletar e melhorar.|Die Lager deiner Inseln sind voll! Komm sammeln und verbessern.|Les entrepôts de tes îles sont pleins ! Viens collecter et améliorer.|Склады твоих островов полны! Заходи, собери и улучши.|Gudang pulaumu penuh! Ayo kumpulkan dan tingkatkan.
+Adın|Your name|Tu nombre|Seu nome|Dein Name|Ton nom|Твоё имя|Namamu
+Al 🪙|Buy 🪙|Comprar 🪙|Comprar 🪙|Kaufen 🪙|Acheter 🪙|Купить 🪙|Beli 🪙
+Alacakaranlık|Twilight|Crepúsculo|Crepúsculo|Dämmerung|Crépuscule|Сумерки|Senja
+Alev gibi iz|Flame-like trail|Estela de llamas|Rastro de chamas|Flammenspur|Traînée de flammes|Огненный след|Jejak seperti api
+Altyapı|Infrastructure|Infraestructura|Infraestrutura|Infrastruktur|Infrastructure|Инфраструктура|Infrastruktur
+Altın|Gold|Oro|Ouro|Gold|Or|Золото|Emas
+Altın Kral|Gold King|Rey Dorado|Rei Dourado|Goldkönig|Roi d'Or|Золотой король|Raja Emas
+Altın Top|Gold Ball|Bola Dorada|Bola Dourada|Goldball|Balle d'Or|Золотой шар|Bola Emas
+Altın topla, kostüm ve hayvan al.\nEngele çarparsan canavar yaklaşır. Yakalanırsan oyun biter.|Collect coins, buy costumes and pets.\nIf you hit an obstacle the monster gets closer. If it catches you, game over.|Recoge monedas, compra disfraces y mascotas.\nSi chocas con un obstáculo, el monstruo se acerca. Si te atrapa, fin del juego.|Colete moedas, compre fantasias e bichinhos.\nSe bater num obstáculo, o monstro se aproxima. Se te pegar, fim de jogo.|Sammle Münzen, kaufe Kostüme und Tiere.\nStößt du an ein Hindernis, kommt das Monster näher. Fängt es dich, ist das Spiel vorbei.|Ramasse des pièces, achète des costumes et des animaux.\nSi tu heurte un obstacle, le monstre se rapproche. S'il t'attrape, c'est fini.|Собирай монеты, покупай костюмы и питомцев.\nЕсли врежешься в препятствие, монстр приблизится. Поймает — игра окончена.|Kumpulkan koin, beli kostum dan hewan.\nJika menabrak rintangan, monster mendekat. Jika tertangkap, permainan berakhir.
+Altın ve canavar|Coins and monster|Monedas y monstruo|Moedas e monstro|Münzen und Monster|Pièces et monstre|Монеты и монстр|Koin dan monster
+Alışkanlık|Habit|Hábito|Hábito|Gewohnheit|Habitude|Привычка|Kebiasaan
+Ametist Kovanı|Amethyst Hive|Colmena de Amatista|Colmeia de Ametista|Amethyst-Bienenstock|Ruche d'Améthyste|Аметистовый улей|Sarang Kecubung
+Araba Detayı|Car Detailing|Detallado de Coche|Detalhamento de Carro|Autoaufbereitung|Détail Auto|Детейлинг авто|Detailing Mobil
+Asteroit Tarlası|Asteroid Field|Campo de Asteroides|Campo de Asteroides|Asteroidenfeld|Champ d'Astéroïdes|Поле астероидов|Ladang Asteroid
+Astronot|Astronaut|Astronauta|Astronauta|Astronaut|Astronaute|Астронавт|Astronot
+Ateş|Fire|Fuego|Fogo|Feuer|Feu|Огонь|Api
+Ateş Topu|Fireball|Bola de Fuego|Bola de Fogo|Feuerball|Boule de Feu|Огненный шар|Bola Api
+Aurora|Aurora|Aurora|Aurora|Aurora|Aurore|Аврора|Aurora
+Aurora Kulesi|Aurora Tower|Torre Aurora|Torre Aurora|Aurora-Turm|Tour Aurore|Башня Аврора|Menara Aurora
+Ay Tarlası|Moon Field|Campo Lunar|Campo Lunar|Mondfeld|Champ Lunaire|Лунное поле|Ladang Bulan
+Ayşe Hanım|Ms. Ayşe|Sra. Ayşe|Sra. Ayşe|Frau Ayşe|Mme Ayşe|Госпожа Айше|Bu Ayşe
+AÇIK|ON|SÍ|LIGADO|AN|ACTIVÉ|ВКЛ|AKTIF
+Açmak için|To unlock|Para desbloquear|Para desbloquear|Zum Freischalten|Pour débloquer|Чтобы открыть|Untuk membuka
+BAKKAL & MARKET|GROCERY & MARKET|TIENDA Y MERCADO|MERCEARIA & MERCADO|LADEN & MARKT|ÉPICERIE & MARCHÉ|ЛАВКА И РЫНОК|WARUNG & PASAR
+BASILI TUT|HOLD|MANTÉN|SEGURE|HALTEN|MAINTIENS|УДЕРЖИВАЙ|TAHAN
+BOSS kasa açıldı! 🏆|BOSS safe opened! 🏆|¡Caja fuerte JEFE abierta! 🏆|Cofre CHEFE aberto! 🏆|BOSS-Tresor geöffnet! 🏆|Coffre BOSS ouvert ! 🏆|Сейф-БОСС открыт! 🏆|Brankas BOS terbuka! 🏆
+Bahçe|Garden|Jardín|Jardim|Garten|Jardin|Сад|Taman
+Bakkal|Grocery|Tienda|Mercearia|Laden|Épicerie|Лавка|Warung
+Balon Avcısı|Balloon Hunter|Cazador de Globos|Caçador de Balões|Ballonjäger|Chasseur de Ballons|Охотник за шарами|Pemburu Balon
+Balon Patlat: 180 puan yap|Pop Balloons: score 180|Explota Globos: consigue 180 puntos|Estoure Balões: faça 180 pontos|Ballons platzen: erreiche 180 Punkte|Éclate les Ballons : fais 180 points|Лопай шарики: набери 180 очков|Pecahkan Balon: raih 180 poin
+Balon Patlat: 60 puan yap|Pop Balloons: score 60|Explota Globos: consigue 60 puntos|Estoure Balões: faça 60 pontos|Ballons platzen: erreiche 60 Punkte|Éclate les Ballons : fais 60 points|Лопай шарики: набери 60 очков|Pecahkan Balon: raih 60 poin
+Balon Patlat: tek oyunda 80 puan|Pop Balloons: 80 points in one game|Explota Globos: 80 puntos en una partida|Estoure Balões: 80 pontos em uma partida|Ballons platzen: 80 Punkte in einem Spiel|Éclate les Ballons : 80 points en une partie|Лопай шарики: 80 очков за игру|Pecahkan Balon: 80 poin dalam satu game
+Balon Ustası|Balloon Master|Maestro de Globos|Mestre dos Balões|Ballonmeister|Maître des Ballons|Мастер шаров|Master Balon
+Balon İskelesi|Balloon Pier|Muelle de Globos|Cais de Balões|Ballon-Pier|Jetée des Ballons|Причал шаров|Dermaga Balon
+Basılı tut · bırakınca zıpla|Hold · release to jump|Mantén · suelta para saltar|Segure · solte para pular|Halten · loslassen zum Springen|Maintiens · relâche pour sauter|Удерживай · отпусти для прыжка|Tahan · lepas untuk melompat
+Basınç|Pressure|Presión|Pressão|Druck|Pression|Давление|Tekanan
+Basınç MAX|Pressure MAX|Presión MAX|Pressão MAX|Druck MAX|Pression MAX|Давление МАКС|Tekanan MAKS
+Bağlanılamadı, internetini kontrol et.|Couldn't connect, check your internet.|No se pudo conectar, revisa tu internet.|Não foi possível conectar, verifique sua internet.|Verbindung fehlgeschlagen, prüfe dein Internet.|Connexion impossible, vérifie ta connexion internet.|Не удалось подключиться, проверь интернет.|Tidak bisa terhubung, periksa internetmu.
+Başarım|Achievement|Logro|Conquista|Erfolg|Succès|Достижение|Pencapaian
+Başka renk yok|No other color|No hay otro color|Não há outra cor|Keine andere Farbe|Pas d'autre couleur|Других цветов нет|Tidak ada warna lain
+Başlık|Header|Cabecera|Cabeçalho|Kopf|En-tête|Заголовок|Kepala
+Başlık MAX|Header MAX|Cabecera MAX|Cabeçalho MAX|Kopf MAX|En-tête MAX|Заголовок МАКС|Kepala MAKS
+Binalar|Buildings|Edificios|Edifícios|Gebäude|Bâtiments|Здания|Bangunan
+Binlik|Thousand|Mil|Mil|Tausend|Mille|Тысяча|Ribu
+Bir ad yaz|Enter a name|Escribe un nombre|Digite um nome|Gib einen Namen ein|Écris un nom|Введи имя|Tulis nama
+Bir evcil hayvan edin|Get a pet|Consigue una mascota|Ganhe um bichinho|Hole dir ein Haustier|Obtiens un animal|Заведи питомца|Dapatkan hewan peliharaan
+Bir kostüm satın al|Buy a costume|Compra un disfraz|Compre uma fantasia|Kaufe ein Kostüm|Achète un costume|Купи костюм|Beli sebuah kostum
+Bir şarkıyı bitir|Finish a song|Termina una canción|Termine uma música|Beende ein Lied|Termine une chanson|Закончи песню|Selesaikan satu lagu
+Biraz daha büyü, sonra yüksel. Şu an|Grow a bit more, then ascend. Right now|Crece un poco más y luego asciende. Ahora|Cresça mais um pouco, depois suba. Agora|Wachse noch etwas, dann steige auf. Gerade|Grandis encore un peu, puis monte. Actuellement|Подрасти ещё немного, потом поднимись. Сейчас|Tumbuh sedikit lagi, lalu naik. Saat ini
+Biraz daha kazan|Earn a bit more|Gana un poco más|Ganhe um pouco mais|Verdiene noch etwas|Gagne encore un peu|Заработай ещё немного|Dapatkan sedikit lagi
+Biraz hareket et ✋|Move a little ✋|Muévete un poco ✋|Mexa-se um pouco ✋|Beweg dich ein wenig ✋|Bouge un peu ✋|Немного подвигайся ✋|Gerakkan sedikit ✋
+Birini seç. Günde 1 iş ödülü vardır.|Pick one. There's 1 job reward per day.|Elige una. Hay 1 recompensa de trabajo al día.|Escolha uma. Há 1 recompensa de trabalho por dia.|Wähle eines. Es gibt 1 Job-Belohnung pro Tag.|Choisis-en une. Il y a 1 récompense de job par jour.|Выбери одну. В день доступна 1 награда за работу.|Pilih satu. Ada 1 hadiah pekerjaan per hari.
+Blok Bulmaca: 10000 puan yap|Block Puzzle: score 10000|Puzle de Bloques: consigue 10000 puntos|Quebra-Cabeça de Blocos: faça 10000 pontos|Blockpuzzle: erreiche 10000 Punkte|Puzzle de Blocs : fais 10000 points|Блок-пазл: набери 10000 очков|Teka-teki Blok: raih 10000 poin
+Blok Bulmaca: 2000 puan yap|Block Puzzle: score 2000|Puzle de Bloques: consigue 2000 puntos|Quebra-Cabeça de Blocos: faça 2000 pontos|Blockpuzzle: erreiche 2000 Punkte|Puzzle de Blocs : fais 2000 points|Блок-пазл: набери 2000 очков|Teka-teki Blok: raih 2000 poin
+Blok Bulmaca: tek oyunda 3000 puan|Block Puzzle: 3000 points in one game|Puzle de Bloques: 3000 puntos en una partida|Quebra-Cabeça de Blocos: 3000 pontos em uma partida|Blockpuzzle: 3000 Punkte in einem Spiel|Puzzle de Blocs : 3000 points en une partie|Блок-пазл: 3000 очков за игру|Teka-teki Blok: 3000 poin dalam satu game
+Blok Ustası|Block Master|Maestro de Bloques|Mestre dos Blocos|Blockmeister|Maître des Blocs|Мастер блоков|Master Blok
+Bonus|Bonus|Bono|Bônus|Bonus|Bonus|Бонус|Bonus
+Boss Avcısı|Boss Hunter|Cazajefes|Caçador de Chefes|Boss-Jäger|Chasseur de Boss|Охотник на боссов|Pemburu Bos
+Bu seviyede en fazla 2 tüp eklenir|At most 2 tubes can be added on this level|En este nivel se pueden añadir como máximo 2 tubos|Neste nível podem ser adicionados no máximo 2 tubos|In diesem Level können höchstens 2 Röhren hinzugefügt werden|Sur ce niveau, 2 tubes maximum peuvent être ajoutés|На этом уровне можно добавить не более 2 пробирок|Di level ini maksimal 2 tabung bisa ditambah
+Bugün 200 altın topla|Collect 200 coins today|Recoge 200 monedas hoy|Colete 200 moedas hoje|Sammle heute 200 Münzen|Ramasse 200 pièces aujourd'hui|Собери сегодня 200 монет|Kumpulkan 200 koin hari ini
+Bugün 500 altın topla|Collect 500 coins today|Recoge 500 monedas hoy|Colete 500 moedas hoje|Sammle heute 500 Münzen|Ramasse 500 pièces aujourd'hui|Собери сегодня 500 монет|Kumpulkan 500 koin hari ini
+Bugünkü işi bitirdin!|You finished today's job!|¡Terminaste el trabajo de hoy!|Você terminou o trabalho de hoje!|Du hast den heutigen Job erledigt!|Tu as terminé le job du jour !|Ты закончил сегодняшнее задание!|Kamu menyelesaikan pekerjaan hari ini!
+Bugünlük bitti|Done for today|Terminado por hoy|Acabou por hoje|Für heute fertig|Terminé pour aujourd'hui|На сегодня всё|Selesai untuk hari ini
+Bulmaca Meraklısı|Puzzle Fan|Aficionado a los Puzles|Fã de Quebra-Cabeças|Rätselfan|Fan de Puzzles|Любитель головоломок|Penggemar Teka-teki
+Bulut Çiftliği|Cloud Farm|Granja de Nubes|Fazenda de Nuvens|Wolkenfarm|Ferme des Nuages|Ферма облаков|Peternakan Awan
+Buz|Ice|Hielo|Gelo|Eis|Glace|Лёд|Es
+Buz Bahçesi|Ice Garden|Jardín de Hielo|Jardim de Gelo|Eisgarten|Jardin de Glace|Ледяной сад|Taman Es
+Buz Dünyası|Ice World|Mundo de Hielo|Mundo de Gelo|Eiswelt|Monde de Glace|Ледяной мир|Dunia Es
+Buz Dünyası'na ulaş|Reach the Ice World|Llega al Mundo de Hielo|Chegue ao Mundo de Gelo|Erreiche die Eiswelt|Atteins le Monde de Glace|Достигни Ледяного мира|Capai Dunia Es
+Buz Kovanı|Ice Hive|Colmena de Hielo|Colmeia de Gelo|Eis-Bienenstock|Ruche de Glace|Ледяной улей|Sarang Es
+Buz Kâşifi|Ice Explorer|Explorador de Hielo|Explorador de Gelo|Eisforscher|Explorateur de Glace|Исследователь льда|Penjelajah Es
+Büyülü Orman|Enchanted Forest|Bosque Encantado|Floresta Encantada|Zauberwald|Forêt Enchantée|Волшебный лес|Hutan Ajaib
+Cam|Glass|Cristal|Vidro|Glas|Verre|Стекло|Kaca
+Cam Kovanı|Glass Hive|Colmena de Cristal|Colmeia de Vidro|Glas-Bienenstock|Ruche de Verre|Стеклянный улей|Sarang Kaca
+Can|Life|Vida|Vida|Leben|Vie|Жизнь|Nyawa
+Canavardan 5 kez kurtul|Escape the monster 5 times|Escapa del monstruo 5 veces|Escape do monstro 5 vezes|Entkomme dem Monster 5-mal|Échappe au monstre 5 fois|Сбеги от монстра 5 раз|Lolos dari monster 5 kali
+Cepler Doldu|Pockets Full|Bolsillos Llenos|Bolsos Cheios|Taschen voll|Poches Pleines|Карманы полны|Kantong Penuh
+Daha geniş alandan altın toplar|Collects coins from a wider area|Recoge monedas de un área más amplia|Coleta moedas de uma área maior|Sammelt Münzen aus größerem Bereich|Ramasse les pièces sur une plus grande zone|Собирает монеты с большей области|Mengumpulkan koin dari area lebih luas
+Dalga Kulesi|Wave Tower|Torre de Olas|Torre das Ondas|Wellenturm|Tour des Vagues|Башня волн|Menara Gelombang
+Define Kazısı|Treasure Dig|Excavación del Tesoro|Escavação do Tesouro|Schatzgrabung|Fouille au Trésor|Раскопки сокровищ|Gali Harta
+Dengeli iş|Balanced job|Trabajo equilibrado|Trabalho equilibrado|Ausgewogener Job|Job équilibré|Сбалансированная работа|Pekerjaan seimbang
+Deniz|Sea|Mar|Mar|Meer|Mer|Море|Laut
+Dikenlerin üstünden ⤒ ile zıpla|Jump over the spikes with ⤒|Salta sobre los pinchos con ⤒|Pule sobre os espinhos com ⤒|Springe mit ⤒ über die Stacheln|Saute par-dessus les piques avec ⤒|Прыгай через шипы кнопкой ⤒|Lompati duri dengan ⤒
+Dükkan Temizliği|Shop Cleaning|Limpieza de Tienda|Limpeza de Loja|Ladenreinigung|Nettoyage de Boutique|Уборка магазина|Bersih-Bersih Toko
+Dükkan açılışı yarın!|The shop opens tomorrow!|¡La tienda abre mañana!|A loja abre amanhã!|Der Laden öffnet morgen!|La boutique ouvre demain !|Магазин открывается завтра!|Toko buka besok!
+Ekrana basılı tut: güç dolar. Bırakınca zıplarsın.\nOrtadaki beyaz çizgiye inersen "Mükemmel" olur.|Hold the screen: power fills up. Release to jump.\nLand on the white line in the middle for "Perfect".|Mantén pulsada la pantalla: se carga la fuerza. Suelta para saltar.\nSi aterrizas en la línea blanca central, es "Perfecto".|Segure a tela: a força enche. Solte para pular.\nPouse na linha branca do meio para um "Perfeito".|Halte den Bildschirm: Die Kraft füllt sich. Loslassen zum Springen.\nLandest du auf der weißen Linie in der Mitte, ist es "Perfekt".|Maintiens l'écran : la puissance se charge. Relâche pour sauter.\nAtterris sur la ligne blanche du milieu pour un "Parfait".|Удерживай экран: набирается сила. Отпусти, чтобы прыгнуть.\nПриземлись на белую линию посередине, и будет «Идеально».|Tahan layar: tenaga terisi. Lepas untuk melompat.\nMendaratlah di garis putih tengah untuk "Sempurna".
+Elif|Elif|Elif|Elif|Elif|Elif|Элиф|Elif
+En fazla 8 hayalet|At most 8 ghosts|Máximo 8 fantasmas|No máximo 8 fantasmas|Höchstens 8 Geister|8 fantômes maximum|Не более 8 призраков|Maksimal 8 hantu
+En geniş alan + ateş saçar|Widest area + sprays fire|Área más amplia + lanza fuego|Maior área + espalha fogo|Größte Fläche + versprüht Feuer|Zone la plus large + crache du feu|Самая большая область + огонь|Area terluas + menyemburkan api
+En iyi:|Best:|Mejor:|Melhor:|Beste:|Meilleur :|Лучший:|Terbaik:
+En yüksek seviye!|Highest level!|¡Nivel máximo!|Nível máximo!|Höchstes Level!|Niveau maximal !|Максимальный уровень!|Level tertinggi!
+Enerji Hattı|Power Line|Línea de Energía|Linha de Energia|Stromleitung|Ligne d'Énergie|Линия энергии|Jalur Energi
+Ev Temizliği|House Cleaning|Limpieza del Hogar|Limpeza da Casa|Hausreinigung|Ménage|Уборка дома|Bersih-Bersih Rumah
+Fatma Teyze|Auntie Fatma|Tía Fatma|Tia Fatma|Tante Fatma|Tante Fatma|Тётя Фатма|Bibi Fatma
+Fırtına|Storm|Tormenta|Tempestade|Sturm|Tempête|Буря|Badai
+Fırtına Kulesi|Storm Tower|Torre de Tormenta|Torre da Tempestade|Sturmturm|Tour de Tempête|Башня бури|Menara Badai
+Fırça|Brush|Cepillo|Escova|Bürste|Brosse|Щётка|Sikat
+Gri teras|Gray terrace|Terraza gris|Terraço cinza|Graue Terrasse|Terrasse grise|Серая терраса|Teras abu-abu
+Gök Adaları: 2. dünyayı aç|Sky Islands: unlock the 2nd world|Islas del Cielo: abre el 2.º mundo|Ilhas do Céu: abra o 2º mundo|Himmelsinseln: schalte die 2. Welt frei|Îles du Ciel : débloque le 2e monde|Небесные острова: открой 2-й мир|Pulau Langit: buka dunia ke-2
+Gök Adaları: 4 dünya aç|Sky Islands: unlock 4 worlds|Islas del Cielo: abre 4 mundos|Ilhas do Céu: abra 4 mundos|Himmelsinseln: schalte 4 Welten frei|Îles du Ciel : débloque 4 mondes|Небесные острова: открой 4 мира|Pulau Langit: buka 4 dunia
+Gök Baronu|Sky Baron|Barón del Cielo|Barão do Céu|Himmelsbaron|Baron du Ciel|Небесный барон|Baron Langit
+Gökdelen|Skyscraper|Rascacielos|Arranha-céu|Wolkenkratzer|Gratte-ciel|Небоскрёб|Pencakar Langit
+Gökkuşağı|Rainbow|Arcoíris|Arco-íris|Regenbogen|Arc-en-ciel|Радуга|Pelangi
+Gökyüzü Sahibi|Sky Owner|Dueño del Cielo|Dono do Céu|Himmelsbesitzer|Maître du Ciel|Владелец неба|Pemilik Langit
+Gökyüzü Ustası|Sky Master|Maestro del Cielo|Mestre do Céu|Himmelsmeister|Maître du Ciel|Мастер неба|Master Langit
+Gölge Bahçesi: 10. bahçeye ulaş|Shadow Garden: reach garden 10|Jardín de Sombras: llega al jardín 10|Jardim das Sombras: chegue ao jardim 10|Schattengarten: erreiche Garten 10|Jardin d'Ombres : atteins le jardin 10|Сад теней: дойди до сада 10|Taman Bayangan: capai taman 10
+Gölge Bahçesi: 40. bahçeye ulaş|Shadow Garden: reach garden 40|Jardín de Sombras: llega al jardín 40|Jardim das Sombras: chegue ao jardim 40|Schattengarten: erreiche Garten 40|Jardin d'Ombres : atteins le jardin 40|Сад теней: дойди до сада 40|Taman Bayangan: capai taman 40
+Gölge tamam! 🌙|Shadow done! 🌙|¡Sombra lista! 🌙|Sombra pronta! 🌙|Schatten fertig! 🌙|Ombre terminée ! 🌙|Тень готова! 🌙|Bayangan selesai! 🌙
+Gölge Çırağı|Shadow Apprentice|Aprendiz de Sombras|Aprendiz de Sombras|Schattenlehrling|Apprenti des Ombres|Ученик теней|Murid Bayangan
+Gölgeyi altın çizgiye oturt|Fit the shadow to the gold outline|Encaja la sombra en el contorno dorado|Encaixe a sombra no contorno dourado|Passe den Schatten in den goldenen Rand ein|Fais épouser le contour doré à l'ombre|Совмести тень с золотым контуром|Pasangkan bayangan dengan garis emas
+Görevler|Quests|Misiones|Missões|Aufgaben|Quêtes|Задания|Misi
+Gün Batımı|Sunset|Atardecer|Pôr do Sol|Sonnenuntergang|Coucher de soleil|Закат|Matahari Terbenam
+Gündoğumu|Sunrise|Amanecer|Nascer do Sol|Sonnenaufgang|Lever de soleil|Рассвет|Matahari Terbit
+Güneş Kulesi|Sun Tower|Torre del Sol|Torre do Sol|Sonnenturm|Tour du Soleil|Башня солнца|Menara Matahari
+Günlük|Daily|Diario|Diário|Täglich|Quotidien|Ежедневно|Harian
+Günlük görevlerin, çark hakkın ve günlük labirent seni bekliyor!|Your daily quests, wheel spin and daily maze are waiting!|¡Tus misiones diarias, tu giro de ruleta y el laberinto diario te esperan!|Suas missões diárias, giro da roleta e labirinto diário estão te esperando!|Deine Tagesaufgaben, dein Glücksrad-Dreh und das Tageslabyrinth warten auf dich!|Tes quêtes du jour, ton tour de roue et le labyrinthe du jour t'attendent !|Тебя ждут ежедневные задания, прокрутка колеса и ежедневный лабиринт!|Misi harian, putaran roda, dan labirin harian menunggumu!
+Günlük İş|Daily Job|Trabajo Diario|Trabalho Diário|Tagesjob|Job du Jour|Задание дня|Pekerjaan Harian
+Güzel|Nice|Bien|Legal|Schön|Joli|Хорошо|Bagus
+Güzel!|Nice!|¡Bien!|Legal!|Schön!|Joli !|Хорошо!|Bagus!
+Güç Avcısı|Power Hunter|Cazapoderes|Caçador de Poder|Power-Jäger|Chasseur de Pouvoir|Охотник за силой|Pemburu Kekuatan
+Hafta sonu düğüne gideceğim, araba pırıl pırıl olsun!|I'm going to a wedding this weekend, make the car sparkle!|Voy a una boda este fin de semana, ¡que el coche brille!|Vou a um casamento no fim de semana, deixe o carro brilhando!|Am Wochenende gehe ich zu einer Hochzeit, das Auto soll glänzen!|Je vais à un mariage ce week-end, que la voiture brille !|На выходных иду на свадьбу, пусть машина блестит!|Akhir pekan aku ke pernikahan, buat mobilnya berkilau!
+Hafta sonu keyfi! Rekorunu kırmaya ne dersin? 🏆|Weekend fun! How about breaking your record? 🏆|¡Diversión de fin de semana! ¿Qué tal batir tu récord? 🏆|Diversão de fim de semana! Que tal bater seu recorde? 🏆|Wochenendspaß! Wie wär's mit einem neuen Rekord? 🏆|C'est le week-end ! Et si tu battais ton record ? 🏆|Выходные! Может, побьёшь рекорд? 🏆|Seru akhir pekan! Bagaimana kalau pecahkan rekormu? 🏆
+Harika|Great|Genial|Ótimo|Toll|Super|Отлично|Hebat
+Harika!|Great!|¡Genial!|Ótimo!|Toll!|Super !|Отлично!|Hebat!
+Harika! 🎉|Great! 🎉|¡Genial! 🎉|Ótimo! 🎉|Toll! 🎉|Super ! 🎉|Отлично! 🎉|Hebat! 🎉
+Hata:|Error:|Error:|Erro:|Fehler:|Erreur :|Ошибка:|Kesalahan:
+Hayalet Avcısı|Ghost Hunter|Cazafantasmas|Caçador de Fantasmas|Geisterjäger|Chasseur de Fantômes|Охотник на призраков|Pemburu Hantu
+Hayalet Takım: 10. seviyeye ulaş|Ghost Team: reach level 10|Equipo Fantasma: llega al nivel 10|Time Fantasma: chegue ao nível 10|Geister-Team: erreiche Level 10|Équipe Fantôme : atteins le niveau 10|Команда призраков: дойди до 10 уровня|Tim Hantu: capai level 10
+Hayalet Takım: 40. seviyeye ulaş|Ghost Team: reach level 40|Equipo Fantasma: llega al nivel 40|Time Fantasma: chegue ao nível 40|Geister-Team: erreiche Level 40|Équipe Fantôme : atteins le niveau 40|Команда призраков: дойди до 40 уровня|Tim Hantu: capai level 40
+Hayvan|Pet|Mascota|Bichinho|Tier|Animal|Питомец|Hewan
+Hayvan yok|No pet|Sin mascota|Sem bichinho|Kein Tier|Pas d'animal|Нет питомца|Tanpa hewan
+Hayvansever|Animal Lover|Amante de los Animales|Amante de Animais|Tierfreund|Ami des Animaux|Любитель животных|Pecinta Hewan
+Hazine Sandığı|Treasure Chest|Cofre del Tesoro|Baú do Tesouro|Schatztruhe|Coffre au Trésor|Сундук с сокровищами|Peti Harta
+Henüz kimse yok, ilk sen ol!|Nobody yet, be the first!|¡Aún no hay nadie, sé el primero!|Ninguém ainda, seja o primeiro!|Noch niemand, sei der Erste!|Personne pour l'instant, sois le premier !|Пока никого, будь первым!|Belum ada siapa pun, jadilah yang pertama!
+Her ada üretir, ama <b>İskele / Hat / Depo</b> kapasitesi kadarı taşınır. Üretim kapasiteyi geçerse 🔴 ! çıkar.|Every island produces, but only as much as the <b>Pier / Line / Depot</b> capacity gets carried. If production exceeds capacity, a 🔴 ! appears.|Cada isla produce, pero solo se transporta lo que permita la capacidad del <b>Muelle / Línea / Depósito</b>. Si la producción la supera, aparece 🔴 !.|Cada ilha produz, mas só é transportado o que a capacidade do <b>Cais / Linha / Depósito</b> permite. Se a produção passar da capacidade, aparece 🔴 !.|Jede Insel produziert, aber nur so viel wie die Kapazität von <b>Pier / Leitung / Depot</b> wird transportiert. Übersteigt die Produktion die Kapazität, erscheint 🔴 !.|Chaque île produit, mais seule la capacité de la <b>Jetée / Ligne / Dépôt</b> est transportée. Si la production la dépasse, un 🔴 ! apparaît.|Каждый остров производит, но перевозится только в пределах мощности <b>Причала / Линии / Склада</b>. Если производство превышает её, появится 🔴 !.|Setiap pulau berproduksi, tetapi hanya sebanyak kapasitas <b>Dermaga / Jalur / Gudang</b> yang terangkut. Jika produksi melebihi kapasitas, muncul 🔴 !.
+Hoş geldin! 🌤️|Welcome! 🌤️|¡Bienvenido! 🌤️|Bem-vindo! 🌤️|Willkommen! 🌤️|Bienvenue ! 🌤️|Добро пожаловать! 🌤️|Selamat datang! 🌤️
+Hızlanıyor! ⚡|Speeding up! ⚡|¡Acelerando! ⚡|Acelerando! ⚡|Es wird schneller! ⚡|Ça accélère ! ⚡|Ускоряется! ⚡|Makin cepat! ⚡
+Isınıyor|Getting warmer|Se calienta|Esquentando|Wird wärmer|Ça chauffe|Теплее|Makin hangat
+Işık Kulesi|Light Tower|Torre de Luz|Torre de Luz|Lichtturm|Tour de Lumière|Башня света|Menara Cahaya
+Işık Ustası|Light Master|Maestro de la Luz|Mestre da Luz|Lichtmeister|Maître de la Lumière|Мастер света|Master Cahaya
+Işığı buradan kaydır|Slide the light here|Desliza la luz aquí|Deslize a luz aqui|Schiebe das Licht hier|Fais glisser la lumière ici|Двигай свет здесь|Geser cahaya di sini
+KAFE & PASTA|CAFÉ & CAKES|CAFÉ Y PASTELES|CAFÉ & BOLOS|CAFÉ & KUCHEN|CAFÉ & PÂTISSERIE|КАФЕ И ВЫПЕЧКА|KAFE & KUE
+KUAFÖR|HAIR SALON|PELUQUERÍA|CABELEIREIRO|FRISEUR|COIFFEUR|ПАРИКМАХЕРСКАЯ|SALON
+Kabuk|Shell|Caparazón|Casca|Schale|Coquille|Раковина|Cangkang
+Kadranı parmağınla çevir|Turn the dial with your finger|Gira el dial con el dedo|Gire o disco com o dedo|Drehe das Rad mit dem Finger|Tourne le cadran avec ton doigt|Крути диск пальцем|Putar piringan dengan jarimu
+Kafe|Café|Cafetería|Café|Café|Café|Кафе|Kafe
+Kalan:|Left:|Quedan:|Restam:|Übrig:|Restant :|Осталось:|Sisa:
+Kalkan kırıldı! 🛡️|Shield broken! 🛡️|¡Escudo roto! 🛡️|Escudo quebrado! 🛡️|Schild zerbrochen! 🛡️|Bouclier brisé ! 🛡️|Щит разбит! 🛡️|Perisai hancur! 🛡️
+Kalkan! 🛡️|Shield! 🛡️|¡Escudo! 🛡️|Escudo! 🛡️|Schild! 🛡️|Bouclier ! 🛡️|Щит! 🛡️|Perisai! 🛡️
+Kanat Çırp: 10 boru geç|Flap Wings: pass 10 pipes|Aletea: pasa 10 tuberías|Bata Asas: passe 10 canos|Flattern: passiere 10 Rohre|Bats des Ailes : passe 10 tuyaux|Взмах крыльев: пролети 10 труб|Kepak Sayap: lewati 10 pipa
+Kanat Çırp: 30 boru geç|Flap Wings: pass 30 pipes|Aletea: pasa 30 tuberías|Bata Asas: passe 30 canos|Flattern: passiere 30 Rohre|Bats des Ailes : passe 30 tuyaux|Взмах крыльев: пролети 30 труб|Kepak Sayap: lewati 30 pipa
+Kanat Çırp: tek oyunda 12 boru|Flap Wings: 12 pipes in one game|Aletea: 12 tuberías en una partida|Bata Asas: 12 canos em uma partida|Flattern: 12 Rohre in einem Spiel|Bats des Ailes : 12 tuyaux en une partie|Взмах крыльев: 12 труб за игру|Kepak Sayap: 12 pipa dalam satu game
+Kanat Çırpan|Wing Flapper|Aleteador|Batedor de Asas|Flügelschläger|Batteur d'Ailes|Крылатый|Pengepak Sayap
+Karolarda toplam 10 yıldız topla|Collect 10 stars in total on tiles|Recoge 10 estrellas en total en las baldosas|Colete 10 estrelas no total nos blocos|Sammle insgesamt 10 Sterne bei den Kacheln|Collecte 10 étoiles au total sur les tuiles|Собери 10 звёзд на плитках в сумме|Kumpulkan total 10 bintang di ubin
+Kasa|Safe|Caja fuerte|Cofre|Tresor|Coffre|Сейф|Brankas
+Kasa Uzmanı: 10. kasaya ulaş|Safe Cracker: reach safe 10|Experto en Cajas Fuertes: llega a la caja 10|Especialista em Cofres: chegue ao cofre 10|Tresorknacker: erreiche Tresor 10|Expert en Coffres : atteins le coffre 10|Мастер сейфов: дойди до 10 сейфа|Ahli Brankas: capai brankas 10
+Kasa Uzmanı: 40. kasaya ulaş|Safe Cracker: reach safe 40|Experto en Cajas Fuertes: llega a la caja 40|Especialista em Cofres: chegue ao cofre 40|Tresorknacker: erreiche Tresor 40|Expert en Coffres : atteins le coffre 40|Мастер сейфов: дойди до 40 сейфа|Ahli Brankas: capai brankas 40
+Kasa açıldı! 🔓|Safe opened! 🔓|¡Caja abierta! 🔓|Cofre aberto! 🔓|Tresor geöffnet! 🔓|Coffre ouvert ! 🔓|Сейф открыт! 🔓|Brankas terbuka! 🔓
+Katman|Layer|Capa|Camada|Schicht|Couche|Слой|Lapisan
+Kaçak|Fugitive|Fugitivo|Fugitivo|Flüchtling|Fugitif|Беглец|Buronan
+Kaşif|Explorer|Explorador|Explorador|Entdecker|Explorateur|Исследователь|Penjelajah
+Kedi|Cat|Gato|Gato|Katze|Chat|Кошка|Kucing
+Kemal Usta|Master Kemal|Maestro Kemal|Mestre Kemal|Meister Kemal|Maître Kemal|Мастер Кемаль|Master Kemal
+Kiremit teras|Tile terrace|Terraza de tejas|Terraço de telhas|Ziegelterrasse|Terrasse en tuiles|Черепичная терраса|Teras genteng
+Klasik|Classic|Clásico|Clássico|Klassisch|Classique|Классика|Klasik
+Kombo ×|Combo ×|Combo ×|Combo ×|Kombo ×|Combo ×|Комбо ×|Kombo ×
+Kostüm|Costume|Disfraz|Fantasia|Kostüm|Costume|Костюм|Kostum
+Kozmos|Cosmos|Cosmos|Cosmos|Kosmos|Cosmos|Космос|Kosmos
+Krem ev|Cream house|Casa crema|Casa creme|Cremefarbenes Haus|Maison crème|Кремовый дом|Rumah krem
+Kristal Deposu|Crystal Depot|Depósito de Cristal|Depósito de Cristal|Kristalldepot|Dépôt de Cristal|Хрустальный склад|Gudang Kristal
+Kristal Kovanı|Crystal Hive|Colmena de Cristal|Colmeia de Cristal|Kristall-Bienenstock|Ruche de Cristal|Хрустальный улей|Sarang Kristal
+Kuaför|Hair Salon|Peluquería|Cabeleireiro|Friseur|Coiffeur|Парикмахерская|Salon
+Kule Ustası|Tower Master|Maestro de Torres|Mestre de Torres|Turmmeister|Maître des Tours|Мастер башен|Master Menara
+Kumlu teras|Sandy terrace|Terraza arenosa|Terraço arenoso|Sandige Terrasse|Terrasse sablonneuse|Песчаная терраса|Teras berpasir
+Kül Tarlası|Ash Field|Campo de Ceniza|Campo de Cinzas|Aschefeld|Champ de Cendres|Пепельное поле|Ladang Abu
+Kırmızı araba|Red car|Coche rojo|Carro vermelho|Rotes Auto|Voiture rouge|Красная машина|Mobil merah
+Kırmızı tekne|Red boat|Barco rojo|Barco vermelho|Rotes Boot|Bateau rouge|Красная лодка|Perahu merah
+Labirent Ustası|Maze Master|Maestro del Laberinto|Mestre do Labirinto|Labyrinth-Meister|Maître du Labyrinthe|Мастер лабиринта|Master Labirin
+Lav Dünyası|Lava World|Mundo de Lava|Mundo de Lava|Lavawelt|Monde de Lave|Лавовый мир|Dunia Lava
+Lav Dünyası'na ulaş|Reach the Lava World|Llega al Mundo de Lava|Chegue ao Mundo de Lava|Erreiche die Lavawelt|Atteins le Monde de Lave|Достигни Лавового мира|Capai Dunia Lava
+Lav Efendisi|Lava Lord|Señor de la Lava|Senhor da Lava|Lavaherr|Seigneur de la Lave|Повелитель лавы|Penguasa Lava
+Lav Kulesi|Lava Tower|Torre de Lava|Torre de Lava|Lavaturm|Tour de Lave|Лавовая башня|Menara Lava
+Leke|Stain|Mancha|Mancha|Fleck|Tache|Пятно|Noda
+MAX|MAX|MÁX|MÁX|MAX|MAX|МАКС|MAKS
+Magma Kovanı|Magma Hive|Colmena de Magma|Colmeia de Magma|Magma-Bienenstock|Ruche de Magma|Магмовый улей|Sarang Magma
+Mavi araba|Blue car|Coche azul|Carro azul|Blaues Auto|Voiture bleue|Синяя машина|Mobil biru
+Mavi ev|Blue house|Casa azul|Casa azul|Blaues Haus|Maison bleue|Синий дом|Rumah biru
+Mavi iz bırakır|Leaves a blue trail|Deja una estela azul|Deixa um rastro azul|Hinterlässt eine blaue Spur|Laisse une traînée bleue|Оставляет синий след|Meninggalkan jejak biru
+Mavi tekne|Blue boat|Barco azul|Barco azul|Blaues Boot|Bateau bleu|Синяя лодка|Perahu biru
+Mağaza|Shop|Tienda|Loja|Shop|Boutique|Магазин|Toko
+Mehmet Bey|Mr. Mehmet|Sr. Mehmet|Sr. Mehmet|Herr Mehmet|M. Mehmet|Господин Мехмет|Pak Mehmet
+Melodi Karoları: 150 karo çal|Melody Tiles: play 150 tiles|Baldosas Melódicas: toca 150 baldosas|Blocos Melódicos: toque 150 blocos|Melodie-Kacheln: spiele 150 Kacheln|Tuiles Mélodie : joue 150 tuiles|Мелодичные плитки: сыграй 150 плиток|Ubin Melodi: mainkan 150 ubin
+Melodi Karoları: 2 şarkı bitir|Melody Tiles: finish 2 songs|Baldosas Melódicas: termina 2 canciones|Blocos Melódicos: termine 2 músicas|Melodie-Kacheln: beende 2 Lieder|Tuiles Mélodie : termine 2 chansons|Мелодичные плитки: закончи 2 песни|Ubin Melodi: selesaikan 2 lagu
+Mercan Çiftliği|Coral Farm|Granja de Coral|Fazenda de Coral|Korallenfarm|Ferme de Corail|Коралловая ферма|Peternakan Karang
+Mini Ejder|Mini Dragon|Mini Dragón|Mini Dragão|Mini-Drache|Mini Dragon|Мини-дракон|Naga Mini
+Misafir geliyor, evi toparlar mısın?|Guests are coming, can you tidy up the house?|Vienen invitados, ¿puedes ordenar la casa?|Vêm visitas, você pode arrumar a casa?|Es kommt Besuch, kannst du das Haus aufräumen?|Des invités arrivent, peux-tu ranger la maison ?|Придут гости, можешь прибрать дом?|Tamu akan datang, bisa merapikan rumah?
+Moda Meraklısı|Fashion Fan|Fan de la Moda|Fã de Moda|Modefan|Fan de Mode|Модник|Penggemar Mode
+Mükemmel|Perfect|Perfecto|Perfeito|Perfekt|Parfait|Идеально|Sempurna
+Mükemmel!|Perfect!|¡Perfecto!|Perfeito!|Perfekt!|Parfait !|Идеально!|Sempurna!
+Müşteriler vitrine bakıyor, parlasın!|Customers look at the window, make it shine!|Los clientes miran el escaparate, ¡que brille!|Os clientes olham a vitrine, deixe brilhando!|Kunden schauen ins Schaufenster, lass es glänzen!|Les clients regardent la vitrine, fais-la briller !|Покупатели смотрят на витрину, пусть блестит!|Pelanggan melihat etalase, buat berkilau!
+Naz|Naz|Naz|Naz|Naz|Naz|Наз|Naz
+Neon Mavi|Neon Blue|Azul Neón|Azul Neon|Neonblau|Bleu Néon|Неоново-синий|Biru Neon
+Neon Ejderha|Neon Dragon|Dragón Neón|Dragão Neon|Neon-Drache|Dragon Néon|Неоновый дракон|Naga Neon
+Nesneleri döndür|Rotate the objects|Gira los objetos|Gire os objetos|Drehe die Objekte|Fais tourner les objets|Вращай предметы|Putar bendanya
+Ninja|Ninja|Ninja|Ninja|Ninja|Ninja|Ниндзя|Ninja
+Ok Avcısı|Arrow Hunter|Cazaflechas|Caçador de Setas|Pfeiljäger|Chasseur de Flèches|Охотник за стрелами|Pemburu Panah
+Ok Kaçışı: 10. seviyeye ulaş|Arrow Escape: reach level 10|Escape de Flechas: llega al nivel 10|Fuga de Setas: chegue ao nível 10|Pfeil-Flucht: erreiche Level 10|Évasion des Flèches : atteins le niveau 10|Побег стрелок: дойди до 10 уровня|Pelarian Panah: capai level 10
+Ok Kaçışı: 3 seviye geç|Arrow Escape: clear 3 levels|Escape de Flechas: supera 3 niveles|Fuga de Setas: passe 3 níveis|Pfeil-Flucht: schaffe 3 Level|Évasion des Flèches : réussis 3 niveaux|Побег стрелок: пройди 3 уровня|Pelarian Panah: selesaikan 3 level
+Ok Kaçışı: 40. seviyeye ulaş|Arrow Escape: reach level 40|Escape de Flechas: llega al nivel 40|Fuga de Setas: chegue ao nível 40|Pfeil-Flucht: erreiche Level 40|Évasion des Flèches : atteins le niveau 40|Побег стрелок: дойди до 40 уровня|Pelarian Panah: capai level 40
+Ok Ustası|Arrow Master|Maestro de Flechas|Mestre das Setas|Pfeilmeister|Maître des Flèches|Мастер стрелок|Master Panah
+Okan|Okan|Okan|Okan|Okan|Okan|Окан|Okan
+Okyanus|Ocean|Océano|Oceano|Ozean|Océan|Океан|Samudra
+Orman|Forest|Bosque|Floresta|Wald|Forêt|Лес|Hutan
+Otomatik çalışıyor|Runs automatically|Funciona automáticamente|Funciona automaticamente|Läuft automatisch|Fonctionne automatiquement|Работает автоматически|Berjalan otomatis
+PATLAMA! ⚡|BURST! ⚡|¡EXPLOSIÓN! ⚡|EXPLOSÃO! ⚡|AUSBRUCH! ⚡|EXPLOSION ! ⚡|ВЗРЫВ! ⚡|LEDAKAN! ⚡
+PUAN|SCORE|PUNTOS|PONTOS|PUNKTE|SCORE|ОЧКИ|SKOR
+Parmağınla sür, suyu tut ve kiri yıka!|Drag with your finger, spray the water and wash off the dirt!|Arrastra con el dedo, lanza el agua y lava la suciedad.|Arraste com o dedo, jogue água e lave a sujeira!|Wische mit dem Finger, sprühe Wasser und wasche den Schmutz ab!|Glisse du doigt, projette l'eau et lave la saleté !|Води пальцем, направляй воду и смывай грязь!|Geser jarimu, semprot air dan cuci kotorannya!
+Parmağını ekrana koy ve kaydır|Put your finger on the screen and slide|Pon el dedo en la pantalla y desliza|Coloque o dedo na tela e deslize|Lege den Finger auf den Bildschirm und wische|Pose ton doigt sur l'écran et glisse|Положи палец на экран и води|Letakkan jari di layar dan geser
+Parmağını ekrana koy ve sürükle, top o yöne gider.\nÇıkışa en hızlı ulaş, 3 yıldız kazan.|Put your finger on the screen and drag, the ball goes that way.\nReach the exit fastest to earn 3 stars.|Pon el dedo en la pantalla y arrastra, la bola irá hacia allí.\nLlega a la salida lo más rápido y gana 3 estrellas.|Coloque o dedo na tela e arraste, a bola vai nessa direção.\nChegue à saída o mais rápido para ganhar 3 estrelas.|Lege den Finger auf den Bildschirm und ziehe, der Ball rollt dorthin.\nErreiche den Ausgang am schnellsten und hol 3 Sterne.|Pose ton doigt sur l'écran et glisse, la balle va dans cette direction.\nAtteins la sortie le plus vite pour gagner 3 étoiles.|Положи палец на экран и води, шар покатится туда.\nДоберись до выхода быстрее всех и получи 3 звезды.|Letakkan jari di layar dan geser, bola akan bergerak ke arah itu.\nCapai pintu keluar tercepat untuk dapat 3 bintang.
+Parmağını sabit tut: kilit açılır|Hold your finger still: the lock opens|Mantén el dedo quieto: la cerradura se abre|Mantenha o dedo parado: a fechadura abre|Halte den Finger still: das Schloss öffnet sich|Garde ton doigt immobile : la serrure s'ouvre|Держи палец неподвижно: замок откроется|Tahan jari diam: kunci terbuka
+Pazar günü: bugünkü görevleri ve çarkı unutma 🎡|Sunday: don't forget today's quests and the wheel 🎡|Domingo: no olvides las misiones de hoy y la ruleta 🎡|Domingo: não esqueça as missões de hoje e a roleta 🎡|Sonntag: vergiss die heutigen Aufgaben und das Glücksrad nicht 🎡|Dimanche : n'oublie pas les quêtes du jour et la roue 🎡|Воскресенье: не забудь про задания дня и колесо 🎡|Hari Minggu: jangan lupa misi hari ini dan roda 🎡
+Pembe ev|Pink house|Casa rosa|Casa rosa|Rosa Haus|Maison rose|Розовый дом|Rumah merah muda
+Pembe iz bırakır|Leaves a pink trail|Deja una estela rosa|Deixa um rastro rosa|Hinterlässt eine rosa Spur|Laisse une traînée rose|Оставляет розовый след|Meninggalkan jejak merah muda
+Pianist|Pianist|Pianista|Pianista|Pianist|Pianiste|Пианист|Pianis
+Pick'ler bitti 😣|Out of picks 😣|Sin ganzúas 😣|Sem gazuas 😣|Keine Dietriche mehr 😣|Plus de crochets 😣|Отмычки кончились 😣|Pick habis 😣
+Plakalar hazır: kapılardan geç!|Plates are ready: go through the doors!|Las placas están listas: ¡cruza las puertas!|As placas estão prontas: passe pelas portas!|Die Platten sind bereit: geh durch die Türen!|Les plaques sont prêtes : passe les portes !|Плиты готовы: проходи через двери!|Pelat sudah siap: lewati pintunya!
+Pulsar Kulesi|Pulsar Tower|Torre Púlsar|Torre Pulsar|Pulsarturm|Tour Pulsar|Башня пульсара|Menara Pulsar
+Pırıl pırıl! ✨|Sparkling clean! ✨|¡Reluciente! ✨|Brilhando! ✨|Blitzblank! ✨|Étincelant ! ✨|Блестит! ✨|Kinclong! ✨
+Reklam izle, 2 dakikalık gelir kazan!|Watch an ad, earn 2 minutes of income!|¡Mira un anuncio y gana 2 minutos de ingresos!|Assista a um anúncio e ganhe 2 minutos de renda!|Sieh dir eine Werbung an und verdiene 2 Minuten Einkommen!|Regarde une pub, gagne 2 minutes de revenus !|Посмотри рекламу и получи доход за 2 минуты!|Tonton iklan, dapat pendapatan 2 menit!
+Reklam izle: 10 dk boyunca gelir 2 kat|Watch an ad: double income for 10 min|Mira un anuncio: ingresos x2 durante 10 min|Assista a um anúncio: renda em dobro por 10 min|Sieh dir eine Werbung an: doppeltes Einkommen für 10 Min.|Regarde une pub : revenus x2 pendant 10 min|Посмотри рекламу: доход x2 на 10 минут|Tonton iklan: pendapatan 2x selama 10 menit
+Rekor:|Record:|Récord:|Recorde:|Rekord:|Record :|Рекорд:|Rekor:
+Renk Değiştir: 12 engel geç|Color Switch: pass 12 obstacles|Cambio de Color: pasa 12 obstáculos|Troca de Cor: passe 12 obstáculos|Farbwechsel: passiere 12 Hindernisse|Changement de Couleur : passe 12 obstacles|Смена цвета: пройди 12 препятствий|Ganti Warna: lewati 12 rintangan
+Renk Değiştir: 40 engel geç|Color Switch: pass 40 obstacles|Cambio de Color: pasa 40 obstáculos|Troca de Cor: passe 40 obstáculos|Farbwechsel: passiere 40 Hindernisse|Changement de Couleur : passe 40 obstacles|Смена цвета: пройди 40 препятствий|Ganti Warna: lewati 40 rintangan
+Renk Değiştir: tek oyunda 15 engel|Color Switch: 15 obstacles in one game|Cambio de Color: 15 obstáculos en una partida|Troca de Cor: 15 obstáculos em uma partida|Farbwechsel: 15 Hindernisse in einem Spiel|Changement de Couleur : 15 obstacles en une partie|Смена цвета: 15 препятствий за игру|Ganti Warna: 15 rintangan dalam satu game
+Renk Ustası|Color Master|Maestro del Color|Mestre das Cores|Farbmeister|Maître des Couleurs|Мастер цвета|Master Warna
+Renkten renge geçer|Shifts from color to color|Cambia de color en color|Muda de cor em cor|Wechselt von Farbe zu Farbe|Passe de couleur en couleur|Переливается разными цветами|Berganti dari warna ke warna
+Robot Kuş|Robot Bird|Pájaro Robot|Pássaro Robô|Roboter-Vogel|Oiseau Robot|Робот-птица|Burung Robot
+Sarı araba|Yellow car|Coche amarillo|Carro amarelo|Gelbes Auto|Voiture jaune|Жёлтая машина|Mobil kuning
+Sarı tekne|Yellow boat|Barco amarillo|Barco amarelo|Gelbes Boot|Bateau jaune|Жёлтая лодка|Perahu kuning
+Sağa / sola kaydır: şerit değiştir.\nYukarı kaydır: zıpla. Aşağı kaydır: kay.|Swipe left / right: change lane.\nSwipe up: jump. Swipe down: slide.|Desliza a izquierda / derecha: cambia de carril.\nDesliza arriba: salta. Desliza abajo: desliza.|Deslize para a esquerda / direita: troque de faixa.\nDeslize para cima: pule. Deslize para baixo: deslize.|Wische nach links / rechts: Spur wechseln.\nWisch nach oben: springen. Wisch nach unten: rutschen.|Glisse à gauche / droite : change de voie.\nGlisse vers le haut : saute. Vers le bas : glisse.|Свайп влево / вправо: смена полосы.\nСвайп вверх: прыжок. Свайп вниз: подкат.|Geser kiri / kanan: pindah jalur.\nGeser atas: lompat. Geser bawah: meluncur.
+Sağa / sola kaydır: şerit · Yukarı: zıpla · Aşağı: kay|Swipe left / right: lane · Up: jump · Down: slide|Desliza izq. / der.: carril · Arriba: saltar · Abajo: deslizar|Deslize esq. / dir.: faixa · Cima: pular · Baixo: deslizar|Links / rechts wischen: Spur · Hoch: springen · Runter: rutschen|Glisse gauche / droite : voie · Haut : saut · Bas : glisse|Свайп влево / вправо: полоса · Вверх: прыжок · Вниз: подкат|Geser kiri / kanan: jalur · Atas: lompat · Bawah: meluncur
+Selin Hanım|Ms. Selin|Sra. Selin|Sra. Selin|Frau Selin|Mme Selin|Госпожа Селин|Bu Selin
+Seri ×|Streak ×|Racha ×|Sequência ×|Serie ×|Série ×|Серия ×|Seri ×
+Seviye|Level|Nivel|Nível|Level|Niveau|Уровень|Level
+Seviye Tamam!|Level Complete!|¡Nivel completado!|Nível concluído!|Level geschafft!|Niveau terminé !|Уровень пройден!|Level Selesai!
+Seviye tamam! 🎉|Level complete! 🎉|¡Nivel completado! 🎉|Nível concluído! 🎉|Level geschafft! 🎉|Niveau terminé ! 🎉|Уровень пройден! 🎉|Level selesai! 🎉
+Seviyeler|Levels|Niveles|Níveis|Level|Niveaux|Уровни|Level
+Sezon açılıyor, teknem hazır olmalı.|The season is opening, my boat must be ready.|Se abre la temporada, mi barco debe estar listo.|A temporada está abrindo, meu barco precisa estar pronto.|Die Saison beginnt, mein Boot muss bereit sein.|La saison s'ouvre, mon bateau doit être prêt.|Сезон открывается, моя лодка должна быть готова.|Musim dibuka, perahuku harus siap.
+Siyah karolara sırayla dokun, şarkı çalsın.\nUzun karoda parmağını basılı tut. Beyaz alana dokunma!|Tap the black tiles in order to play the song.\nHold your finger on long tiles. Don't touch the white area!|Toca las baldosas negras en orden para que suene la canción.\nMantén el dedo en las baldosas largas. ¡No toques la zona blanca!|Toque nos blocos pretos em ordem para tocar a música.\nSegure o dedo nos blocos longos. Não toque na área branca!|Tippe die schwarzen Kacheln der Reihe nach an, damit das Lied spielt.\nHalte den Finger auf langen Kacheln. Berühre nicht die weiße Fläche!|Touche les tuiles noires dans l'ordre pour jouer la chanson.\nMaintiens ton doigt sur les longues tuiles. Ne touche pas la zone blanche !|Нажимай на чёрные плитки по порядку, и зазвучит песня.\nУдерживай палец на длинных плитках. Не касайся белого поля!|Ketuk ubin hitam berurutan agar lagunya berbunyi.\nTahan jarimu pada ubin panjang. Jangan sentuh area putih!
+Skor Tablosu|Leaderboard|Clasificación|Classificação|Bestenliste|Classement|Таблица лидеров|Papan Skor
+Skor tablosu yakında açılacak|The leaderboard opens soon|La clasificación se abrirá pronto|A classificação abrirá em breve|Die Bestenliste öffnet bald|Le classement ouvrira bientôt|Таблица лидеров скоро откроется|Papan skor segera dibuka
+Sonraki Seviye ▶|Next Level ▶|Siguiente nivel ▶|Próximo nível ▶|Nächstes Level ▶|Niveau suivant ▶|Следующий уровень ▶|Level Berikutnya ▶
+Sonraki hazine|Next treasure|Siguiente tesoro|Próximo tesouro|Nächster Schatz|Prochain trésor|Следующее сокровище|Harta berikutnya
+Sonraki:|Next:|Siguiente:|Próximo:|Nächste:|Suivant :|Далее:|Berikutnya:
+Sonsuz Bahçe|Endless Garden|Jardín Infinito|Jardim Infinito|Endloser Garten|Jardin Infini|Бесконечный сад|Taman Tanpa Akhir
+Sonsuz mod için önce şarkıyı bir kez bitir|Finish the song once first for endless mode|Termina la canción una vez para el modo infinito|Termine a música uma vez para o modo infinito|Beende zuerst das Lied einmal für den Endlosmodus|Termine d'abord la chanson une fois pour le mode infini|Сначала закончи песню один раз для бесконечного режима|Selesaikan lagu sekali dulu untuk mode tanpa akhir
+Sonsuzluk|Infinity|Infinito|Infinito|Unendlichkeit|Infini|Бесконечность|Tak Terhingga
+Soğuk|Cold|Frío|Frio|Kalt|Froid|Холодно|Dingin
+Stetoskop|Stethoscope|Estetoscopio|Estetoscópio|Stethoskop|Stéthoscope|Стетоскоп|Stetoskop
+Su|Water|Agua|Água|Wasser|Eau|Вода|Air
+Su Sıralama: 10. seviyeye ulaş|Water Sort: reach level 10|Ordenar Agua: llega al nivel 10|Separar Água: chegue ao nível 10|Wasser sortieren: erreiche Level 10|Tri d'Eau : atteins le niveau 10|Сортировка воды: дойди до 10 уровня|Urut Air: capai level 10
+Su Sıralama: 3 seviye geç|Water Sort: clear 3 levels|Ordenar Agua: supera 3 niveles|Separar Água: passe 3 níveis|Wasser sortieren: schaffe 3 Level|Tri d'Eau : réussis 3 niveaux|Сортировка воды: пройди 3 уровня|Urut Air: selesaikan 3 level
+Su Sıralama: 40. seviyeye ulaş|Water Sort: reach level 40|Ordenar Agua: llega al nivel 40|Separar Água: chegue ao nível 40|Wasser sortieren: erreiche Level 40|Tri d'Eau : atteins le niveau 40|Сортировка воды: дойди до 40 уровня|Urut Air: capai level 40
+Su Ustası|Water Master|Maestro del Agua|Mestre da Água|Wassermeister|Maître de l'Eau|Мастер воды|Master Air
+Su Çırağı|Water Apprentice|Aprendiz del Agua|Aprendiz da Água|Wasserlehrling|Apprenti de l'Eau|Ученик воды|Murid Air
+Sunucu bağlanınca herkes burada yarışacak.|When the server connects, everyone will compete here.|Cuando el servidor se conecte, todos competirán aquí.|Quando o servidor conectar, todos competirão aqui.|Sobald der Server verbunden ist, treten hier alle an.|Quand le serveur sera connecté, tout le monde s'affrontera ici.|Когда сервер подключится, здесь будут соревноваться все.|Saat server terhubung, semua orang akan bersaing di sini.
+Söz hatası:|Syntax error:|Error de sintaxis:|Erro de sintaxe:|Syntaxfehler:|Erreur de syntaxe :|Синтаксическая ошибка:|Kesalahan sintaks:
+Sünger|Sponge|Esponja|Esponja|Schwamm|Éponge|Губка|Spons
+Süper!|Super!|¡Súper!|Super!|Super!|Super !|Супер!|Super!
+Süpürge|Broom|Escoba|Vassoura|Besen|Balai|Метла|Sapu
+Süre|Time|Tiempo|Tempo|Zeit|Temps|Время|Waktu
+Süre doldu, kayıt bitti|Time's up, recording ended|Se acabó el tiempo, grabación terminada|O tempo acabou, gravação encerrada|Zeit abgelaufen, Aufnahme beendet|Temps écoulé, enregistrement terminé|Время вышло, запись окончена|Waktu habis, rekaman selesai
+Süre kısa, ödeme yüksek|Short time, high pay|Poco tiempo, buen pago|Pouco tempo, pagamento alto|Kurze Zeit, hohe Bezahlung|Peu de temps, gros paiement|Мало времени, высокая оплата|Waktu singkat, bayaran tinggi
+Sıfırlanırsın,|You'll be reset,|Te reiniciarás,|Você será reiniciado,|Du wirst zurückgesetzt,|Tu seras réinitialisé,|Ты будешь сброшен,|Kamu akan direset,
+TAHTA TEMİZ!|BOARD CLEARED!|¡TABLERO LIMPIO!|TABULEIRO LIMPO!|BRETT GELEERT!|PLATEAU VIDE !|ДОСКА ОЧИЩЕНА!|PAPAN BERSIH!
+Takım Oyuncusu|Team Player|Jugador de Equipo|Jogador de Equipe|Teamplayer|Joueur d'Équipe|Командный игрок|Pemain Tim
+Tam kapasite|Full capacity|Capacidad completa|Capacidade total|Volle Kapazität|Pleine capacité|Полная мощность|Kapasitas penuh
+Taç Kovanı|Crown Hive|Colmena de Corona|Colmeia da Coroa|Kronen-Bienenstock|Ruche de Couronne|Корончатый улей|Sarang Mahkota
+Taş teras|Stone terrace|Terraza de piedra|Terraço de pedra|Steinterrasse|Terrasse en pierre|Каменная терраса|Teras batu
+Taşınmadan önce son bir temizlik lazım.|One last cleaning is needed before moving out.|Hace falta una última limpieza antes de mudarse.|Precisa de uma última limpeza antes da mudança.|Vor dem Umzug ist eine letzte Reinigung nötig.|Il faut un dernier nettoyage avant le déménagement.|Перед переездом нужна последняя уборка.|Perlu satu kali bersih-bersih terakhir sebelum pindah.
+Tek oyunda 1000 puan yap|Score 1000 in one game|Consigue 1000 puntos en una partida|Faça 1000 pontos em uma partida|Erreiche 1000 Punkte in einem Spiel|Fais 1000 points en une partie|Набери 1000 очков за игру|Raih 1000 poin dalam satu game
+Tek oyunda 2500 puan yap|Score 2500 in one game|Consigue 2500 puntos en una partida|Faça 2500 pontos em uma partida|Erreiche 2500 Punkte in einem Spiel|Fais 2500 points en une partie|Набери 2500 очков за игру|Raih 2500 poin dalam satu game
+Tek oyunda 5000 puan yap|Score 5000 in one game|Consigue 5000 puntos en una partida|Faça 5000 pontos em uma partida|Erreiche 5000 Punkte in einem Spiel|Fais 5000 points en une partie|Набери 5000 очков за игру|Raih 5000 poin dalam satu game
+Tek oyunda 80 altın topla|Collect 80 coins in one game|Recoge 80 monedas en una partida|Colete 80 moedas em uma partida|Sammle 80 Münzen in einem Spiel|Ramasse 80 pièces en une partie|Собери 80 монет за игру|Kumpulkan 80 koin dalam satu game
+Tekne Bakımı|Boat Maintenance|Mantenimiento del Barco|Manutenção do Barco|Bootswartung|Entretien du Bateau|Уход за лодкой|Perawatan Perahu
+Teknenin altı yosun tutmuş.|The bottom of the boat is covered in algae.|El fondo del barco está lleno de algas.|O fundo do barco está cheio de algas.|Der Bootsrumpf ist voller Algen.|Le dessous du bateau est couvert d'algues.|Днище лодки заросло водорослями.|Bagian bawah perahu penuh lumut.
+Tekrar dene ya da reklam izleyip 2 pick al.|Try again or watch an ad to get 2 picks.|Inténtalo de nuevo o mira un anuncio para obtener 2 ganzúas.|Tente de novo ou assista a um anúncio para ganhar 2 gazuas.|Versuche es erneut oder sieh dir eine Werbung für 2 Dietriche an.|Réessaie ou regarde une pub pour obtenir 2 crochets.|Попробуй снова или посмотри рекламу и получи 2 отмычки.|Coba lagi atau tonton iklan untuk dapat 2 pick.
+Tekrar oynadın (altın yok)|Replayed (no coins)|Rejugado (sin monedas)|Jogou de novo (sem moedas)|Wiederholt (keine Münzen)|Rejoué (pas de pièces)|Переиграно (без монет)|Main ulang (tanpa koin)
+Temizlik Ustası|Cleaning Master|Maestro de Limpieza|Mestre da Limpeza|Reinigungsmeister|Maître du Nettoyage|Мастер уборки|Master Kebersihan
+Temizlik Çırağı|Cleaning Apprentice|Aprendiz de Limpieza|Aprendiz de Limpeza|Reinigungslehrling|Apprenti du Nettoyage|Ученик уборщика|Murid Kebersihan
+Temizlik: 2 nesne parlat|Cleaning: polish 2 objects|Limpieza: abrillanta 2 objetos|Limpeza: deixe 2 objetos brilhando|Reinigen: poliere 2 Objekte|Nettoyage : fais briller 2 objets|Уборка: отполируй 2 предмета|Bersih-Bersih: kilapkan 2 benda
+Temizlik: 30 nesne parlat|Cleaning: polish 30 objects|Limpieza: abrillanta 30 objetos|Limpeza: deixe 30 objetos brilhando|Reinigen: poliere 30 Objekte|Nettoyage : fais briller 30 objets|Уборка: отполируй 30 предметов|Bersih-Bersih: kilapkan 30 benda
+Temizlik: 8 nesne parlat|Cleaning: polish 8 objects|Limpieza: abrillanta 8 objetos|Limpeza: deixe 8 objetos brilhando|Reinigen: poliere 8 Objekte|Nettoyage : fais briller 8 objets|Уборка: отполируй 8 предметов|Bersih-Bersih: kilapkan 8 benda
+Teras ve Halı|Terrace and Rug|Terraza y Alfombra|Terraço e Tapete|Terrasse und Teppich|Terrasse et Tapis|Терраса и ковёр|Teras dan Karpet
+Terasa kış gelmeden bir bakım istiyorum.|I want the terrace maintained before winter comes.|Quiero un mantenimiento de la terraza antes de que llegue el invierno.|Quero uma manutenção do terraço antes do inverno chegar.|Ich möchte die Terrasse warten lassen, bevor der Winter kommt.|Je veux un entretien de la terrasse avant l'hiver.|Хочу привести террасу в порядок до зимы.|Aku ingin teras dirawat sebelum musim dingin.
+Tesla Kulesi|Tesla Tower|Torre Tesla|Torre Tesla|Tesla-Turm|Tour Tesla|Башня Тесла|Menara Tesla
+Titreşim güçlenince yavaşla|Slow down when the vibration gets stronger|Reduce la velocidad cuando la vibración se intensifique|Reduza a velocidade quando a vibração ficar mais forte|Werde langsamer, wenn die Vibration stärker wird|Ralentis quand la vibration s'intensifie|Замедлись, когда вибрация усилится|Pelankan saat getaran menguat
+Top|Ball|Bola|Bola|Ball|Balle|Шар|Bola
+Toplam 500 altın topla|Collect 500 coins in total|Recoge 500 monedas en total|Colete 500 moedas no total|Sammle insgesamt 500 Münzen|Ramasse 500 pièces au total|Собери 500 монет в сумме|Kumpulkan total 500 koin
+Toplam 5000 altın topla|Collect 5000 coins in total|Recoge 5000 monedas en total|Colete 5000 moedas no total|Sammle insgesamt 5000 Münzen|Ramasse 5000 pièces au total|Собери 5000 монет в сумме|Kumpulkan total 5000 koin
+Toz|Dust|Polvo|Poeira|Staub|Poussière|Пыль|Debu
+Turkish March|Turkish March|Marcha Turca|Marcha Turca|Türkischer Marsch|Marche Turque|Турецкий марш|Mars Turki
+Tüm adalar sıfırlanır.|All islands are reset.|Todas las islas se reinician.|Todas as ilhas são reiniciadas.|Alle Inseln werden zurückgesetzt.|Toutes les îles sont réinitialisées.|Все острова сбрасываются.|Semua pulau direset.
+Tüp Ekle|Add Tube|Añadir tubo|Adicionar tubo|Röhre hinzufügen|Ajouter un tube|Добавить пробирку|Tambah Tabung
+Tüp dolu|Tube full|Tubo lleno|Tubo cheio|Röhre voll|Tube plein|Пробирка полна|Tabung penuh
+Uzun basarsan daha uzağa gidersin|Hold longer to go farther|Mantén más para llegar más lejos|Segure mais para ir mais longe|Länger halten, weiter kommen|Maintiens plus longtemps pour aller plus loin|Дольше удерживай — дальше прыгнешь|Tahan lebih lama untuk lebih jauh
+Uzun süre, iz bırakmazsan bonus|Long time, bonus if you leave no trace|Mucho tiempo, bono si no dejas rastro|Muito tempo, bônus se não deixar rastro|Lange Zeit, Bonus, wenn du keine Spur hinterlässt|Long délai, bonus si tu ne laisses aucune trace|Много времени, бонус за отсутствие следов|Waktu panjang, bonus jika tanpa jejak
+Usta Koşucu|Master Runner|Corredor Maestro|Corredor Mestre|Meisterläufer|Maître Coureur|Мастер бега|Pelari Master
+Usta Pianist|Master Pianist|Pianista Maestro|Pianista Mestre|Meisterpianist|Pianiste Maître|Мастер-пианист|Pianis Master
+Usta Çilingir|Master Locksmith|Cerrajero Maestro|Chaveiro Mestre|Meisterschlosser|Serrurier Maître|Мастер-слесарь|Tukang Kunci Master
+Vaha|Oasis|Oasis|Oásis|Oase|Oasis|Оазис|Oasis
+Vaha Kuyusu|Oasis Well|Pozo del Oasis|Poço do Oásis|Oasenbrunnen|Puits de l'Oasis|Колодец оазиса|Sumur Oasis
+Volkan|Volcano|Volcán|Vulcão|Vulkan|Volcan|Вулкан|Gunung Api
+Yakın nesnelerin gölgesi daha çok kayar|Shadows of near objects move more|Las sombras de los objetos cercanos se mueven más|Sombras de objetos próximos se movem mais|Schatten naher Objekte wandern mehr|Les ombres des objets proches bougent plus|Тени близких предметов смещаются сильнее|Bayangan benda dekat bergerak lebih jauh
+Yakındaki altınları toplar|Collects nearby coins|Recoge monedas cercanas|Coleta moedas próximas|Sammelt Münzen in der Nähe|Ramasse les pièces proches|Собирает монеты поблизости|Mengumpulkan koin di dekat
+Yavaşla 🐢|Slow down 🐢|Reduce la velocidad 🐢|Desacelere 🐢|Langsamer 🐢|Ralentis 🐢|Помедленнее 🐢|Pelankan 🐢
+Yağmur Havuzu|Rain Pool|Estanque de Lluvia|Piscina de Chuva|Regenbecken|Bassin de Pluie|Дождевой бассейн|Kolam Hujan
+Yağmurdan sonra her yer çamur oldu.|After the rain everything turned muddy.|Después de la lluvia todo se llenó de barro.|Depois da chuva tudo ficou cheio de lama.|Nach dem Regen ist alles voller Schlamm.|Après la pluie, tout est devenu boueux.|После дождя всё в грязи.|Setelah hujan semuanya berlumpur.
+Yeterli|Enough|Suficiente|Suficiente|Genug|Suffisant|Достаточно|Cukup
+Yeşil araba|Green car|Coche verde|Carro verde|Grünes Auto|Voiture verte|Зелёная машина|Mobil hijau
+Yeşil ev|Green house|Casa verde|Casa verde|Grünes Haus|Maison verte|Зелёный дом|Rumah hijau
+Yeşil iz bırakır|Leaves a green trail|Deja una estela verde|Deixa um rastro verde|Hinterlässt eine grüne Spur|Laisse une traînée verte|Оставляет зелёный след|Meninggalkan jejak hijau
+Yeşil tekne|Green boat|Barco verde|Barco verde|Grünes Boot|Bateau vert|Зелёная лодка|Perahu hijau
+Yol Bulucu|Pathfinder|Buscacaminos|Desbravador|Pfadfinder|Éclaireur|Следопыт|Pencari Jalan
+Yönetici|Manager|Gerente|Gerente|Manager|Gérant|Менеджер|Manajer
+Yönetici işe alırsan kendi çalışır|Hire a manager and it runs by itself|Contrata un gerente y funciona solo|Contrate um gerente e funciona sozinho|Stelle einen Manager ein, dann läuft es von selbst|Engage un gérant et ça tourne tout seul|Наймёшь менеджера — работает сам|Rekrut manajer dan berjalan sendiri
+Yönetici yok: taşıma %30|No manager: transport 30%|Sin gerente: transporte 30 %|Sem gerente: transporte 30%|Kein Manager: Transport 30 %|Pas de gérant : transport 30 %|Нет менеджера: перевозка 30%|Tanpa manajer: angkut 30%
+Yüksel|Ascend|Asciende|Suba|Aufsteigen|Monter|Подняться|Naik
+Yükseliş|Ascension|Ascenso|Ascensão|Aufstieg|Ascension|Вознесение|Kenaikan
+Yılan Neon: 15 puan yap|Neon Snake: score 15|Serpiente Neón: consigue 15 puntos|Cobra Neon: faça 15 pontos|Neon-Schlange: erreiche 15 Punkte|Serpent Néon : fais 15 points|Неоновая змейка: набери 15 очков|Ular Neon: raih 15 poin
+Yılan Neon: 50 puan yap|Neon Snake: score 50|Serpiente Neón: consigue 50 puntos|Cobra Neon: faça 50 pontos|Neon-Schlange: erreiche 50 Punkte|Serpent Néon : fais 50 points|Неоновая змейка: набери 50 очков|Ular Neon: raih 50 poin
+Yılan Neon: tek oyunda 20 puan|Neon Snake: 20 points in one game|Serpiente Neón: 20 puntos en una partida|Cobra Neon: 20 pontos em uma partida|Neon-Schlange: 20 Punkte in einem Spiel|Serpent Néon : 20 points en une partie|Неоновая змейка: 20 очков за игру|Ular Neon: 20 poin dalam satu game
+Yılan Terbiyecisi|Snake Charmer|Encantador de Serpientes|Encantador de Cobras|Schlangenbeschwörer|Charmeur de Serpents|Заклинатель змей|Pawang Ular
+Yıldırım Kulesi|Lightning Tower|Torre del Rayo|Torre do Raio|Blitzturm|Tour de la Foudre|Башня молнии|Menara Petir
+Yıldız Kovanı|Star Hive|Colmena Estelar|Colmeia Estelar|Stern-Bienenstock|Ruche d'Étoiles|Звёздный улей|Sarang Bintang
+Zaman Kulesi|Time Tower|Torre del Tiempo|Torre do Tempo|Zeitturm|Tour du Temps|Башня времени|Menara Waktu
+Zengin|Rich|Rico|Rico|Reich|Riche|Богач|Kaya
+Zeynep|Zeynep|Zeynep|Zeynep|Zeynep|Zeynep|Зейнеп|Zeynep
+Zor Mod|Hard Mode|Modo Difícil|Modo Difícil|Schwerer Modus|Mode Difficile|Сложный режим|Mode Sulit
+Zor Mod ✓|Hard Mode ✓|Modo Difícil ✓|Modo Difícil ✓|Schwerer Modus ✓|Mode Difficile ✓|Сложный режим ✓|Mode Sulit ✓
+Zor mod kapalı|Hard mode off|Modo difícil desactivado|Modo difícil desligado|Schwerer Modus aus|Mode difficile désactivé|Сложный режим выключен|Mode sulit nonaktif
+Zor mod: sıcak-soğuk yok, ödül x1.5|Hard mode: no hot-cold hints, reward x1.5|Modo difícil: sin pistas de frío-calor, recompensa x1.5|Modo difícil: sem dicas quente-frio, recompensa x1.5|Schwerer Modus: keine Heiß-Kalt-Hinweise, Belohnung x1.5|Mode difficile : pas d'indice chaud-froid, récompense x1.5|Сложный режим: без подсказок тепло-холодно, награда x1.5|Mode sulit: tanpa petunjuk panas-dingin, hadiah x1.5
+Zıpla Kule: 20 blok yap|Stack Tower: stack 20 blocks|Torre de Saltos: apila 20 bloques|Torre de Pulos: empilhe 20 blocos|Turmsprung: stapele 20 Blöcke|Tour à Empiler : empile 20 blocs|Прыжок на башню: сложи 20 блоков|Menara Lompat: susun 20 blok
+Zıpla Kule: 60 blok yap|Stack Tower: stack 60 blocks|Torre de Saltos: apila 60 bloques|Torre de Pulos: empilhe 60 blocos|Turmsprung: stapele 60 Blöcke|Tour à Empiler : empile 60 blocs|Прыжок на башню: сложи 60 блоков|Menara Lompat: susun 60 blok
+Zıpla Kule: tek oyunda 25 blok|Stack Tower: 25 blocks in one game|Torre de Saltos: 25 bloques en una partida|Torre de Pulos: 25 blocos em uma partida|Turmsprung: 25 Blöcke in einem Spiel|Tour à Empiler : 25 blocs en une partie|Прыжок на башню: 25 блоков за игру|Menara Lompat: 25 blok dalam satu game
+Çamur|Mud|Barro|Lama|Schlamm|Boue|Грязь|Lumpur
+Çatı Atlayıcı|Roof Jumper|Saltatejados|Saltador de Telhados|Dachspringer|Sauteur de Toits|Прыгун по крышам|Pelompat Atap
+Çekirdek Fabrikası|Core Factory|Fábrica de Núcleos|Fábrica de Núcleos|Kernfabrik|Usine de Noyaux|Фабрика ядер|Pabrik Inti
+Çelik|Steel|Acero|Aço|Stahl|Acier|Сталь|Baja
+Çiçekçi|Florist|Floristería|Floricultura|Blumenladen|Fleuriste|Цветочный магазин|Toko Bunga
+ÇİÇEKÇİ|FLORIST|FLORISTERÍA|FLORICULTURA|BLUMENLADEN|FLEURISTE|ЦВЕТОЧНЫЙ|TOKO BUNGA
+Çocuklar arabayı çamur içinde bıraktı…|The kids left the car covered in mud…|Los niños dejaron el coche lleno de barro…|As crianças deixaram o carro coberto de lama…|Die Kinder haben das Auto voller Schlamm hinterlassen…|Les enfants ont laissé la voiture couverte de boue…|Дети оставили машину всю в грязи…|Anak-anak meninggalkan mobil penuh lumpur…
+Çukurdan da zıplayarak geç|Jump over the pit too|Salta también el foso|Pule também o buraco|Spring auch über die Grube|Saute aussi par-dessus la fosse|Перепрыгни и яму|Lompati lubang juga
+Çöl|Desert|Desierto|Deserto|Wüste|Désert|Пустыня|Gurun
+Çöl Dünyası'na ulaş|Reach the Desert World|Llega al Mundo del Desierto|Chegue ao Mundo do Deserto|Erreiche die Wüstenwelt|Atteins le Monde du Désert|Достигни Пустынного мира|Capai Dunia Gurun
+Çırak Hırsız|Apprentice Thief|Ladrón Aprendiz|Ladrão Aprendiz|Lehrlingsdieb|Apprenti Voleur|Ученик вора|Murid Pencuri
+Ödülü Al ✓|Claim Reward ✓|Reclamar recompensa ✓|Pegar recompensa ✓|Belohnung abholen ✓|Récupérer ✓|Забрать награду ✓|Ambil Hadiah ✓
+Önce alet seç, sonra kirin üstünde parmağını sürükle|Pick a tool first, then drag your finger over the dirt|Elige primero una herramienta y luego arrastra el dedo sobre la suciedad|Escolha primeiro uma ferramenta, depois arraste o dedo sobre a sujeira|Wähle zuerst ein Werkzeug, dann ziehe den Finger über den Schmutz|Choisis d'abord un outil, puis glisse ton doigt sur la saleté|Сначала выбери инструмент, потом води пальцем по грязи|Pilih alat dulu, lalu geser jarimu di atas kotoran
+Üretimini artırır|Increases its production|Aumenta su producción|Aumenta sua produção|Steigert die Produktion|Augmente sa production|Увеличивает производство|Meningkatkan produksinya
+İLAN|AD|ANUNCIO|ANÚNCIO|ANZEIGE|ANNONCE|ОБЪЯВЛЕНИЕ|IKLAN
+İlk Adım|First Step|Primer Paso|Primeiro Passo|Erster Schritt|Premier Pas|Первый шаг|Langkah Pertama
+İnci Kovanı|Pearl Hive|Colmena de Perlas|Colmeia de Pérolas|Perlen-Bienenstock|Ruche de Perles|Жемчужный улей|Sarang Mutiara
+İskele / Hat / Depo|Pier / Line / Depot|Muelle / Línea / Depósito|Cais / Linha / Depósito|Pier / Leitung / Depot|Jetée / Ligne / Dépôt|Причал / Линия / Склад|Dermaga / Jalur / Gudang
+İz kaldı! Doğru aleti seç|A mark remains! Pick the right tool|¡Queda una marca! Elige la herramienta correcta|Ficou uma marca! Escolha a ferramenta certa|Eine Spur bleibt! Wähle das richtige Werkzeug|Une trace reste ! Choisis le bon outil|Остался след! Выбери правильный инструмент|Masih ada bekas! Pilih alat yang tepat
+İzle|Watch|Ver|Assistir|Ansehen|Regarder|Смотреть|Tonton
+İş Tamam! ✨|Job Done! ✨|¡Trabajo terminado! ✨|Trabalho concluído! ✨|Job erledigt! ✨|Job terminé ! ✨|Работа выполнена! ✨|Pekerjaan Selesai! ✨
+İşine devam ediyorsun|You're continuing your job|Continúas con tu trabajo|Você continua seu trabalho|Du machst mit deinem Job weiter|Tu continues ton job|Ты продолжаешь работу|Kamu melanjutkan pekerjaanmu
+Şarkı açıldı!|Song unlocked!|¡Canción desbloqueada!|Música desbloqueada!|Lied freigeschaltet!|Chanson débloquée !|Песня открыта!|Lagu terbuka!
+Şarkı bitti!|Song finished!|¡Canción terminada!|Música concluída!|Lied beendet!|Chanson terminée !|Песня закончена!|Lagu selesai!
+Şarkı bitti! 🎉|Song finished! 🎉|¡Canción terminada! 🎉|Música concluída! 🎉|Lied beendet! 🎉|Chanson terminée ! 🎉|Песня закончена! 🎉|Lagu selesai! 🎉
+Şehir Efsanesi|City Legend|Leyenda de la Ciudad|Lenda da Cidade|Stadtlegende|Légende de la Ville|Легенда города|Legenda Kota
+Şehir oyununda 30 puan yap|Score 30 in the City game|Consigue 30 puntos en el juego de la Ciudad|Faça 30 pontos no jogo da Cidade|Erreiche 30 Punkte im Stadtspiel|Fais 30 points dans le jeu de la Ville|Набери 30 очков в игре «Город»|Raih 30 poin di game Kota
+Şehir oyununda 60 kez zıpla|Jump 60 times in the City game|Salta 60 veces en el juego de la Ciudad|Pule 60 vezes no jogo da Cidade|Springe 60-mal im Stadtspiel|Saute 60 fois dans le jeu de la Ville|Прыгни 60 раз в игре «Город»|Lompat 60 kali di game Kota
+Şehirde tek oyunda 100 puan yap|Score 100 in one City game|Consigue 100 puntos en una partida de la Ciudad|Faça 100 pontos em uma partida da Cidade|Erreiche 100 Punkte in einem Stadtspiel|Fais 100 points en une partie de la Ville|Набери 100 очков за игру в «Город»|Raih 100 poin dalam satu game Kota
+Şehirde tek oyunda 25 puan yap|Score 25 in one City game|Consigue 25 puntos en una partida de la Ciudad|Faça 25 pontos em uma partida da Cidade|Erreiche 25 Punkte in einem Stadtspiel|Fais 25 points en une partie de la Ville|Набери 25 очков за игру в «Город»|Raih 25 poin dalam satu game Kota
+Şeker|Candy|Caramelo|Doce|Bonbon|Bonbon|Конфета|Permen
+Şeker Pembe|Candy Pink|Rosa Caramelo|Rosa Doce|Bonbonrosa|Rose Bonbon|Конфетно-розовый|Merah Muda Permen
+↺ Turu Sil|↺ Delete Round|↺ Borrar ronda|↺ Apagar rodada|↺ Runde löschen|↺ Supprimer le tour|↺ Удалить раунд|↺ Hapus Ronde
+⏰ Alarm! Süre doldu|⏰ Alarm! Time's up|⏰ ¡Alarma! Se acabó el tiempo|⏰ Alarme! O tempo acabou|⏰ Alarm! Zeit abgelaufen|⏰ Alarme ! Temps écoulé|⏰ Тревога! Время вышло|⏰ Alarm! Waktu habis
+⏱ tur süresi|⏱ round time|⏱ tiempo de ronda|⏱ tempo da rodada|⏱ Rundenzeit|⏱ durée du tour|⏱ время раунда|⏱ waktu ronde
+⏳ Çalışıyor|⏳ Running|⏳ Funcionando|⏳ Funcionando|⏳ Läuft|⏳ En cours|⏳ Работает|⏳ Berjalan
+▶ Sonraki Bahçe|▶ Next Garden|▶ Siguiente jardín|▶ Próximo jardim|▶ Nächster Garten|▶ Jardin suivant|▶ Следующий сад|▶ Taman Berikutnya
+▶ Sonraki Kasa|▶ Next Safe|▶ Siguiente caja|▶ Próximo cofre|▶ Nächster Tresor|▶ Coffre suivant|▶ Следующий сейф|▶ Brankas Berikutnya
+▶ Sonraki Nesne|▶ Next Object|▶ Siguiente objeto|▶ Próximo objeto|▶ Nächstes Objekt|▶ Objet suivant|▶ Следующий предмет|▶ Benda Berikutnya
+▶ Sonraki Seviye|▶ Next Level|▶ Siguiente nivel|▶ Próximo nível|▶ Nächstes Level|▶ Niveau suivant|▶ Следующий уровень|▶ Level Berikutnya
+▶ Çalıştır (12 sn)|▶ Run (12 s)|▶ Ejecutar (12 s)|▶ Executar (12 s)|▶ Starten (12 s)|▶ Lancer (12 s)|▶ Запустить (12 с)|▶ Jalankan (12 dtk)
+♾️ Tur|♾️ Round|♾️ Ronda|♾️ Rodada|♾️ Runde|♾️ Tour|♾️ Раунд|♾️ Ronde
+⚠ Darboğaz|⚠ Bottleneck|⚠ Cuello de botella|⚠ Gargalo|⚠ Engpass|⚠ Goulot d'étranglement|⚠ Узкое место|⚠ Hambatan
+⚠ Darboğaz! Üretimin bir kısmı boşa gidiyor. Bunu yükselt.|⚠ Bottleneck! Part of your production is wasted. Upgrade this.|⚠ ¡Cuello de botella! Parte de tu producción se pierde. Mejóralo.|⚠ Gargalo! Parte da sua produção está sendo desperdiçada. Melhore isto.|⚠ Engpass! Ein Teil deiner Produktion geht verloren. Verbessere das.|⚠ Goulot d'étranglement ! Une partie de ta production est perdue. Améliore ceci.|⚠ Узкое место! Часть производства пропадает. Улучши это.|⚠ Hambatan! Sebagian produksimu terbuang. Tingkatkan ini.
+⚠️ BOSS!|⚠️ BOSS!|⚠️ ¡JEFE!|⚠️ CHEFE!|⚠️ BOSS!|⚠️ BOSS !|⚠️ БОСС!|⚠️ BOS!
+⚡ Acele|⚡ Rush|⚡ Prisa|⚡ Pressa|⚡ Eile|⚡ Urgent|⚡ Срочно|⚡ Mendesak
+⛵ Tekne|⛵ Boat|⛵ Barco|⛵ Barco|⛵ Boot|⛵ Bateau|⛵ Лодка|⛵ Perahu
+✅ Boss geçildi! +60🪙|✅ Boss beaten! +60🪙|✅ ¡Jefe superado! +60🪙|✅ Chefe vencido! +60🪙|✅ Boss besiegt! +60🪙|✅ Boss vaincu ! +60🪙|✅ Босс побеждён! +60🪙|✅ Bos dikalahkan! +60🪙
+✓ Aktif|✓ Active|✓ Activo|✓ Ativo|✓ Aktiv|✓ Actif|✓ Активно|✓ Aktif
+✓ Kaydı Bitir|✓ Finish Recording|✓ Terminar grabación|✓ Terminar gravação|✓ Aufnahme beenden|✓ Terminer|✓ Закончить запись|✓ Selesai Rekam
+🌀 Top|🌀 Ball|🌀 Bola|🌀 Bola|🌀 Ball|🌀 Balle|🌀 Шар|🌀 Bola
+🌙 İkinci ışık sabit|🌙 The second light is fixed|🌙 La segunda luz es fija|🌙 A segunda luz é fixa|🌙 Das zweite Licht ist fest|🌙 La deuxième lumière est fixe|🌙 Второй свет неподвижен|🌙 Cahaya kedua tetap
+🌙 İkinci ışık senin tersine hareket eder|🌙 The second light moves opposite to you|🌙 La segunda luz se mueve al contrario que tú|🌙 A segunda luz se move ao contrário de você|🌙 Das zweite Licht bewegt sich gegenläufig|🌙 La deuxième lumière bouge en sens inverse|🌙 Второй свет движется в противоположную сторону|🌙 Cahaya kedua bergerak berlawanan denganmu
+🌟 Yüksel|🌟 Ascend|🌟 Ascender|🌟 Subir|🌟 Aufsteigen|🌟 Monter|🌟 Подняться|🌟 Naik
+🌟 Yükseliş|🌟 Ascension|🌟 Ascenso|🌟 Ascensão|🌟 Aufstieg|🌟 Ascension|🌟 Вознесение|🌟 Kenaikan
+🌿 Teras|🌿 Terrace|🌿 Terraza|🌿 Terraço|🌿 Terrasse|🌿 Terrasse|🌿 Терраса|🌿 Teras
+🍳 Mutfak|🍳 Kitchen|🍳 Cocina|🍳 Cozinha|🍳 Küche|🍳 Cuisine|🍳 Кухня|🍳 Dapur
+🎁 Bonus|🎁 Bonus|🎁 Bono|🎁 Bônus|🎁 Bonus|🎁 Bonus|🎁 Бонус|🎁 Bonus
+🎁 Günlük Hediye|🎁 Daily Gift|🎁 Regalo diario|🎁 Presente diário|🎁 Tägliches Geschenk|🎁 Cadeau du jour|🎁 Ежедневный подарок|🎁 Hadiah Harian
+🎁 Hazine Sandığı|🎁 Treasure Chest|🎁 Cofre del Tesoro|🎁 Baú do Tesouro|🎁 Schatztruhe|🎁 Coffre au Trésor|🎁 Сундук с сокровищами|🎁 Peti Harta
+🎁 Hazine alındı!|🎁 Treasure claimed!|🎁 ¡Tesoro reclamado!|🎁 Tesouro coletado!|🎁 Schatz erhalten!|🎁 Trésor récupéré !|🎁 Сокровище получено!|🎁 Harta diambil!
+🎉 Yeni rekor!|🎉 New record!|🎉 ¡Nuevo récord!|🎉 Novo recorde!|🎉 Neuer Rekord!|🎉 Nouveau record !|🎉 Новый рекорд!|🎉 Rekor baru!
+🎨 Ok Renkleri|🎨 Arrow Colors|🎨 Colores de flechas|🎨 Cores das setas|🎨 Pfeilfarben|🎨 Couleurs des flèches|🎨 Цвета стрелок|🎨 Warna Panah
+🎨 Renkler|🎨 Colors|🎨 Colores|🎨 Cores|🎨 Farben|🎨 Couleurs|🎨 Цвета|🎨 Warna
+🎨 Top Renkleri|🎨 Ball Colors|🎨 Colores de la bola|🎨 Cores da bola|🎨 Ballfarben|🎨 Couleurs de la balle|🎨 Цвета шара|🎨 Warna Bola
+🎨 Yılan Rengi:|🎨 Snake Color:|🎨 Color de la serpiente:|🎨 Cor da cobra:|🎨 Schlangenfarbe:|🎨 Couleur du serpent :|🎨 Цвет змейки:|🎨 Warna Ular:
+🎵 Şarkılar|🎵 Songs|🎵 Canciones|🎵 Músicas|🎵 Lieder|🎵 Chansons|🎵 Песни|🎵 Lagu
+🎹 Şarkılar|🎹 Songs|🎹 Canciones|🎹 Músicas|🎹 Lieder|🎹 Chansons|🎹 Песни|🎹 Lagu
+🏅 En iyi|🏅 Best|🏅 Mejor|🏅 Melhor|🏅 Beste|🏅 Meilleur|🏅 Лучший|🏅 Terbaik
+🏅 Rekor:|🏅 Record:|🏅 Récord:|🏅 Recorde:|🏅 Rekord:|🏅 Record :|🏅 Рекорд:|🏅 Rekor:
+🏅 Skor Tablosu|🏅 Leaderboard|🏅 Clasificación|🏅 Classificação|🏅 Bestenliste|🏅 Classement|🏅 Таблица лидеров|🏅 Papan Skor
+🏆 Başarımlar|🏆 Achievements|🏆 Logros|🏆 Conquistas|🏆 Erfolge|🏆 Succès|🏆 Достижения|🏆 Pencapaian
+🏆 REKOR|🏆 RECORD|🏆 RÉCORD|🏆 RECORDE|🏆 REKORD|🏆 RECORD|🏆 РЕКОРД|🏆 REKOR
+🏗️ Binalar|🏗️ Buildings|🏗️ Edificios|🏗️ Edifícios|🏗️ Gebäude|🏗️ Bâtiments|🏗️ Здания|🏗️ Bangunan
+🏠 Ev · Dış|🏠 House · Outside|🏠 Casa · Exterior|🏠 Casa · Exterior|🏠 Haus · Außen|🏠 Maison · Extérieur|🏠 Дом · Снаружи|🏠 Rumah · Luar
+🏪 Vitrin|🏪 Display Window|🏪 Escaparate|🏪 Vitrine|🏪 Schaufenster|🏪 Vitrine|🏪 Витрина|🏪 Etalase
+🏪 Ön Cephe|🏪 Storefront|🏪 Fachada|🏪 Fachada|🏪 Ladenfront|🏪 Devanture|🏪 Фасад|🏪 Tampak Depan
+🐾 Hayvanlar|🐾 Pets|🐾 Mascotas|🐾 Bichinhos|🐾 Tiere|🐾 Animaux|🐾 Питомцы|🐾 Hewan
+👕 Kostümler|👕 Costumes|👕 Disfraces|👕 Fantasias|👕 Kostüme|👕 Costumes|👕 Костюмы|👕 Kostum
+👟 Spor Ayakkabı|👟 Sneakers|👟 Zapatillas|👟 Tênis|👟 Sportschuhe|👟 Baskets|👟 Кроссовки|👟 Sepatu Olahraga
+👷 Yönetici ✓|👷 Manager ✓|👷 Gerente ✓|👷 Gerente ✓|👷 Manager ✓|👷 Gérant ✓|👷 Менеджер ✓|👷 Manajer ✓
+👷 Yöneticiler|👷 Managers|👷 Gerentes|👷 Gerentes|👷 Manager|👷 Gérants|👷 Менеджеры|👷 Manajer
+💎 Titiz|💎 Meticulous|💎 Meticuloso|💎 Meticuloso|💎 Gründlich|💎 Méticuleux|💎 Дотошный|💎 Teliti
+💰 Toplam|💰 Total|💰 Total|💰 Total|💰 Gesamt|💰 Total|💰 Всего|💰 Total
+📅 Bugünün Teklifleri|📅 Today's Offers|📅 Ofertas de hoy|📅 Ofertas de hoje|📅 Heutige Angebote|📅 Offres du jour|📅 Предложения дня|📅 Tawaran Hari Ini
+📅 Görevler|📅 Quests|📅 Misiones|📅 Missões|📅 Aufgaben|📅 Quêtes|📅 Задания|📅 Misi
+📅 Günlük Labirent|📅 Daily Maze|📅 Laberinto diario|📅 Labirinto diário|📅 Tageslabyrinth|📅 Labyrinthe du jour|📅 Ежедневный лабиринт|📅 Labirin Harian
+📅 Günlük İş · 3 teklif|📅 Daily Job · 3 offers|📅 Trabajo diario · 3 ofertas|📅 Trabalho diário · 3 ofertas|📅 Tagesjob · 3 Angebote|📅 Job du jour · 3 offres|📅 Задание дня · 3 предложения|📅 Pekerjaan Harian · 3 tawaran
+📅 Günlük İş · DEVAM ET|📅 Daily Job · CONTINUE|📅 Trabajo diario · CONTINUAR|📅 Trabalho diário · CONTINUAR|📅 Tagesjob · WEITER|📅 Job du jour · CONTINUER|📅 Задание дня · ПРОДОЛЖИТЬ|📅 Pekerjaan Harian · LANJUT
+📅 Günlük İş ✅ (yarın yeni)|📅 Daily Job ✅ (new tomorrow)|📅 Trabajo diario ✅ (nuevo mañana)|📅 Trabalho diário ✅ (novo amanhã)|📅 Tagesjob ✅ (morgen neu)|📅 Job du jour ✅ (nouveau demain)|📅 Задание дня ✅ (завтра новое)|📅 Pekerjaan Harian ✅ (baru besok)
+📆 Günlük|📆 Daily|📆 Diario|📆 Diário|📆 Täglich|📆 Quotidien|📆 Ежедневно|📆 Harian
+📋 Nasıl çalışır?|📋 How does it work?|📋 ¿Cómo funciona?|📋 Como funciona?|📋 Wie funktioniert es?|📋 Comment ça marche ?|📋 Как это работает?|📋 Bagaimana cara kerjanya?
+📋 Seviyeler|📋 Levels|📋 Niveles|📋 Níveis|📋 Level|📋 Niveaux|📋 Уровни|📋 Level
+📺 +2 pick ile devam|📺 Continue with +2 picks|📺 Continuar con +2 ganzúas|📺 Continuar com +2 gazuas|📺 Weiter mit +2 Dietrichen|📺 Continuer avec +2 crochets|📺 Продолжить с +2 отмычками|📺 Lanjut dengan +2 pick
+🔌 Altyapı|🔌 Infrastructure|🔌 Infraestructura|🔌 Infraestrutura|🔌 Infrastruktur|🔌 Infrastructure|🔌 Инфраструктура|🔌 Infrastruktur
+🔓 Katman|🔓 Layer|🔓 Capa|🔓 Camada|🔓 Schicht|🔓 Couche|🔓 Слой|🔓 Lapisan
+🔥 BOSS|🔥 BOSS|🔥 JEFE|🔥 CHEFE|🔥 BOSS|🔥 BOSS|🔥 БОСС|🔥 BOS
+🔥 BOSS BAHÇE 🔥|🔥 BOSS GARDEN 🔥|🔥 JARDÍN JEFE 🔥|🔥 JARDIM CHEFE 🔥|🔥 BOSS-GARTEN 🔥|🔥 JARDIN BOSS 🔥|🔥 САД-БОСС 🔥|🔥 TAMAN BOS 🔥
+🔥 BOSS KASA 🔥|🔥 BOSS SAFE 🔥|🔥 CAJA JEFE 🔥|🔥 COFRE CHEFE 🔥|🔥 BOSS-TRESOR 🔥|🔥 COFFRE BOSS 🔥|🔥 СЕЙФ-БОСС 🔥|🔥 BRANKAS BOS 🔥
+🔥 BOSS SEVİYE 🔥|🔥 BOSS LEVEL 🔥|🔥 NIVEL JEFE 🔥|🔥 NÍVEL CHEFE 🔥|🔥 BOSS-LEVEL 🔥|🔥 NIVEAU BOSS 🔥|🔥 УРОВЕНЬ-БОСС 🔥|🔥 LEVEL BOS 🔥
+🔥 Sıcak!|🔥 Hot!|🔥 ¡Caliente!|🔥 Quente!|🔥 Heiß!|🔥 Chaud !|🔥 Горячо!|🔥 Panas!
+🔥 Zor Seviye|🔥 Hard Level|🔥 Nivel difícil|🔥 Nível difícil|🔥 Schweres Level|🔥 Niveau difficile|🔥 Сложный уровень|🔥 Level Sulit
+🗺️ Dünya Haritası|🗺️ World Map|🗺️ Mapa del Mundo|🗺️ Mapa-múndi|🗺️ Weltkarte|🗺️ Carte du Monde|🗺️ Карта мира|🗺️ Peta Dunia
+😌 Kolay|😌 Easy|😌 Fácil|😌 Fácil|😌 Leicht|😌 Facile|😌 Легко|😌 Mudah
+😌 Kolay Bahçe|😌 Easy Garden|😌 Jardín fácil|😌 Jardim fácil|😌 Leichter Garten|😌 Jardin facile|😌 Лёгкий сад|😌 Taman Mudah
+😌 Kolay Kasa|😌 Easy Safe|😌 Caja fácil|😌 Cofre fácil|😌 Leichter Tresor|😌 Coffre facile|😌 Лёгкий сейф|😌 Brankas Mudah
+😌 Kolay Seviye|😌 Easy Level|😌 Nivel fácil|😌 Nível fácil|😌 Leichtes Level|😌 Niveau facile|😌 Лёгкий уровень|😌 Level Mudah
+🙂 Standart|🙂 Standard|🙂 Estándar|🙂 Padrão|🙂 Standard|🙂 Standard|🙂 Стандарт|🙂 Standar
+🚗 Araba|🚗 Car|🚗 Coche|🚗 Carro|🚗 Auto|🚗 Voiture|🚗 Машина|🚗 Mobil
+🚗 Araba · Dış|🚗 Car · Outside|🚗 Coche · Exterior|🚗 Carro · Exterior|🚗 Auto · Außen|🚗 Voiture · Extérieur|🚗 Машина · Снаружи|🚗 Mobil · Luar
+🚗 Araba · İç|🚗 Car · Inside|🚗 Coche · Interior|🚗 Carro · Interior|🚗 Auto · Innen|🚗 Voiture · Intérieur|🚗 Машина · Внутри|🚗 Mobil · Dalam
+🚪 Arka|🚪 Back|🚪 Trasera|🚪 Fundos|🚪 Rückseite|🚪 Arrière|🚪 Задняя часть|🚪 Belakang
+🛁 Banyo|🛁 Bathroom|🛁 Baño|🛁 Banheiro|🛁 Bad|🛁 Salle de bain|🛁 Ванная|🛁 Kamar Mandi
+🛋️ Salon|🛋️ Living Room|🛋️ Salón|🛋️ Sala|🛋️ Wohnzimmer|🛋️ Salon|🛋️ Гостиная|🛋️ Ruang Tamu
+🛏️ Kabin|🛏️ Cabin|🛏️ Camarote|🛏️ Cabine|🛏️ Kajüte|🛏️ Cabine|🛏️ Каюта|🛏️ Kabin
+🛒 Market · İç|🛒 Market · Inside|🛒 Mercado · Interior|🛒 Mercado · Interior|🛒 Markt · Innen|🛒 Marché · Intérieur|🛒 Рынок · Внутри|🛒 Pasar · Dalam
+🛒 Mağaza · reklam izle, kaynak kazan|🛒 Shop · watch an ad, earn resources|🛒 Tienda · mira un anuncio, gana recursos|🛒 Loja · assista a um anúncio, ganhe recursos|🛒 Shop · Werbung ansehen, Ressourcen verdienen|🛒 Boutique · regarde une pub, gagne des ressources|🛒 Магазин · смотри рекламу, получай ресурсы|🛒 Toko · tonton iklan, dapat sumber daya
+🧱 Sağ Yan|🧱 Right Side|🧱 Lado derecho|🧱 Lado direito|🧱 Rechte Seite|🧱 Côté droit|🧱 Правый бок|🧱 Sisi Kanan
+🧱 Sol Yan|🧱 Left Side|🧱 Lado izquierdo|🧱 Lado esquerdo|🧱 Linke Seite|🧱 Côté gauche|🧱 Левый бок|🧱 Sisi Kiri
+🧶 Halı|🧶 Rug|🧶 Alfombra|🧶 Tapete|🧶 Teppich|🧶 Tapis|🧶 Ковёр|🧶 Karpet
+🩺 Stetoskop|🩺 Stethoscope|🩺 Estetoscopio|🩺 Estetoscópio|🩺 Stethoskop|🩺 Stéthoscope|🩺 Стетоскоп|🩺 Stetoskop
+🪙 Bu oyun|🪙 This game|🪙 Esta partida|🪙 Este jogo|🪙 Dieses Spiel|🪙 Cette partie|🪙 Эта игра|🪙 Game ini
+🪟 Pencere|🪟 Window|🪟 Ventana|🪟 Janela|🪟 Fenster|🪟 Fenêtre|🪟 Окно|🪟 Jendela
+oyun oyna|play games|jugar partidas|jogar partidas|Spiele spielen|jouer des parties|сыграть игры|main game
+{} oyun oyna|Play {} games|Juega {} partidas|Jogue {} partidas|Spiele {} Spiele|Joue {} parties|Сыграй {} игр|Main {} game
+{} labirent seviyesi bitir|Finish {} maze levels|Termina {} niveles de laberinto|Termine {} níveis de labirinto|Beende {} Labyrinth-Level|Termine {} niveaux de labyrinthe|Пройди {} уровней лабиринта|Selesaikan {} level labirin
+puan|points|puntos|pontos|Punkte|points|очков|poin
+yok|none|ninguno|nenhum|keine|aucun|нет|tidak ada
+sıra!|rows!|¡filas!|linhas!|Reihen!|lignes !|ряды!|baris!
+toplandı|collected|recogido|coletado|gesammelt|ramassé|собрано|terkumpul
+parası!|currency!|¡de moneda!|de moeda!|Währung!|de monnaie !|валюты!|mata uang!
+sn|s|s|s|s|s|с|dtk
+dk|min|min|min|Min.|min|мин|mnt
+hedef|target|objetivo|meta|Ziel|objectif|цель|target
+gün|days|días|dias|Tage|jours|дн.|hari
+Seri:|Streak:|Racha:|Sequência:|Serie:|Série :|Серия:|Seri:
+Bugünkü:|Today's:|De hoy:|De hoje:|Heutige:|Du jour :|Сегодня:|Hari ini:
+Bugün|Today|Hoy|Hoje|Heute|Aujourd'hui|Сегодня|Hari ini
+Sv|Lv|Nv|Nv|Lv|Niv|Ур|Lv
+Tur|Round|Ronda|Rodada|Runde|Tour|Раунд|Ronde
+Tüp|Tube|Tubo|Tubo|Röhre|Tube|Пробирка|Tabung
+Önce|First|Primero|Primeiro|Zuerst|D'abord|Сначала|Dulu
+Zümrüt|Emerald|Esmeralda|Esmeralda|Smaragd|Émeraude|Изумруд|Zamrud
+Tekrar dene|Try again|Reintentar|Tentar de novo|Nochmal versuchen|Réessayer|Попробовать снова|Coba lagi
+Yeşil|Green|Verde|Verde|Grün|Vert|Зелёный|Hijau
+Tüp 📺|Tube 📺|Tubo 📺|Tubo 📺|Röhre 📺|Tube 📺|Пробирка 📺|Tabung 📺
+Yeterli altın yok ·|Not enough gold ·|No hay suficiente oro ·|Ouro insuficiente ·|Nicht genug Gold ·|Pas assez d'or ·|Недостаточно золота ·|Emas tidak cukup ·
+🎡 Çark|🎡 Wheel|🎡 Ruleta|🎡 Roleta|🎡 Glücksrad|🎡 Roue|🎡 Колесо|🎡 Roda
+Şarkının %{} kadarını çaldın|You played {}% of the song|Tocaste el {} % de la canción|Você tocou {}% da música|Du hast {} % des Lieds gespielt|Tu as joué {} % de la chanson|Ты сыграл {}% песни|Kamu memainkan {}% lagu
+kazanırsın (her 🌟 = %5 gelir)|you earn (each 🌟 = 5% income)|ganas (cada 🌟 = 5 % de ingresos)|você ganha (cada 🌟 = 5% de renda)|du bekommst (jedes 🌟 = 5 % Einkommen)|tu gagnes (chaque 🌟 = 5 % de revenu)|получишь (каждая 🌟 = 5% дохода)|kamu dapat (tiap 🌟 = 5% pendapatan)
+Biraz daha büyü, sonra yüksel (her 🌟 = %5 gelir)|Grow a bit more, then ascend (each 🌟 = 5% income)|Crece un poco más y luego asciende (cada 🌟 = 5 % de ingresos)|Cresça mais um pouco e depois suba (cada 🌟 = 5% de renda)|Wachse noch etwas, dann steige auf (jedes 🌟 = 5 % Einkommen)|Grandis encore un peu, puis monte (chaque 🌟 = 5 % de revenu)|Подрасти ещё немного, потом поднимись (каждая 🌟 = 5% дохода)|Tumbuh sedikit lagi, lalu naik (tiap 🌟 = 5% pendapatan)
+Zor mod|Hard mode|Modo difícil|Modo difícil|Schwerer Modus|Mode difficile|Сложный режим|Mode sulit
+Sıfırlanırsın|You'll be reset|Te reiniciarás|Você será reiniciado|Du wirst zurückgesetzt|Tu seras réinitialisé|Ты будешь сброшен|Kamu akan direset
+Altın topla, kostüm ve hayvan al.|Collect coins, buy costumes and pets.|Recoge monedas, compra disfraces y mascotas.|Colete moedas, compre fantasias e bichinhos.|Sammle Münzen, kaufe Kostüme und Tiere.|Ramasse des pièces, achète des costumes et des animaux.|Собирай монеты, покупай костюмы и питомцев.|Kumpulkan koin, beli kostum dan hewan.
+Engele çarparsan canavar yaklaşır. Yakalanırsan oyun biter.|If you hit an obstacle the monster gets closer. If it catches you, game over.|Si chocas con un obstáculo, el monstruo se acerca. Si te atrapa, fin del juego.|Se bater num obstáculo, o monstro se aproxima. Se te pegar, fim de jogo.|Stößt du an ein Hindernis, kommt das Monster näher. Fängt es dich, ist das Spiel vorbei.|Si tu heurte un obstacle, le monstre se rapproche. S'il t'attrape, c'est fini.|Если врежешься в препятствие, монстр приблизится. Поймает — игра окончена.|Jika menabrak rintangan, monster mendekat. Jika tertangkap, permainan berakhir.
+Ekrana basılı tut: güç dolar. Bırakınca zıplarsın.|Hold the screen: power fills up. Release to jump.|Mantén pulsada la pantalla: se carga la fuerza. Suelta para saltar.|Segure a tela: a força enche. Solte para pular.|Halte den Bildschirm: Die Kraft füllt sich. Loslassen zum Springen.|Maintiens l'écran : la puissance se charge. Relâche pour sauter.|Удерживай экран: набирается сила. Отпусти, чтобы прыгнуть.|Tahan layar: tenaga terisi. Lepas untuk melompat.
+Ortadaki beyaz çizgiye inersen "Mükemmel" olur.|Land on the white line in the middle for "Perfect".|Si aterrizas en la línea blanca central, es "Perfecto".|Pouse na linha branca do meio para um "Perfeito".|Landest du auf der weißen Linie in der Mitte, ist es "Perfekt".|Atterris sur la ligne blanche du milieu pour un "Parfait".|Приземлись на белую линию посередине, и будет «Идеально».|Mendaratlah di garis putih tengah untuk "Sempurna".
+Sağa / sola kaydır: şerit değiştir.|Swipe left / right: change lane.|Desliza a izquierda / derecha: cambia de carril.|Deslize para a esquerda / direita: troque de faixa.|Wische nach links / rechts: Spur wechseln.|Glisse à gauche / droite : change de voie.|Свайп влево / вправо: смена полосы.|Geser kiri / kanan: pindah jalur.
+Yukarı kaydır: zıpla. Aşağı kaydır: kay.|Swipe up: jump. Swipe down: slide.|Desliza arriba: salta. Desliza abajo: desliza.|Deslize para cima: pule. Deslize para baixo: deslize.|Wisch nach oben: springen. Wisch nach unten: rutschen.|Glisse vers le haut : saute. Vers le bas : glisse.|Свайп вверх: прыжок. Свайп вниз: подкат.|Geser atas: lompat. Geser bawah: meluncur.
+`;
+// ---- Dil / çeviri ----
+const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];
+const LI={en:0,es:1,pt:2,de:3,fr:4,ru:5,id:6};
+let lang=ld('tv_lang',null);
+if(!lang||!LANGS.some(l=>l[0]===lang)){const n=((navigator.language||'tr')+'').slice(0,2).toLowerCase();lang=LANGS.some(l=>l[0]===n)?n:'en'}
+const TRM=new Map();let TRF=[];const TRC=new Map();
+const trL=/[A-Za-zÇĞİÖŞÜçğıöşüÂâÎîÛû]/;const trNumRe=/\d+(?:[.,]\d+)?/g;
+function trLoad(){
+  for(const line of I18N.split('\n')){if(!line.trim())continue;const p=line.split('|');if(p.length<8)continue;
+    const un=s=>s.replace(/\\n/g,'\n').trim();const k=un(p[0]).replace(trNumRe,'{}');TRM.set(k,p.slice(1,8).map(un))}
+  TRF=[...TRM.keys()].filter(k=>k.length>=2).sort((a,b)=>b.length-a.length);
+}
+function trLook(k){const e=TRM.get(k);if(!e)return null;const t=e[LI[lang]];return t||null}
+function trCore(k){
+  // k: sayıları {} olan metin
+  let t=trLook(k);if(t!=null)return t;
+  if(k.indexOf(' · ')>=0)return k.split(' · ').map(trCore).join(' · ');
+  if(k.indexOf('\n')>=0)return k.split('\n').map(trCore).join('\n');
+  const m=/^(\s*)([\s\S]*?)(\s*)$/.exec(k);if(m[1]||m[3]){const c=m[2]&&trCore(m[2]);return m[1]+(c||m[2])+m[3]}
+  // parça değiştirme
+  let out=k,hit=false;
+  for(const f of TRF){let i=out.indexOf(f);if(i<0)continue;const e=TRM.get(f)[LI[lang]];if(!e)continue;let res='',p=0;
+    while(i>=0){const a=out[i-1],b=out[i+f.length];if((!a||!trL.test(a))&&(!b||!trL.test(b))){res+=out.slice(p,i)+e;p=i+f.length;hit=true}i=out.indexOf(f,i+f.length)}
+    out=res+out.slice(p)}
+  return hit?out:k;
+}
+function trStr(s){
+  if(lang==='tr'||!s||typeof s!=='string')return s;
+  if(!/[A-Za-zÇĞİÖŞÜçğıöşü]/.test(s))return s;
+  const ck=lang+'\u0001'+s;let r=TRC.get(ck);if(r!==undefined)return r;
+  const nums=[];const k=s.replace(trNumRe,m=>{nums.push(m);return '{}'});
+  let t=trCore(k);let i=0;t=t.replace(/\{\}/g,()=>i<nums.length?nums[i++]:'');
+  if(TRC.size>4000)TRC.clear();TRC.set(ck,t);return t;
+}
+function trNode(n){
+  const v=n.nodeValue;if(n.__o!==undefined&&v===n.__t)return;
+  const t=trStr(v);if(t!==v){n.__o=v;n.__t=t;n.nodeValue=t}else n.__o=undefined;
+}
+function trAttr(el){for(const a of ['placeholder','title']){if(el.hasAttribute&&el.hasAttribute(a)){const v=el.getAttribute(a);const o=el['__a'+a];if(o!==undefined&&v===el['__t'+a])continue;const t=trStr(v);if(t!==v){el['__a'+a]=v;el['__t'+a]=t;el.setAttribute(a,t)}}}}
+function trWalk(root){
+  if(root.nodeType===3){trNode(root);return}
+  if(root.nodeType!==1)return;
+  if(root.tagName==='SCRIPT'||root.tagName==='STYLE')return;
+  trAttr(root);
+  for(let c=root.firstChild;c;c=c.nextSibling)trWalk(c);
+}
+function trAll(){
+  // dil değişince: orijinallerden yeniden çevir
+  const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;
+  while((n=w.nextNode())){if(n.__o!==undefined&&n.nodeValue===n.__t){const o=n.__o;n.__o=undefined;n.nodeValue=o}trNode(n)}
+  document.querySelectorAll('[placeholder],[title]').forEach(el=>{for(const a of ['placeholder','title']){if(el['__a'+a]!==undefined&&el.getAttribute(a)===el['__t'+a]){el.setAttribute(a,el['__a'+a]);el['__a'+a]=undefined}}trAttr(el)});
+  document.documentElement.lang=lang;
+}
+function setLang(l){lang=l;try{$('langSel').value=l}catch(e){}sv('tv_lang',l);TRC.clear();trAll();try{refreshSw()}catch(e){}}
+(function(){
+  trLoad();
+  const P=CanvasRenderingContext2D.prototype;
+  for(const f of ['fillText','strokeText']){const o=P[f];P[f]=function(t,...a){return o.call(this,(lang==='tr'||typeof t!=='string')?t:trStr(t),...a)}}
+  new MutationObserver(recs=>{
+    for(const r of recs){
+      if(r.type==='characterData')trNode(r.target);
+      else if(r.type==='childList')r.addedNodes.forEach(trWalk);
+      else if(r.type==='attributes')trAttr(r.target);
+    }
+  }).observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['placeholder','title']});
+  const sel=$('langSel');
+  if(sel){sel.innerHTML=LANGS.map(l=>'<option value="'+l[0]+'">'+l[1]+'</option>').join('');sel.value=lang;sel.onchange=()=>setLang(sel.value)}
+  trAll();
+})();
+
 applyCostume(selected);applyPet(petSel);reset();refreshCoins();worldInstant();ensureDaily();updateBadge();
 player.rotation.y=0;
 openHub();refreshSw();if(notOn)notSchedule();
