@@ -4509,22 +4509,25 @@ function sgHint(){const G=sg.G;if(!G||G.won)return;const go=()=>{G.hintT=6};if(t
 function sgUpdate(G,dt){
   G.t+=dt;G.banner=Math.max(0,(G.banner||0)-dt);G.hintT=Math.max(0,G.hintT-dt);
   for(const p of G.parts){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=500*dt}G.parts=G.parts.filter(p=>p.life>0);
-  if(G.won)return;
+  if(G.won){
+    if(G.sn0&&G.snT<1){G.snT=Math.min(1,G.snT+dt/0.5);const e=1-Math.pow(1-G.snT,3);
+      G.L=[G.sn0.L[0]+(G.Lt[0]-G.sn0.L[0])*e,G.sn0.L[1]+(G.Lt[1]-G.sn0.L[1])*e];G.phi=G.sn0.phi+(G.phiT-G.sn0.phi)*e;
+      if(G.snT>=1){G.flash=1;sfx.power();buzz(20);for(let k=0;k<40;k++){const a=Math.random()*6.283,v=100+Math.random()*260;G.parts.push({x:G.W/2,y:G.wall.y+G.wall.s/2,vx:Math.cos(a)*v,vy:Math.sin(a)*v-160,life:1.1,c:['#ffd34d','#fff','#c4b5fd'][k%3]})}}}
+    G.flash=Math.max(0,(G.flash||0)-dt*1.6);return}
   G.fr++;if(G.fr%2===0){const live=sgRaster(G,sgLights(G,G.L),G.cv,G.phi);G.pc+=(sgIoU(live,G.tgt)-G.pc)*0.7}
   $('sg_pc').textContent='%'+Math.round(G.pc*100);
   if(G.pc>=G.thr)G.hold+=dt;else G.hold=Math.max(0,G.hold-dt*2);
   if(G.hold>=0.5)sgWin(G);
 }
 function sgWin(G){
-  G.won=true;G.pc=1;
+  G.won=true;G.pc=1;G.sn0={L:G.L.slice(),phi:G.phi};G.snT=0;G.flash=0;
   const stars=G.t<35?3:G.t<80?2:1,fresh=G.level>=sgLevel;
   let coins=8+G.n*3+stars*3+Math.floor(G.level/5);if(G.boss)coins=Math.round(coins*1.5);if(!fresh)coins=Math.max(3,Math.round(coins*0.4));
   G.reward=coins;credit('shadow',coins);stats.coins+=coins;addProg('coins',coins);addProg('shadow',1);
   if(fresh){sgLevel=G.level+1;sv('tv_sglevel',sgLevel)}
   saveDaily();checkAch();refreshCoins();sfx.power();buzz([30,30,80]);
   $('sg_stars').textContent='⭐'.repeat(stars)+'☆'.repeat(3-stars);$('sg_wi').textContent='🪙 +'+coins+' · '+Math.round(G.t)+' sn';$('sg_dbl').classList.remove('hidden');
-  for(let k=0;k<50;k++){const a=Math.random()*6.283,v=100+Math.random()*300;G.parts.push({x:G.W/2,y:G.wall.y+G.wall.s/2,vx:Math.cos(a)*v,vy:Math.sin(a)*v-180,life:1.2,c:['#ffd34d','#fff','#c4b5fd'][k%3]})}
-  setTimeout(()=>{if(state==='shadow'&&sg.G===G)show('sg_win',true)},900);
+  setTimeout(()=>{if(state==='shadow'&&sg.G===G)show('sg_win',true)},1300);
 }
 function sgDraw(G,now){
   const c=G.ctx;if(!c)return;const W=G.W,H=G.H,w=G.wall,sc=w.s/2.6;c.setTransform(G.dpr,0,0,G.dpr,0,0);
@@ -4538,11 +4541,14 @@ function sgDraw(G,now){
   // hedef (altın çizgi)
   const tl=sgLights(G,G.Lt);
   c.setLineDash([6,5]);c.strokeStyle='#b45309';c.lineWidth=2.5;c.fillStyle='rgba(180,83,9,.18)';
-  for(const L of tl)for(const o of G.objs){path(sgShadowPts(o,L,G.phiT));c.fill();c.stroke()}
+  if(!(G.won&&G.snT>=1))for(const L of tl)for(const o of G.objs){path(sgShadowPts(o,L,G.phiT));c.fill();c.stroke()}
   c.setLineDash([]);
   // canlı gölgeler
   c.fillStyle=G.won?'rgba(20,10,40,.9)':'rgba(25,16,50,.82)';
   for(const L of sgLights(G,G.L))for(const o of G.objs){path(sgShadowPts(o,L,G.phi));c.fill()}
+  if(G.won){const k=G.snT||0;c.save();c.strokeStyle='rgba(255,211,77,'+(0.4+0.6*k)+')';c.lineWidth=3;c.shadowColor='#ffd34d';c.shadowBlur=18*k;
+    for(const L of sgLights(G,G.L))for(const o of G.objs){path(sgShadowPts(o,L,G.phi));c.stroke()}c.restore();
+    if(G.flash>0){c.fillStyle='rgba(255,240,170,'+(G.flash*0.4)+')';c.fillRect(w.x,w.y,w.s,w.s)}}
   c.restore();
   // ipucu: pad üzerinde halka
   // ışık padi
