@@ -3177,14 +3177,14 @@ function soSolve(tubes,cap,limit){
   return dfs(tubes.map(t=>t.slice()))?path.slice():null;
 }
 function soGen(level){
-  const nc=Math.min(12,3+Math.floor((level-1)/2)),cap=4;
+  const boss=level>=10&&level%10===0,nc=Math.min(12,3+Math.floor((level-1)/2)+(boss?2:0)),cap=4;
   for(let k=0;k<40;k++){
     const rnd=mzRng(level*977+k*131+5),units=[];for(let c=0;c<nc;c++)for(let i=0;i<cap;i++)units.push(c);
     for(let i=units.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[units[i],units[j]]=[units[j],units[i]]}
     const tubes=[];for(let c=0;c<nc;c++)tubes.push(units.slice(c*cap,c*cap+cap));
     if(tubes.some(t=>t.every(v=>v===t[0])))continue;
-    const empt=(level>=30&&k<8)?1:2;for(let e=0;e<empt;e++)tubes.push([]);
-    if(soSolve(tubes,cap,60000))return {tubes,cap,nc};
+    const empt=((level>=30&&k<8)||(boss&&k<12))?1:2;for(let e=0;e<empt;e++)tubes.push([]);
+    if(soSolve(tubes,cap,60000))return {tubes,cap,nc,boss};
   }
   const tubes=[];const units=[];for(let c=0;c<nc;c++)for(let i=0;i<cap;i++)units.push(c);for(let c=0;c<nc;c++)tubes.push(units.slice(c*cap,c*cap+cap));tubes.push([],[]);return{tubes,cap,nc};
 }
@@ -3206,12 +3206,12 @@ function soRuns(arr){const r=[];for(const c of arr){if(r.length&&r[r.length-1].c
 function soStart(lv){
   if(lv)so.lv=lv;else so.lv=soLevel;
   const g=soGen(so.lv);
-  const G={level:so.lv,tubes:g.tubes,cap:g.cap,nc:g.nc,start:g.tubes.map(t=>t.slice()),sel:-1,anim:null,undo:[],freeUndo:3,extra:0,won:false,lift:g.tubes.map(()=>0),shake:g.tubes.map(()=>0),done:g.tubes.map(()=>0),capT:g.tubes.map(()=>0),parts:[],t:0,hint:null,hintT:0,moves:0,bub:[]};
+  const G={boss:so.lv>=10&&so.lv%10===0,level:so.lv,tubes:g.tubes,cap:g.cap,nc:g.nc,start:g.tubes.map(t=>t.slice()),sel:-1,anim:null,undo:[],freeUndo:3,extra:0,won:false,lift:g.tubes.map(()=>0),shake:g.tubes.map(()=>0),done:g.tubes.map(()=>0),capT:g.tubes.map(()=>0),parts:[],t:0,hint:null,hintT:0,moves:0,bub:[]};
   for(let i=0;i<14;i++)G.bub.push({x:Math.random(),y:Math.random(),r:6+Math.random()*26,v:0.01+Math.random()*0.03,p:Math.random()*6});
   soLayout(G);so.G=G;soHud();show('so_win',false);
   if(!so.raf){so.raf=true;so.last=performance.now();requestAnimationFrame(soFrame)}
 }
-function soHud(){const G=so.G;$('so_lv').textContent='Seviye '+G.level;
+function soHud(){const G=so.G;$('so_lv').textContent=(G.boss?'🔥 Zor Seviye ':'Seviye ')+G.level;
   $('so_undo').querySelector('span').textContent=G.freeUndo>0?'Geri Al ('+G.freeUndo+')':'Geri Al 🪙5';
   $('so_tube').querySelector('span').textContent=G.extra>=2?'Tüp dolu':G.extra===1?'Tüp 🪙80':(totalCoins>=40?'Tüp 🪙40':'Tüp 📺');$('so_tube').classList.toggle('off',G.extra>=2);
   $('so_hint').querySelector('span').textContent=totalCoins>=15?'İpucu 🪙15':'İpucu 📺';
@@ -3234,7 +3234,7 @@ function soFinish(G){
 }
 function soWin(G){
   G.won=true;const fresh=G.level>=soLevel;
-  const coins=6+G.nc*2+(fresh?0:-4);G.reward=Math.max(3,coins);
+  const coins=Math.round((6+G.nc*2+(fresh?0:-4))*(G.boss?1.5:1));G.reward=Math.max(3,coins);
   credit('sort',G.reward);stats.coins+=G.reward;addProg('coins',G.reward);addProg('sort',1);
   if(fresh){soLevel=G.level+1;sv('tv_solevel',soLevel)}
   saveDaily();checkAch();refreshCoins();sfx.power();
@@ -3480,7 +3480,7 @@ function clMakeDirt(G,level){
   g.fillStyle=clGrad(g,0,0,W,H,['#8a6a45','#6f5236','#85633f']);g.fillRect(0,0,W,H);
   for(let i=0;i<260;i++){g.fillStyle='rgba('+(rnd()<.5?'60,40,24':'150,118,80')+','+(0.1+rnd()*0.22)+')';g.beginPath();g.arc(rnd()*W,rnd()*H,6+rnd()*40,0,6.283);g.fill()}
   for(let i=0;i<500;i++){g.fillStyle='rgba(40,28,16,'+(0.15+rnd()*0.3)+')';g.fillRect(rnd()*W,rnd()*H,2+rnd()*4,2+rnd()*4)}
-  const lv=Math.min(5,1+Math.floor((level-1)/4)),nb=8+lv*4;
+  const lv=Math.min(5,1+Math.floor((level-1)/4)),nb=8+lv*4+((level>=10&&level%10===0)?8:0);
   for(let b=0;b<nb;b++){const cx=40+rnd()*(W-80),cy=40+rnd()*(H-80),rr=26+rnd()*44;
     for(let j=0;j<7;j++){const x=cx+(rnd()-.5)*rr*1.6,y=cy+(rnd()-.5)*rr,r=rr*(0.4+rnd()*0.5);
       k.fillStyle='#3d2a1b';k.beginPath();k.arc(x,y,r,0,6.283);k.fill()}
@@ -3513,7 +3513,7 @@ function clStart(lv){
   if(lv)cl.lv=lv;else cl.lv=clLevel;
   const f=CL_OBJ[(cl.lv-1)%CL_OBJ.length],G={level:cl.lv,def:f,obj:clMk(CL_OW*CL_Q,CL_OH*CL_Q),parts:[],foam:[],t:0,down:false,px:0,py:0,lx:null,ly:null,pct:0,time:0,started:false,done:false,shine:-1,acc:0,spark:[]};
   clDrawObj(G.obj.getContext('2d'),f.f,Math.floor((G.level-1)/4));clMakeDirt(G,cl.lv);G.init=clMeasure(G);G.a0=[clSamp(G.grime),clSamp(G.crust)];clResume(G);
-  clLayout(G);cl.G=G;$('cl_lv').textContent='Seviye '+G.level;$('cl_name').textContent=f.n+' · kirli!';
+  clLayout(G);cl.G=G;$('cl_lv').textContent=((G.level>=10&&G.level%10===0)?'🔥 Zor Seviye ':'Seviye ')+G.level;$('cl_name').textContent=f.n+' · kirli!';
   $('cl_fill').style.width=(G.pct*100)+'%';$('cl_pct').textContent=Math.floor(G.pct*100)+'%';$('cl_hint').style.opacity=G.started?0:1;show('cl_win',false);clUpd();
   if(!cl.raf){cl.raf=true;cl.last=performance.now();requestAnimationFrame(clFrame)}
 }
@@ -3554,8 +3554,8 @@ function clScrub(G,dt){
 function clWin(G){
   if(G.done)return;sv('tv_clfree',null);G.done=true;G.down=false;clSound(false);G.shine=0;G.pct=1;$('cl_fill').style.width='100%';$('cl_pct').textContent='100%';
   G.gx.clearRect(0,0,9999,9999);G.cx.clearRect(0,0,9999,9999);
-  const lvl=Math.min(5,1+Math.floor((G.level-1)/4)),par=14+lvl*5;G.stars=G.time<par?3:G.time<par*1.8?2:1;
-  const fresh=G.level>=clLevel;G.reward=8+G.level*2+G.stars*4+(fresh?0:-6);G.reward=Math.max(4,G.reward);
+  const lvl=Math.min(5,1+Math.floor((G.level-1)/4)),par=14+lvl*5+((G.level>=10&&G.level%10===0)?10:0);G.stars=G.time<par?3:G.time<par*1.8?2:1;
+  const fresh=G.level>=clLevel;G.reward=8+G.level*2+G.stars*4+(fresh?0:-6);if(G.level>=10&&G.level%10===0)G.reward=Math.round(G.reward*1.5);G.reward=Math.max(4,G.reward);
   credit('clean',G.reward);stats.coins+=G.reward;addProg('coins',G.reward);addProg('clean',1);
   if(fresh){clLevel=G.level+1;sv('tv_cllevel',clLevel)}
   saveDaily();checkAch();refreshCoins();sfx.power();buzz(30);
