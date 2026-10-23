@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0f0a26">
+<title>TapVerse Yönetim</title>
+<style>
+:root{--bg:#0f0a26;--card:#1d1647;--card2:#271d5c;--line:rgba(255,255,255,.12);--text:#f6f3ff;--mute:#a9a1d8;--pri:#8b5cf6;--gold:#ffd34d;--green:#52e08a;--red:#ff6b7a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:radial-gradient(circle at 50% 0,#241a63,#0b0720 70%) fixed;color:var(--text);font:15px/1.4 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;min-height:100vh}
+.wrap{max-width:900px;margin:0 auto;padding:14px 14px 60px}
+h1{font-size:20px;margin:0}
+button,input,select{font:inherit;color:inherit}
+button{border:0;border-radius:12px;padding:10px 16px;background:linear-gradient(#a37aff,var(--pri));color:#fff;font-weight:600;cursor:pointer}
+button.alt{background:rgba(255,255,255,.1)}
+button.red{background:linear-gradient(#ff8794,#e11d48)}
+button.sm{padding:6px 12px;font-size:13px;border-radius:10px}
+input,select{background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:12px;padding:10px 14px;outline:none;width:100%}
+select option{background:#271d5c}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.top .sp{flex:1}
+.tabs{display:flex;gap:6px;background:rgba(0,0,0,.28);padding:5px;border-radius:16px;margin-bottom:14px}
+.tabs button{flex:1;background:none;color:var(--mute);padding:9px 4px}
+.tabs button.on{background:linear-gradient(#a37aff,var(--pri));color:#fff}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.stat b{display:block;font-size:26px;color:var(--gold)}
+.stat span{color:var(--mute);font-size:13px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+.box h3{margin:0 0 10px;font-size:15px;color:var(--mute);font-weight:600}
+.bar{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
+.bar i{display:block;height:8px;border-radius:6px;background:linear-gradient(90deg,var(--pri),var(--gold));min-width:4px}
+.bar span{width:110px;flex:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar em{font-style:normal;color:var(--mute);margin-left:auto}
+.row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 13px;margin-bottom:8px;cursor:pointer}
+.row .tx{flex:1;min-width:0}
+.row .tx div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row small{color:var(--mute);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{font-size:11px;padding:2px 8px;border-radius:99px;background:rgba(255,107,122,.2);color:var(--red);margin-left:6px}
+.row b.sc{color:var(--gold);font-size:17px}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break:break-all}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:6px 10px;font-size:14px}
+.kv span:nth-child(odd){color:var(--mute)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:6px 4px;text-align:left;border-bottom:1px solid var(--line)}
+th{color:var(--mute);font-weight:600}
+.ov{position:fixed;inset:0;background:rgba(5,3,16,.8);display:flex;align-items:flex-end;justify-content:center;z-index:10}
+.sheet{width:min(900px,100%);max-height:90vh;overflow-y:auto;background:linear-gradient(#271d5c,#171040);border-radius:24px 24px 0 0;padding:18px 16px 28px;border:1px solid var(--line)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.login{max-width:360px;margin:16vh auto 0;text-align:center}
+.login h1{font-size:28px;margin-bottom:6px}
+.login p{color:var(--mute);margin:0 0 18px}
+.login input{margin-bottom:10px;text-align:center}
+.err{color:var(--red);min-height:22px;margin-top:8px}
+.hide{display:none!important}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;padding:10px 18px;border-radius:99px;z-index:20;display:none}
+.mut{color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="login" class="login">
+    <h1>🛠️ TapVerse Yönetim</h1>
+    <p>Sadece yönetici girişi</p>
+    <input id="pw" type="password" placeholder="Şifre" autocomplete="current-password">
+    <button id="go" style="width:100%">Giriş</button>
+    <div class="err" id="lerr"></div>
+  </div>
+
+  <div id="app" class="hide">
+    <div class="top"><h1>🛠️ TapVerse Yönetim</h1><div class="sp"></div><button class="alt sm" id="refresh">↻ Yenile</button><button class="alt sm" id="logout">Çıkış</button></div>
+    <div class="tabs"><button data-t="sum" class="on">📊 Özet</button><button data-t="pl">👥 Oyuncular</button><button data-t="sc">🏅 Skorlar</button></div>
+
+    <div id="t_sum"></div>
+
+    <div id="t_pl" class="hide">
+      <input id="q" placeholder="İsim veya cihaz kimliği ara…" style="margin-bottom:10px">
+      <div id="plInfo" class="mut" style="margin-bottom:8px"></div>
+      <div id="plList"></div>
+      <button id="more" class="alt hide" style="width:100%">Daha fazla</button>
+    </div>
+
+    <div id="t_sc" class="hide">
+      <div style="display:flex;gap:8px;margin-bottom:10px"><select id="scGame"></select><select id="scMode" style="max-width:150px"><option value="week">Bu hafta</option><option value="all">Tüm zamanlar</option></select></div>
+      <div id="scList"></div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const SB={url:'https://supabase.mangocash.tech',key:'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc4NTc3MjY4MCwiZXhwIjo0OTQxNDQ2MjgwLCJyb2xlIjoiYW5vbiJ9.X3wvaxDhs_ObrxK1UOPk57lyBKIh4jVEDVxfo3P98UU'};
+const GN={run:'🏃 Sonsuz Koşu',city:'🏙️ Tek Tuş Şehir',stack:'🏗️ Zıpla Kule',snake:'🐍 Yılan Neon',color:'🎨 Renk Değiştir',balloon:'🎈 Balon Patlat',flap:'🐤 Kanat Çırp',blocks:'🧩 Blok Bulmaca',maze:'🌀 Labirent (seviye)',ar:'🎯 Ok Kaçışı (seviye)',so:'🧪 Su Sıralama (seviye)',cl:'🧼 Temizlik (seviye)',gh:'👻 Hayalet Takım (seviye)',lk:'🔐 Kasa Uzmanı (seviye)',sg:'🌙 Gölge Bahçesi (seviye)'};
+const LV=new Set(['maze','ar','so','cl','gh','lk','sg']);
+const gname=g=>GN[g]||g;
+const $=id=>document.getElementById(id);
+let PW=sessionStorage.getItem('tv_admin_pw')||'';
+let plOff=0,plQ='',plTotal=0,curTab='sum';
+
+function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',2200)}
+async function api(action,args){
+  try{
+    const r=await fetch(SB.url+'/rest/v1/rpc/tv_admin',{method:'POST',headers:{apikey:SB.key,Authorization:'Bearer '+SB.key,'Content-Type':'application/json'},body:JSON.stringify({p_pass:PW,p_action:action,p_args:args||{}})});
+    if(!r.ok)return{ok:false,err:'net'};
+    return await r.json();
+  }catch(e){return{ok:false,err:'net'}}
+}
+const ERR={auth:'Şifre yanlış',locked:'Çok fazla deneme, 15 dakika bekle',nopass:'Admin şifresi henüz belirlenmemiş (SQL dosyasının son satırı)',net:'Sunucuya bağlanılamadı'};
+async function login(){
+  PW=$('pw').value||PW;$('lerr').textContent='';
+  const r=await api('ping');
+  if(r.ok){sessionStorage.setItem('tv_admin_pw',PW);$('login').classList.add('hide');$('app').classList.remove('hide');loadTab()}
+  else{PW='';sessionStorage.removeItem('tv_admin_pw');$('login').classList.remove('hide');$('app').classList.add('hide');$('lerr').textContent=ERR[r.err]||'Hata'}
+}
+$('go').onclick=login;$('pw').onkeydown=e=>{if(e.key==='Enter')login()};
+$('logout').onclick=()=>{PW='';sessionStorage.removeItem('tv_admin_pw');location.reload()};
+$('refresh').onclick=()=>loadTab();
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{curTab=b.dataset.t;document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));['sum','pl','sc'].forEach(t=>$('t_'+t).classList.toggle('hide',t!==curTab));loadTab()});
+function loadTab(){if(curTab==='sum')loadSum();else if(curTab==='pl'){plOff=0;loadPl(true)}else loadSc()}
+
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function ago(t){const s=(Date.now()-new Date(t).getTime())/1000;if(s<60)return 'az önce';if(s<3600)return Math.floor(s/60)+' dk önce';if(s<86400)return Math.floor(s/3600)+' sa önce';return Math.floor(s/86400)+' gün önce'}
+const dt=t=>new Date(t).toLocaleString('tr-TR');
+function bars(o){const e=Object.entries(o||{}).sort((a,b)=>b[1]-a[1]);if(!e.length)return '<div class="mut">Veri yok</div>';const m=e[0][1]||1;return e.map(([k,v])=>`<div class="bar"><span>${esc(k)}</span><i style="width:${Math.max(4,v/m*100)}px;max-width:45%"></i><em>${v}</em></div>`).join('')}
+
+async function loadSum(){
+  $('t_sum').innerHTML='<div class="mut">Yükleniyor…</div>';
+  const d=await api('stats');if(!d.ok){$('t_sum').innerHTML='<div class="err">'+(ERR[d.err]||'Hata')+'</div>';return}
+  const st=(n,l)=>`<div class="stat"><b>${n}</b><span>${l}</span></div>`;
+  $('t_sum').innerHTML='<div class="grid">'+st(d.players,'Toplam oyuncu')+st(d.active_24h,'Son 24 saat aktif')+st(d.active_7d,'Son 7 gün aktif')+st(d.active_30d,'Son 30 gün aktif')+st(d.new_24h,'Yeni (24 saat)')+st(d.new_7d,'Yeni (7 gün)')+st(d.week_players,'Bu hafta skor yapan')+st(d.records,'Toplam skor kaydı')+st(d.banned,'Yasaklı')+st('#'+d.week,'Hafta numarası')+'</div>'
+  +'<div class="box"><h3>Platform</h3>'+bars(d.platforms)+'</div>'
+  +'<div class="box"><h3>Dil</h3>'+bars(d.langs)+'</div>'
+  +'<div class="box"><h3>Uygulama sürümü (build)</h3>'+bars(d.versions)+'</div>'
+  +'<div class="box"><h3>Oyunlar</h3><table><tr><th>Oyun</th><th>Oyuncu</th><th>Bu hafta</th></tr>'+(d.games||[]).map(g=>`<tr><td>${esc(gname(g.game))}</td><td>${g.players}</td><td>${g.week_players}</td></tr>`).join('')+'</table></div>';
+}
+
+async function loadPl(reset){
+  const d=await api('players',{q:plQ,limit:50,offset:plOff});
+  if(!d.ok){$('plInfo').textContent=ERR[d.err]||'Hata';return}
+  plTotal=d.total;if(reset)$('plList').innerHTML='';
+  d.rows.forEach(p=>{
+    const dv=p.device||{};const el=document.createElement('div');el.className='row';
+    el.innerHTML=`<div class="tx"><div><b>${esc(p.name)}</b>${p.banned?'<span class="badge">YASAKLI</span>':''}</div><small>${esc([dv.platform,dv.model||dv.os,dv.lang].filter(Boolean).join(' · '))} · ${p.games} oyun</small><small class="mono">${esc(p.player_id)}</small></div><div class="mut" style="font-size:12px;text-align:right">${ago(p.last_seen)}</div>`;
+    el.onclick=()=>openPlayer(p.player_id);$('plList').appendChild(el);
+  });
+  plOff+=d.rows.length;
+  $('plInfo').textContent=plTotal+' oyuncu'+(plQ?' bulundu':'');
+  $('more').classList.toggle('hide',plOff>=plTotal);
+}
+$('more').onclick=()=>loadPl(false);
+let qt;$('q').oninput=()=>{clearTimeout(qt);qt=setTimeout(()=>{plQ=$('q').value.trim();plOff=0;loadPl(true)},350)};
+
+async function openPlayer(id){
+  const d=await api('player',{id});if(!d.ok||!d.player){toast('Bulunamadı');return}
+  const p=d.player,dv=p.device||{};
+  const ov=document.createElement('div');ov.className='ov';
+  const wk=r=>r.week===0?'Tüm zamanlar':'Hafta '+r.week;
+  const rows=d.records.map(r=>`<tr><td>${esc(gname(r.game))}</td><td>${wk(r)}</td><td><b style="color:var(--gold)">${r.score}</b></td><td class="mut">${ago(r.updated_at)}</td></tr>`).join('')||'<tr><td colspan="4" class="mut">Skor yok</td></tr>';
+  const games=[...new Set(d.records.map(r=>r.game))];
+  ov.innerHTML=`<div class="sheet"><div class="top"><h1>${esc(p.name)}${p.banned?'<span class="badge">YASAKLI</span>':''}</h1><div class="sp"></div><button class="alt sm" id="x">✕</button></div>
+  <div class="box"><h3>Cihaz</h3><div class="kv">
+   <span>Cihaz kimliği</span><span class="mono" id="pidv">${esc(p.player_id)}</span>
+   <span>Platform</span><span>${esc(dv.platform||'-')}</span><span>Sistem</span><span>${esc(dv.os||'-')}</span><span>Model</span><span>${esc(dv.model||'-')}</span>
+   <span>Dil</span><span>${esc(dv.lang||'-')}</span><span>Sürüm</span><span>${esc((dv.ver||'-')+' (build '+(dv.build||'-')+')')}</span>
+   <span>Ekran</span><span>${esc(dv.screen||'-')}</span><span>Saat dilimi</span><span>${esc(dv.tz||'-')}</span>
+   <span>İlk giriş</span><span>${dt(p.created_at)}</span><span>Son görülme</span><span>${dt(p.last_seen)} (${ago(p.last_seen)})</span></div></div>
+  <div class="box"><h3>Skorlar</h3><table><tr><th>Oyun</th><th>Dönem</th><th>Skor</th><th></th></tr>${rows}</table></div>
+  <div class="acts"><button class="alt" id="cp">📋 Kimliği kopyala</button><button class="alt" id="rn">✏️ İsim değiştir</button><button class="${p.banned?'alt':'red'}" id="bn">${p.banned?'Yasağı kaldır':'🚫 Yasakla'}</button>${games.length?'<button class="alt" id="ds">🗑️ Oyun skorunu sil</button>':''}<button class="red" id="dp">❌ Oyuncuyu sil</button></div></div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();ov.onclick=e=>{if(e.target===ov)close()};ov.querySelector('#x').onclick=close;
+  ov.querySelector('#cp').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(p.player_id);toast('Kopyalandı')};
+  ov.querySelector('#rn').onclick=async()=>{const n=prompt('Yeni isim',p.name);if(!n)return;const r=await api('rename',{id,name:n});if(r.ok){toast('Kaydedildi');close();refreshAll()}else toast(r.err==='taken'?'Bu isim alınmış':'Geçersiz isim')};
+  ov.querySelector('#bn').onclick=async()=>{const r=await api('ban',{id,banned:!p.banned});if(r.ok){toast('Tamam');close();refreshAll()}};
+  const ds=ov.querySelector('#ds');if(ds)ds.onclick=async()=>{const g=prompt('Hangi oyunun skorları silinsin? ('+games.join(', ')+')',games[0]);if(!g||!games.includes(g))return;if(!confirm(gname(g)+' skorları silinsin mi?'))return;const r=await api('delete_record',{id,game:g});if(r.ok){toast('Silindi');close();refreshAll()}};
+  ov.querySelector('#dp').onclick=async()=>{if(!confirm(p.name+' tamamen silinsin mi? Geri alınamaz.'))return;const r=await api('delete_player',{id});if(r.ok){toast('Silindi');close();refreshAll()}};
+}
+function refreshAll(){loadTab()}
+
+$('scGame').innerHTML=Object.keys(GN).map(g=>`<option value="${g}">${esc(gname(g))}</option>`).join('');
+$('scGame').onchange=$('scMode').onchange=()=>loadSc();
+async function loadSc(){
+  const g=$('scGame').value,m=$('scMode').value;$('scList').innerHTML='<div class="mut">Yükleniyor…</div>';
+  const d=await api('top',{game:g,mode:m,limit:100});if(!d.ok){$('scList').innerHTML='<div class="err">'+(ERR[d.err]||'Hata')+'</div>';return}
+  if(!d.rows.length){$('scList').innerHTML='<div class="mut">Henüz skor yok</div>';return}
+  $('scList').innerHTML='';
+  d.rows.forEach(r=>{const el=document.createElement('div');el.className='row';el.innerHTML=`<div style="width:34px;color:var(--mute)">${r.rank}.</div><div class="tx"><div><b>${esc(r.name)}</b>${r.banned?'<span class="badge">YASAKLI</span>':''}</div><small class="mono">${esc(r.player_id)}</small></div><b class="sc">${LV.has(g)&&m==='week'?'+':''}${r.score}</b>`;el.onclick=()=>openPlayer(r.player_id);$('scList').appendChild(el)});
+}
+
+if(PW)login();
+</script>
+</body>
+</html>

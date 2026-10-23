@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths-ignore: ['README.md', 'db/**', 'docs/version.json']
+    paths-ignore: ['README.md', 'db/**', 'docs/version.json', 'docs/admin.html']
 
 jobs:
   apk:

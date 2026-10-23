@@ -5,3 +5,8 @@ Tek uygulamada mini oyunlar. İlk oyun: sonsuz koşu. Dosyalar `docs/` klasörü
 - Her push'ta GitHub Actions APK üretir. `KEYSTORE_B64` ve `KEYSTORE_PASS` secret'ları tanımlıysa imzalı APK + AAB üretir; yoksa test (debug) APK.
 - versionCode her derlemede artar (Actions çalıştırma numarası).
 - Play Store'a yeni sürüm çıkınca `docs/version.json` içindeki `code` değerini o derlemenin numarasına yükselt; uygulama Ayarlar'da "Yeni sürüm var" gösterir.
+
+## Skor tablosu ve admin paneli
+- Sunucu: `db/002_tapverse_players_admin.sql` dosyasını Supabase SQL Editor'de çalıştır, en alttaki `tv_set_admin_pass` satırıyla admin şifreni belirle.
+- Skor tablosu her oyun için haftalık (Pazartesi 03:00 TR) ve tüm zamanlar sıralaması gösterir. İsimler benzersizdir.
+- Admin paneli uygulamanın içinde değildir: `https://ahmetgntrk10.github.io/TapVerse/admin.html` adresinden şifreyle girilir.

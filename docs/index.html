@@ -14,6 +14,32 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-famil
 canvas{display:block}
 body{position:relative;width:min(100vw,calc(100vh*.6));margin:0 auto;transform:translateZ(0);box-shadow:0 0 70px rgba(139,92,246,.28)}
 .hidden{display:none!important}
+#lbGames{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:none;touch-action:pan-x;flex:none}
+#lbGames::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;min-width:0;width:auto;padding:8px 14px;font-size:14px;border-radius:999px;background:rgba(255,255,255,.09);color:var(--mute);box-shadow:none;white-space:nowrap}
+.chip.on{background:linear-gradient(#a37aff,var(--pri));color:#fff}
+#lbInfo{flex:none}
+#splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(circle at 50% 38%,#3a2a8c,#150e3a 60%,#07041a);transition:opacity .5s,transform .5s}
+#splash.out{opacity:0;transform:scale(1.08);pointer-events:none}
+.spl-orbit{position:relative;width:150px;height:150px;animation:splIn .8s cubic-bezier(.2,1.4,.4,1) both}
+.spl-orbit i{position:absolute;left:50%;top:50%;width:16px;height:16px;margin:-8px;border-radius:50%;animation:splSpin 2.4s linear infinite}
+.spl-orbit i:nth-child(1){background:#ffd34d;box-shadow:0 0 18px #ffd34d;--r:62px}
+.spl-orbit i:nth-child(2){background:#2ee6c5;box-shadow:0 0 18px #2ee6c5;--r:62px;animation-delay:-.8s}
+.spl-orbit i:nth-child(3){background:#ff6fb1;box-shadow:0 0 18px #ff6fb1;--r:62px;animation-delay:-1.6s}
+.spl-orbit b{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-31px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#d8c4ff,#8b5cf6 55%,#4c1d95);box-shadow:0 0 40px rgba(139,92,246,.9);animation:splPulse 1.2s ease-in-out infinite}
+@keyframes splSpin{from{transform:rotate(0) translateX(var(--r)) rotate(0)}to{transform:rotate(360deg) translateX(var(--r)) rotate(-360deg)}}
+@keyframes splPulse{50%{transform:scale(1.12)}}
+@keyframes splIn{from{transform:scale(.2) rotate(-120deg);opacity:0}}
+.spl-logo{font-size:46px;font-weight:700;letter-spacing:2px;display:flex;gap:2px}
+.spl-logo span{display:inline-block;animation:splPop .6s cubic-bezier(.2,1.6,.4,1) both;text-shadow:0 4px 0 rgba(0,0,0,.35),0 0 24px rgba(139,92,246,.8)}
+.spl-logo span:nth-child(-n+3){color:#ffd34d}
+.spl-logo span:nth-child(n+4){color:#fff}
+@keyframes splPop{from{transform:translateY(40px) scale(.3);opacity:0}}
+.spl-sub{color:var(--mute);font-size:15px;animation:splFade .6s .9s both}
+@keyframes splFade{from{opacity:0}}
+.spl-bar{width:160px;height:6px;border-radius:6px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:6px;animation:splFade .4s .5s both}
+.spl-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#ffd34d);border-radius:6px;animation:splBar 1.9s .4s ease-out forwards}
+@keyframes splBar{to{width:100%}}
 .tgl{flex:none!important;box-sizing:border-box;min-width:0!important;width:58px!important;height:32px!important;padding:0!important;border-radius:999px!important;position:relative;background:#3b3270;box-shadow:none!important;border:1px solid var(--line)}
 .tgl::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}
 .tgl.on{background:linear-gradient(135deg,var(--teal),var(--green))}.tgl.on::after{transform:translateX(26px)}
@@ -154,6 +180,8 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
 <script>(function(){function box(m){var d=document.getElementById('errb');if(!d){d=document.createElement('div');d.id='errb';d.style.cssText='position:fixed;left:6px;right:6px;bottom:6px;z-index:99999;background:rgba(160,20,20,.94);color:#fff;font:11px/1.3 monospace;padding:8px 10px;border-radius:10px;max-height:34vh;overflow:auto;white-space:pre-wrap';d.onclick=function(){d.remove()};(document.body||document.documentElement).appendChild(d)}d.textContent=(d.textContent+'\n'+m).slice(-700)}window.addEventListener('error',function(e){if(e.message)box('Hata: '+e.message+' @'+(e.lineno||'')+':'+(e.colno||''))});window.addEventListener('unhandledrejection',function(e){box('Söz hatası: '+(e.reason&&e.reason.message||e.reason))})})()</script>
 </head>
 <body>
+<div id="splash"><div class="spl-orbit"><b></b><i></i><i></i><i></i></div><div class="spl-logo"><span style="animation-delay:0.35s">T</span><span style="animation-delay:0.42s">A</span><span style="animation-delay:0.49s">P</span><span style="animation-delay:0.56s">V</span><span style="animation-delay:0.63s">E</span><span style="animation-delay:0.70s">R</span><span style="animation-delay:0.77s">S</span><span style="animation-delay:0.84s">E</span></div><div class="spl-sub">Mini oyunlar evreni</div><div class="spl-bar"><i></i></div></div>
+<script>setTimeout(function(){var s=document.getElementById('splash');if(s)s.remove()},6000)</script>
 <div id="ui"><span id="score"></span></div>
 <div id="coinhud" class="pill">🪙 <span id="rc">0</span></div>
 <div id="pw"></div>
@@ -285,10 +313,13 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
   <div class="tabs"><button id="tabCos" class="on">👕 Kostümler</button><button id="tabPet">🐾 Hayvanlar</button><button id="tabBall">🌀 Top</button></div>
   <div id="list"></div>
 </div>
-<div id="lb" class="sheet hidden" style="height:70vh">
+<div id="lb" class="sheet hidden" style="height:82vh">
   <div class="top"><span>🏅 Skor Tablosu</span><button id="lback" class="alt">✕</button></div>
-  <div style="display:flex;gap:8px;margin-bottom:10px"><input id="lname" maxlength="14" placeholder="Adın"><button id="lsave" style="min-width:0;padding:9px 16px;font-size:16px">Kaydet</button></div>
+  <div id="lbGames"></div>
+  <div class="tabs"><button id="lbWk" class="on">📅 Bu hafta</button><button id="lbAll">🏆 Tüm zamanlar</button></div>
+  <div id="lbInfo" style="text-align:center;color:var(--mute);font-size:13px;margin:-2px 0 8px"></div>
   <div id="llist"></div>
+  <div id="lme" style="margin-top:8px"></div>
 </div>
 <div id="ach" class="sheet hidden">
   <div class="top"><span>🏆 Başarımlar</span><span></span><button id="aback" class="alt">✕</button></div>
@@ -299,11 +330,14 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
   <div id="qlist"></div>
 </div>
 <div id="keys" class="sheet hidden" style="height:78vh"><div class="top"><span>⌨️ Klavye</span><button id="keyBack" class="alt">✕</button></div><select id="keyGame" style="background:#2c2363;color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:10px 12px;font:inherit;font-size:15px;margin-bottom:10px"></select><div id="keyList" style="overflow-y:auto;flex:1"></div><button id="keyReset" class="alt" style="width:100%;margin-top:8px">Varsayılana dön</button></div>
-<div id="settings" class="sheet hidden" style="height:auto;max-height:80vh">
+<div id="settings" class="sheet hidden" style="height:auto;max-height:80vh;overflow-y:auto">
   <div class="top"><span>⚙️ Ayarlar</span><button id="setBack" class="alt">✕</button></div>
   <div class="row"><div class="tx">🔊 Ses efektleri</div><button id="swSfx" class="tgl"></button></div>
   <div class="row"><div class="tx">🎵 Müzik</div><button id="swMus" class="tgl"></button></div>
   <div class="row"><div class="tx">📳 Titreşim</div><button id="swVib" class="tgl"></button></div>
+  <div class="row"><div class="tx">👤 Oyuncu adı<small id="nmInfo">Skor tablosunda bu adla görünürsün</small></div></div>
+  <div style="display:flex;gap:8px;margin:0 0 8px"><input id="lname" maxlength="14" placeholder="Adın"><button id="lsave" style="min-width:0;padding:9px 16px;font-size:16px">Kaydet</button></div>
+  <div id="lsug" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px"></div>
   <div class="row"><div class="tx">🌐 Dil</div><select id="langSel"></select></div>
   <div class="row hidden" id="keyRow"><div class="tx">⌨️ Klavye tuşları<small>Tuşları kendin ayarla</small></div><button id="keyBtn" class="alt" style="width:auto;padding:8px 16px;font-size:14px">Ayarla</button></div>
   <div class="row hidden" id="updRow"><div class="tx">🔄 Yeni sürüm var<small>Daha iyi oyun için güncelle</small></div><button id="updBtn" class="gold" style="width:auto;padding:8px 16px;font-size:14px">Güncelle</button></div>
@@ -329,6 +363,7 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
     <button id="wback" class="alt">Geri</button>
   </div>
 </div>
+<div id="exitOv" class="overlay hidden" style="z-index:40"><div class="card"><div class="big" style="font-size:54px">🚪</div><div class="ttl">Çıkmak istiyor musun?</div><div class="tx" style="color:var(--mute);margin-bottom:12px">Oyunu kapatmak istediğinden emin misin?</div><button id="exitNo" class="gold">Hayır, devam et</button><button id="exitYes" class="alt">Evet, çık</button></div></div>
 <div id="ad" class="overlay hidden" style="z-index:30;background:rgba(0,0,0,.92)">
   <div class="card"><div class="ttl" style="color:#fff">📺 Reklam</div><div style="color:var(--mute)">Test reklamı. Gerçek reklam sonra bağlanacak.</div><button id="adClose" disabled>Reklam... 3</button></div>
 </div>
@@ -662,32 +697,7 @@ function renderQuests(){
 const SB={url:'https://supabase.mangocash.tech',key:'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc4NTc3MjY4MCwiZXhwIjo0OTQxNDQ2MjgwLCJyb2xlIjoiYW5vbiJ9.X3wvaxDhs_ObrxK1UOPk57lyBKIh4jVEDVxfo3P98UU'};
 let pid=ld('tv_pid',null);if(!pid){pid=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));sv('tv_pid',pid)}
 let pname=ld('tv_name','');if(!pname){pname='Oyuncu'+Math.floor(1000+Math.random()*9000);sv('tv_name',pname)}
-setTimeout(()=>{try{if(best>0)sbSubmit(best)}catch(e){}},3000);
 const sbOn=()=>!!(SB.url&&SB.key);
-async function sbSubmit(score){
-  if(!sbOn()||!pname)return;
-  try{await fetch(SB.url+'/rest/v1/rpc/submit_score',{method:'POST',headers:{'apikey':SB.key,'Authorization':'Bearer '+SB.key,'Content-Type':'application/json'},body:JSON.stringify({p_player_id:pid,p_name:pname,p_score:score})})}catch(e){}
-}
-async function renderLb(){
-  const list=$('llist');$('lname').value=pname;
-  if(!sbOn()){list.innerHTML='<div class="row"><div class="tx">Skor tablosu yakında açılacak<small>Sunucu bağlanınca herkes burada yarışacak.</small></div></div>';return}
-  list.innerHTML='<div class="row"><div class="tx">Yükleniyor...</div></div>';
-  try{
-    const r=await fetch(SB.url+'/rest/v1/tapverse_scores?select=player_id,name,score&order=score.desc&limit=50',{headers:{'apikey':SB.key,'Authorization':'Bearer '+SB.key}});
-    const d=await r.json();list.innerHTML='';
-    if(!d.length){list.innerHTML='<div class="row"><div class="tx">Henüz kimse yok, ilk sen ol!</div></div>';return}
-    d.forEach((x,i)=>{
-      const row=document.createElement('div');row.className='row'+(x.player_id===pid?' sel':'');
-      const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)+'.';
-      const nm=document.createElement('div');nm.className='tx';nm.textContent=medal+' '+x.name;
-      const sc=document.createElement('b');sc.textContent=x.score;
-      row.appendChild(nm);row.appendChild(sc);list.appendChild(row);
-    });
-  }catch(e){list.innerHTML='<div class="row"><div class="tx">Bağlanılamadı, internetini kontrol et.</div></div>'}
-}
-on(['lbBtn','hubLb'],()=>{leaveHome();show('lb',true);renderLb()});
-$('lback').onclick=()=>{show('lb',false);goHome()};
-$('lsave').onclick=()=>{const n=$('lname').value.trim().slice(0,14);if(!n){toast('Bir ad yaz');return}pname=n;sv('tv_name',pname);toast('Kaydedildi');sbSubmit(best);renderLb()};
 
 // ---- Başarımlar ----
 const ACH=[
@@ -938,7 +948,7 @@ function toMenu(){
 function die(cause){
   state='over';mTarget=0.8;$('ot').textContent=cause||'Yakalandın!';const s=Math.floor(score);
   if(s>best){best=s;sv('tv_best3d',best)}
-  sbSubmit(s);addProg('score',s,'max');addProg('world',Math.floor(score/1000)+1,'max');stats.worldMax=Math.max(stats.worldMax,Math.floor(score/1000)+1);saveDaily();checkAch();
+  wkRec('run',s);addProg('score',s,'max');addProg('world',Math.floor(score/1000)+1,'max');stats.worldMax=Math.max(stats.worldMax,Math.floor(score/1000)+1);saveDaily();checkAch();
   saveW();
   stopMusic();sfx.hit();shakeT=0.6;player.visible=true;
   burst(player.position.x,1.2,0,0xff7043,26,7,0.2,4,speed*0.4);burst(player.position.x,1.2,0,0xffd54f,14,6,0.15,5,speed*0.4);
@@ -1321,6 +1331,7 @@ function ctDie(msg){
   p.st='dead';G.charging=false;G.shake=0.6;buzz(140);sfx.hit();G.msg=msg;
   const sc=G.score;
   if(sc>cityBest){cityBest=sc;sv('tv_bestcity',cityBest);G.newBest=true}
+  wkRec('city',sc);
   addProg('city',sc,'max');
   saveDaily();checkAch();
   ct.games++;
@@ -1356,7 +1367,7 @@ function ctUpdate(dt){
       G.shown=true;
       $('coTitle').textContent=G.msg||'Düştün!';
       $('coScore').textContent=G.score;
-      $('coInfo').textContent=(G.newBest?'🎉 Yeni rekor!':'Rekor: '+cityBest);
+      $('coInfo').textContent=(G.newBest?'🎉 Yeni rekor!':'Rekor: '+cityBest+' · Bu hafta: '+lbWeek('city'));
       $('cDbl').classList.toggle('hidden',!!G.revived);
       if(ct.games%3===0)Ads.interstitial();
       show('cOver',true);
@@ -1810,6 +1821,7 @@ function mgEnd(G,msg){
   sfx.hit();buzz(100);
   addProg('g_'+id,G.score,'max');
   if(G.score>(mgBest[id]||0)){mgBest[id]=G.score;sv('tv_mgbest',mgBest);G.newBest=true}
+  wkRec(id,G.score);
   saveDaily();checkAch();
 }
 function mgFrame(now){
@@ -1841,7 +1853,7 @@ function mgFrame(now){
     if(G.overT>0.7&&!G.shown){
       G.shown=true;
       $('ot_'+id).textContent=G.msg;$('os_'+id).textContent=G.score;
-      $('oi_'+id).textContent=(G.newBest?'🎉 Yeni rekor!':'Rekor: '+(mgBest[id]||0));
+      $('oi_'+id).textContent=(G.newBest?'🎉 Yeni rekor!':wkTxt(id));
       $('od_'+id).classList.toggle('hidden',!!G.revived||!d.revive);
       if((mgR.fails=(mgR.fails||0)+1)%3===0)Ads.interstitial();
       show('o_'+id,true);
@@ -2644,11 +2656,11 @@ function lbCfg(id){
   const wl=k=>'🪙 '+(k===curW?totalCoins:(WALLET[k]||0));
   if(id==='maze')return{emo:'🌀',t:'Tek Parmak Labirent',d:'Parmağınla topu yönlendir, çıkışı bul.',i:'Seviye '+mz.best,w:wl('maze'),wk:'maze',play:()=>openMaze(),x:[['📅 Günlük Labirent',()=>openMaze(true)],['🎨 Top Renkleri',()=>openShop('ball')]]};
   if(id==='sky')return{emo:'🏝️',t:'Gök Adaları',d:'10 dünya, her birinin kendi parası var. Birinin parasıyla sıradakini açarsın. Sen yokken de kazanır!',i:SK_T.c.cur+' '+fmt(sk.c)+'  '+SK_T.e.cur+' '+fmt(sk.e)+'  '+SK_T.k.cur+' '+fmt(sk.k)+'  · Dünya '+(sk.cur+1),play:()=>openSky(),x:[]};
-  if(id==='city')return{emo:'🏙️',t:'Tek Tuş Şehir',d:'Basılı tut, çatıdan çatıya zıpla. Ne kadar uzun basarsan o kadar uzağa gidersin.',i:'🏅 Rekor: '+cityBest,play:()=>openCity(),x:[]};
+  if(id==='city')return{emo:'🏙️',t:'Tek Tuş Şehir',d:'Basılı tut, çatıdan çatıya zıpla. Ne kadar uzun basarsan o kadar uzağa gidersin.',i:'🏅 '+wkTxt('city'),play:()=>openCity(),x:[]};
   if(id==='cl')return{emo:'🧼',t:'Temizlik Simülatörü',d:'Serbest modda su sıkarak yıka. Günlük İş: müşteriden teklif al, doğru aletle doğru kiri temizle!',i:'Seviye '+clLevel,w:wl('clean'),wk:'clean',play:()=>openClean(clLevel),x:[[jbDay()?'📅 Günlük İş ✅ (yarın yeni)':ld('tv_cljobact',null)?'📅 Günlük İş · DEVAM ET':'📅 Günlük İş · 3 teklif',()=>openJobs()]],levels:true,cur:()=>clLevel,open:openClean};
   if(id==='so')return{emo:'🧪',t:'Su Sıralama',d:'Renkli suları tüplere ayır: her tüpte tek renk kalsın. Aynı renk ya da boş tüpe dökebilirsin.',i:'Seviye '+soLevel,w:wl('sort'),wk:'sort',play:()=>openSort(soLevel),x:[],levels:true,cur:()=>soLevel,open:openSort};
   if(id==='ar')return{emo:'🎯',t:'Ok Kaçışı',d:'Oklara dokun, yönüne kayıp çıksınlar. Yolu tıkalıysa çıkmaz!',i:'Seviye '+arLevel,w:wl('arrows'),wk:'arrows',play:()=>openArrows(arLevel),x:[['🎨 Ok Renkleri',()=>{openArrows(arLevel);arSkins();show('ar_shop',true)}]],levels:true};
-  const d=MG[id];return{emo:d.emo,t:d.title,d:d.desc,i:'🏅 Rekor: '+(mgBest[id]||0),play:()=>mgOpen(id),x:id==='snake'?[['🎨 Yılan Rengi: '+SN_SK[snSkin].n,()=>{const b=mgBest.snake||0;let n=snSkin;for(let k=1;k<=SN_SK.length;k++){const j=(snSkin+k)%SN_SK.length;if(b>=SN_SK[j].u){n=j;break}}if(n===snSkin){const nx=SN_SK.find(q=>q.u>b);toast(nx?nx.n+' rengi '+nx.u+' puanda açılır':'Başka renk yok')}else{snSkin=n;sv('tv_snskin',n)}openLobby('snake')}]]:[]};
+  const d=MG[id];return{emo:d.emo,t:d.title,d:d.desc,i:'🏅 '+wkTxt(id),play:()=>mgOpen(id),x:id==='snake'?[['🎨 Yılan Rengi: '+SN_SK[snSkin].n,()=>{const b=mgBest.snake||0;let n=snSkin;for(let k=1;k<=SN_SK.length;k++){const j=(snSkin+k)%SN_SK.length;if(b>=SN_SK[j].u){n=j;break}}if(n===snSkin){const nx=SN_SK.find(q=>q.u>b);toast(nx?nx.n+' rengi '+nx.u+' puanda açılır':'Başka renk yok')}else{snSkin=n;sv('tv_snskin',n)}openLobby('snake')}]]:[]};
 }
 function openLobby(id){
   lbId=id;const c=lbCfg(id);state='hub';curHome='hub';stopMusic();hideAll();show('lobby',true);
@@ -4966,7 +4978,124 @@ $('pvExit').onclick=()=>{show('pauseOv',false);state='run';toMenu()};
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')pauseRun()});
 addEventListener('pagehide',pauseRun);
 setInterval(()=>{const on=state==='run';const b=$('pauseBtn');if(b)b.style.display=on?'':'none'},150);
-const BACKS=['pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','lk_back','sg_back','lb_back'];
+// ---- Skor tablosu: oyuncu kaydı, haftalık sıralama, benzersiz isim ----
+const LVG={maze:()=>mz.best,ar:()=>arLevel,so:()=>soLevel,cl:()=>clLevel,gh:()=>ghLevel,lk:()=>lkLevel,sg:()=>sgLevel};
+const LVL_G=[{id:'maze',e:'🌀',n:'Tek Parmak Labirent'},{id:'ar',e:'🎯',n:'Ok Kaçışı'},{id:'so',e:'🧪',n:'Su Sıralama'},{id:'cl',e:'🧼',n:'Temizlik Simülatörü'},{id:'gh',e:'👻',n:'Hayalet Takım'},{id:'lk',e:'🔐',n:'Kasa Uzmanı'},{id:'sg',e:'🌙',n:'Gölge Bahçesi'}];
+function lbGames(){const a=[{id:'run',e:'🏃',n:'Sonsuz Koşu'},{id:'city',e:'🏙️',n:'Tek Tuş Şehir'}];for(const k in MG)a.push({id:k,e:MG[k].emo,n:MG[k].title});return a.concat(LVL_G)}
+function lbIds(){return lbGames().map(x=>x.id)}
+function lbAll(g){let v=g==='run'?best:g==='city'?cityBest:LVG[g]?LVG[g]():(mgBest[g]||0);return Math.max(0,Math.floor(v)||0)}
+const wkNow=()=>Math.floor((Math.floor(Date.now()/864e5)-20094)/7);
+let wkS=ld('tv_wk',{w:0,s:{},b:{}});
+function wkRoll(){const w=wkNow();if(wkS.w!==w){wkS={w,s:{},b:{}};for(const g in LVG)wkS.b[g]=LVG[g]();sv('tv_wk',wkS)}}
+function lbWeek(g){wkRoll();if(LVG[g]){const c=LVG[g]();if(wkS.b[g]==null){wkS.b[g]=c;sv('tv_wk',wkS)}return Math.max(0,Math.floor(c-wkS.b[g]))}return Math.floor(wkS.s[g]||0)}
+function wkRec(g,s){try{wkRoll();s=Math.floor(s);if(s>(wkS.s[g]||0)){wkS.s[g]=s;sv('tv_wk',wkS)}lbSync()}catch(e){}}
+function wkTxt(g){return 'Rekor: '+lbAll(g)+' · Bu hafta: '+lbWeek(g)}
+async function rpc(fn,body){try{const r=await fetch(SB.url+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SB.key,Authorization:'Bearer '+SB.key,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)return null;return await r.json()}catch(e){return null}}
+async function lbDevice(){
+  const ua=navigator.userAgent||'';const m=/Android ([\d.]+); ([^;)]+)/.exec(ua);const C=window.Capacitor;let plat='web',build='',ver='';
+  try{if(C&&C.isNativePlatform&&C.isNativePlatform()){plat=C.getPlatform?C.getPlatform():'native';const inf=await C.registerPlugin('App').getInfo();build=String(inf.build||'');ver=String(inf.version||'')}}catch(e){}
+  return{platform:plat,os:m?'Android '+m[1]:(/iPhone|iPad/.test(ua)?'iOS':/Windows/.test(ua)?'Windows':/Mac/.test(ua)?'Mac':/Linux/.test(ua)?'Linux':'?'),model:m?m[2].replace(/ Build.*/,'').trim():'',lang:lang,build:build,ver:ver,screen:screen.width+'x'+screen.height,tz:(Intl.DateTimeFormat().resolvedOptions().timeZone||'')};
+}
+let lbReady=false,lbBusy=false,lbIniting=false,lbSent=ld('tv_lbsent',{w:0,v:{}});
+async function lbInit(){
+  if(lbIniting||!sbOn())return;lbIniting=true;
+  try{
+    const dev=await lbDevice();let name=pname;const first=pname;
+    for(let i=0;i<6;i++){
+      const r=await rpc('tv_register',{p_player_id:pid,p_name:name,p_device:dev});
+      if(!r)break;
+      if(r.ok){pname=r.name;sv('tv_name',pname);lbReady=true;nmShow();if(pname!==first&&!/^Oyuncu\d+$/.test(first))toast('Adın '+pname+' oldu · Ayarlardan değiştirebilirsin');lbSync();break}
+      if(r.err==='taken')name=(r.suggest&&r.suggest[0])||('Oyuncu'+Math.floor(1000+Math.random()*9000));
+      else name='Oyuncu'+Math.floor(1000+Math.random()*9000);
+    }
+  }catch(e){}
+  lbIniting=false;
+}
+async function lbSync(){
+  if(!lbReady||lbBusy)return;lbBusy=true;
+  try{
+    wkRoll();if(lbSent.w!==wkS.w)lbSent={w:wkS.w,v:{}};
+    for(const g of lbIds()){
+      const w=lbWeek(g),a=lbAll(g);if(LVG[g]&&a<=1&&w<=0)continue;if(!(w>0||a>0))continue;
+      const k=lbSent.v[g];if(k&&k[0]===w&&k[1]===a)continue;
+      const r=await rpc('tv_submit',{p_player_id:pid,p_game:g,p_week_score:w,p_all_score:a});
+      if(r&&r.ok)lbSent.v[g]=[w,a];
+      else if(r&&r.err==='noplayer'){lbReady=false;break}
+      else if(!r)break;
+    }
+    sv('tv_lbsent',lbSent);
+  }catch(e){}
+  lbBusy=false;
+}
+setTimeout(lbInit,2500);
+setInterval(()=>{if(!lbReady)lbInit();else lbSync()},15000);
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){if(!lbReady)lbInit();else lbSync()}});
+// isim (Ayarlar)
+function nmShow(){try{$('lname').value=pname}catch(e){}}
+function nmSug(list){const c=$('lsug');c.innerHTML='';for(const s of list){const b=document.createElement('button');b.className='alt chip';b.textContent=s;b.onclick=()=>nmSave(s);c.appendChild(b)}}
+async function nmSave(n){
+  n=(n||'').trim().replace(/\s+/g,' ');$('nmInfo').textContent='';nmSug([]);
+  if(n.length<3){toast('En az 3 harf');return}
+  const r=await rpc('tv_register',{p_player_id:pid,p_name:n,p_device:{}});
+  if(!r){toast('İnternet gerekli');return}
+  if(r.ok){pname=r.name;sv('tv_name',pname);nmShow();lbReady=true;toast('Kaydedildi ✓');lbSync();return}
+  if(r.err==='taken'){$('nmInfo').textContent='Bu isim alınmış, birini seç';nmSug(r.suggest||[]);return}
+  $('nmInfo').textContent='İsim 3-14 harf veya rakam olmalı';
+}
+$('lsave').onclick=()=>nmSave($('lname').value);
+$('lname').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')nmSave($('lname').value)});
+nmShow();
+// Skor tablosu ekranı
+let lbG='run',lbM='week',lbReq=0;
+function lbChips(){
+  const c=$('lbGames');c.innerHTML='';
+  for(const g of lbGames()){const b=document.createElement('button');b.className='chip'+(g.id===lbG?' on':'');b.appendChild(document.createTextNode(g.e+' '));const s=document.createElement('span');s.textContent=g.n;b.appendChild(s);b.onclick=()=>{lbG=g.id;lbChips();renderLb()};c.appendChild(b)}
+  const on=c.querySelector('.on');if(on)c.scrollLeft=on.offsetLeft-c.clientWidth/2+on.clientWidth/2;
+}
+function lbFmt(v,g,week){return LVG[g]?(week?'+'+v+' Seviye':'Seviye '+v):String(v)}
+function lbRow(cls,left,small,right){
+  const row=document.createElement('div');row.className='row'+(cls?' '+cls:'');
+  const t=document.createElement('div');t.className='tx';t.appendChild(document.createTextNode(left));
+  if(small){const s=document.createElement('small');s.textContent=small;t.appendChild(s)}
+  const b=document.createElement('b');b.textContent=right;row.appendChild(t);row.appendChild(b);return row;
+}
+async function renderLb(){
+  const list=$('llist'),me=$('lme'),inf=$('lbInfo');
+  $('lbWk').classList.toggle('on',lbM==='week');$('lbAll').classList.toggle('on',lbM==='all');
+  me.innerHTML='';inf.textContent='';
+  list.innerHTML='<div class="row"><div class="tx">Yükleniyor...</div></div>';
+  if(!sbOn()){list.innerHTML='<div class="row"><div class="tx">Skor tablosu yakında açılacak</div></div>';return}
+  const g=lbG,lv=!!LVG[g],wk=lbM==='week';const my=++lbReq;
+  if(!lbReady)await lbInit();
+  await lbSync();
+  const d=await rpc('tv_top',{p_player_id:pid,p_game:g,p_mode:lbM,p_limit:20});
+  if(my!==lbReq)return;
+  if(!d||!d.top){list.innerHTML='<div class="row"><div class="tx">Bağlanılamadı, internetini kontrol et.</div></div>';return}
+  list.innerHTML='';
+  if(wk){const s=d.secs_left||0,dd=Math.floor(s/86400),hh=Math.floor(s%86400/3600),mm=Math.floor(s%3600/60);inf.textContent='';const a=document.createElement('span');a.textContent='Hafta bitimine kalan';inf.appendChild(a);inf.appendChild(document.createTextNode(': '+dd+'d '+hh+'h '+mm+'m'))}
+  else inf.textContent='Tüm zamanların en yüksek rekorları';
+  if(!d.top.length)list.innerHTML='<div class="row"><div class="tx">Henüz kimse yok, ilk sen ol!</div></div>';
+  d.top.forEach(x=>{
+    const medal=x.rank===1?'🥇':x.rank===2?'🥈':x.rank===3?'🥉':x.rank+'.';
+    list.appendChild(lbRow(x.me?'sel':'',medal+' '+x.name,wk?'Rekor: '+lbFmt(x.best,g,false):'',lbFmt(x.score,g,wk)));
+  });
+  // Kendi satırım (her zaman altta)
+  const mine=lbAll(g),mw=lbWeek(g);
+  const rk=d.me?'#'+d.me.rank+' · ':'';
+  const val=wk?(d.me?lbFmt(d.me.score,g,true):(mw>0?lbFmt(mw,g,true):'-')):(d.me?lbFmt(d.me.score,g,false):(mine>0?lbFmt(mine,g,false):'-'));
+  me.appendChild(lbRow('sel','👤 '+pname,'Rekor: '+lbFmt(Math.max(mine,d.me?d.me.best:0),g,false)+(wk&&!d.me?' · Bu hafta henüz skorun yok':''),rk+val));
+}
+on(['lbBtn','hubLb'],()=>{leaveHome();show('lb',true);lbChips();renderLb()});
+$('lback').onclick=()=>{show('lb',false);goHome()};
+$('lbWk').onclick=()=>{lbM='week';renderLb()};
+$('lbAll').onclick=()=>{lbM='all';renderLb()};
+// Çıkış sorusu
+function showExit(){show('exitOv',true)}
+$('exitNo').onclick=()=>show('exitOv',false);
+$('exitYes').onclick=()=>{try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()){C.registerPlugin('App').exitApp();return}}catch(e){}show('exitOv',false);try{window.close()}catch(e){}};
+// Açılış animasyonu
+(function(){const s=$('splash');if(!s)return;let done=false;const end=()=>{if(done)return;done=true;s.classList.add('out');setTimeout(()=>s.remove(),500)};s.onclick=end;setTimeout(end,2300)})();
+const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','lk_back','sg_back','lb_back'];
 function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
 function goBack(){
   if(state==='pause'){resumeRun();return true}
@@ -4975,12 +5104,13 @@ function goBack(){
   for(const k in MG){const e=$('b_'+k);if(visEl(e)){e.click();return true}}
   if(state==='over'){toMenu();return true}
   if(state==='menu'){openHub();return true}
+  if(state==='hub'){showExit();return true}
   return false;
 }
 let backArmed=false;
 function armBack(){if(backArmed)return;try{history.pushState({tv:1},'');backArmed=true}catch(e){}}
 addEventListener('popstate',()=>{backArmed=false;let ok=false;try{ok=goBack()}catch(e){}if(ok)armBack()});
-setInterval(()=>{if(state!=='hub'||visEl($('lobby'))||visEl($('settings'))||visEl($('shop'))||visEl($('lb'))||visEl($('ach'))||visEl($('quests'))||visEl($('wheel')))armBack()},300);
+setInterval(()=>{armBack()},300);
 // ---- Klavye ve geniş ekran ----
 let KOFF=0;function kUpd(){try{KOFF=document.body.getBoundingClientRect().left}catch(e){}}
 addEventListener('resize',kUpd);kUpd();
@@ -5865,6 +5995,27 @@ Ekrana basılı tut: güç dolar. Bırakınca zıplarsın.|Hold the screen: powe
 Ortadaki beyaz çizgiye inersen "Mükemmel" olur.|Land on the white line in the middle for "Perfect".|Si aterrizas en la línea blanca central, es "Perfecto".|Pouse na linha branca do meio para um "Perfeito".|Landest du auf der weißen Linie in der Mitte, ist es "Perfekt".|Atterris sur la ligne blanche du milieu pour un "Parfait".|Приземлись на белую линию посередине, и будет «Идеально».|Mendaratlah di garis putih tengah untuk "Sempurna".
 Sağa / sola kaydır: şerit değiştir.|Swipe left / right: change lane.|Desliza a izquierda / derecha: cambia de carril.|Deslize para a esquerda / direita: troque de faixa.|Wische nach links / rechts: Spur wechseln.|Glisse à gauche / droite : change de voie.|Свайп влево / вправо: смена полосы.|Geser kiri / kanan: pindah jalur.
 Yukarı kaydır: zıpla. Aşağı kaydır: kay.|Swipe up: jump. Swipe down: slide.|Desliza arriba: salta. Desliza abajo: desliza.|Deslize para cima: pule. Deslize para baixo: deslize.|Wisch nach oben: springen. Wisch nach unten: rutschen.|Glisse vers le haut : saute. Vers le bas : glisse.|Свайп вверх: прыжок. Свайп вниз: подкат.|Geser atas: lompat. Geser bawah: meluncur.
+Bu hafta|This week|Esta semana|Esta semana|Diese Woche|Cette semaine|На этой неделе|Minggu ini
+Tüm zamanlar|All time|Todos los tiempos|Todos os tempos|Allzeit|Tous les temps|За всё время|Sepanjang masa
+Hafta bitimine kalan|Time left this week|Tiempo restante de la semana|Tempo restante da semana|Verbleibende Zeit der Woche|Temps restant cette semaine|До конца недели|Sisa waktu minggu ini
+Tüm zamanların en yüksek rekorları|Highest records of all time|Los récords más altos de todos los tiempos|Os maiores recordes de todos os tempos|Die höchsten Rekorde aller Zeiten|Les plus hauts records de tous les temps|Высшие рекорды за всё время|Rekor tertinggi sepanjang masa
+Bu hafta henüz skorun yok|No score yet this week|Aún no tienes puntos esta semana|Ainda sem pontos esta semana|Diese Woche noch keine Punkte|Pas encore de score cette semaine|На этой неделе очков ещё нет|Belum ada skor minggu ini
+Rekor: {}|Record: {}|Récord: {}|Recorde: {}|Rekord: {}|Record : {}|Рекорд: {}|Rekor: {}
+Bu hafta: {}|This week: {}|Esta semana: {}|Esta semana: {}|Diese Woche: {}|Cette semaine : {}|На этой неделе: {}|Minggu ini: {}
++{} Seviye|+{} Level|+{} Nivel|+{} Nível|+{} Level|+{} Niveau|+{} уровень|+{} Level
+Oyuncu adı|Player name|Nombre de jugador|Nome do jogador|Spielername|Nom du joueur|Имя игрока|Nama pemain
+Skor tablosunda bu adla görünürsün|You appear with this name on the leaderboard|Aparecerás con este nombre en la clasificación|Você aparece com este nome no ranking|Du erscheinst mit diesem Namen in der Rangliste|Tu apparais avec ce nom dans le classement|Вы будете в рейтинге под этим именем|Kamu tampil dengan nama ini di papan skor
+İsim 3-14 harf veya rakam olmalı|Name must be 3-14 letters or digits|El nombre debe tener 3-14 letras o números|O nome deve ter 3-14 letras ou números|Der Name muss 3-14 Buchstaben oder Ziffern haben|Le nom doit faire 3-14 lettres ou chiffres|Имя: 3-14 букв или цифр|Nama harus 3-14 huruf atau angka
+Bu isim alınmış, birini seç|This name is taken, pick one|Este nombre está ocupado, elige uno|Este nome já existe, escolha um|Dieser Name ist vergeben, wähle einen|Ce nom est pris, choisis-en un|Это имя занято, выберите|Nama ini sudah dipakai, pilih salah satu
+Kaydedildi ✓|Saved ✓|Guardado ✓|Salvo ✓|Gespeichert ✓|Enregistré ✓|Сохранено ✓|Tersimpan ✓
+İnternet gerekli|Internet required|Se necesita internet|Internet necessária|Internet erforderlich|Internet requis|Нужен интернет|Perlu internet
+En az 3 harf|At least 3 letters|Al menos 3 letras|Pelo menos 3 letras|Mindestens 3 Buchstaben|Au moins 3 lettres|Минимум 3 буквы|Minimal 3 huruf
+Adın {} oldu · Ayarlardan değiştirebilirsin|Your name is now {} · change it in Settings|Tu nombre ahora es {} · cámbialo en Ajustes|Seu nome agora é {} · mude em Ajustes|Dein Name ist jetzt {} · ändere ihn in den Einstellungen|Ton nom est maintenant {} · modifie-le dans les Réglages|Ваше имя теперь {} · измените в настройках|Namamu sekarang {} · ubah di Pengaturan
+Çıkmak istiyor musun?|Do you want to exit?|¿Quieres salir?|Quer sair?|Möchtest du beenden?|Veux-tu quitter ?|Хотите выйти?|Ingin keluar?
+Oyunu kapatmak istediğinden emin misin?|Are you sure you want to close the game?|¿Seguro que quieres cerrar el juego?|Tem certeza que quer fechar o jogo?|Willst du das Spiel wirklich schließen?|Veux-tu vraiment fermer le jeu ?|Вы уверены, что хотите закрыть игру?|Yakin ingin menutup game?
+Hayır, devam et|No, keep playing|No, seguir jugando|Não, continuar|Nein, weiterspielen|Non, continuer|Нет, продолжить|Tidak, lanjut main
+Evet, çık|Yes, exit|Sí, salir|Sim, sair|Ja, beenden|Oui, quitter|Да, выйти|Ya, keluar
+Mini oyunlar evreni|Mini game universe|Universo de minijuegos|Universo de minijogos|Mini-Spiel-Universum|Univers des mini-jeux|Вселенная мини-игр|Semesta mini game
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];
