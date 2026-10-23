@@ -9,8 +9,10 @@
 <style>
 :root{--bg:#0f0a26;--card:#231b50;--card2:#2c2363;--line:rgba(255,255,255,.13);--text:#f6f3ff;--mute:#a9a1d8;--pri:#8b5cf6;--pri-d:#5b21b6;--gold:#ffd34d;--gold-d:#d98a00;--teal:#2ee6c5;--green:#52e08a}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:radial-gradient(circle at 50% 25%,#1d1350,#05030f 75%)}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:'Fredoka',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
 canvas{display:block}
+body{position:relative;width:min(100vw,calc(100vh*.6));margin:0 auto;transform:translateZ(0);box-shadow:0 0 70px rgba(139,92,246,.28)}
 .hidden{display:none!important}
 .tgl{flex:none!important;box-sizing:border-box;min-width:0!important;width:58px!important;height:32px!important;padding:0!important;border-radius:999px!important;position:relative;background:#3b3270;box-shadow:none!important;border:1px solid var(--line)}
 .tgl::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s}
@@ -296,12 +298,14 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
   <div class="top"><span>📅 Görevler</span><span></span><button id="qback" class="alt">✕</button></div>
   <div id="qlist"></div>
 </div>
+<div id="keys" class="sheet hidden" style="height:78vh"><div class="top"><span>⌨️ Klavye</span><button id="keyBack" class="alt">✕</button></div><select id="keyGame" style="background:#2c2363;color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:10px 12px;font:inherit;font-size:15px;margin-bottom:10px"></select><div id="keyList" style="overflow-y:auto;flex:1"></div><button id="keyReset" class="alt" style="width:100%;margin-top:8px">Varsayılana dön</button></div>
 <div id="settings" class="sheet hidden" style="height:auto;max-height:80vh">
   <div class="top"><span>⚙️ Ayarlar</span><button id="setBack" class="alt">✕</button></div>
   <div class="row"><div class="tx">🔊 Ses efektleri</div><button id="swSfx" class="tgl"></button></div>
   <div class="row"><div class="tx">🎵 Müzik</div><button id="swMus" class="tgl"></button></div>
   <div class="row"><div class="tx">📳 Titreşim</div><button id="swVib" class="tgl"></button></div>
   <div class="row"><div class="tx">🌐 Dil</div><select id="langSel"></select></div>
+  <div class="row hidden" id="keyRow"><div class="tx">⌨️ Klavye tuşları<small>Tuşları kendin ayarla</small></div><button id="keyBtn" class="alt" style="width:auto;padding:8px 16px;font-size:14px">Ayarla</button></div>
   <div class="row hidden" id="updRow"><div class="tx">🔄 Yeni sürüm var<small>Daha iyi oyun için güncelle</small></div><button id="updBtn" class="gold" style="width:auto;padding:8px 16px;font-size:14px">Güncelle</button></div>
   <div class="row hidden" id="notRow"><div class="tx">🔔 Günlük hatırlatma<small>Her akşam 20:00</small></div><button id="swNot" class="tgl"></button></div>
   <button id="howBtn" style="width:100%;margin-top:10px">❓ Nasıl oynanır?</button>
@@ -347,7 +351,8 @@ const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x2a1f5c);
 scene.fog=new THREE.Fog(0x2a1f5c,22,65);
 const camera=new THREE.PerspectiveCamera(60,1,0.1,100);
-function resize(){renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}
+function VW(){return document.body.clientWidth||window.innerWidth}
+function resize(){renderer.setSize(VW(),innerHeight);camera.aspect=VW()/innerHeight;camera.updateProjectionMatrix()}
 addEventListener('resize',resize);resize();
 
 let starMat,moonMat,haloMat;
@@ -1045,7 +1050,7 @@ function mzDiff(level){const off=[-2,0,1,2,5][(level-1)%5];return Math.max(1,Mat
 function dayNum(){return +todayStr().replace(/\D/g,'')}
 function mzBuild(level,daily){
   const dn=dayNum(),eff=daily?10+dn%6:mzDiff(level);
-  const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
   mcv.width=Math.round(W*dpr);mcv.height=Math.round(H*dpr);mcv.style.width=W+'px';mcv.style.height=H+'px';
   const cols=Math.min(5+Math.floor((eff-1)/2),11),rows=Math.min(Math.round(cols*1.5),16);
   const top=88,bot=26,aw=W-24,ah=H-top-bot;
@@ -1265,7 +1270,7 @@ function ctNewRoof(G,prev){
     mid:r()<0.35?{x:prev.x+prev.w+gap/2,y:Math.min(prev.y,y)-125,got:false}:null};
 }
 function ctBuild(){
-  const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
   ccv.width=Math.round(W*dpr);ccv.height=Math.round(H*dpr);ccv.style.width=W+'px';ccv.style.height=H+'px';
   const sky=document.createElement('canvas');sky.width=ccv.width;sky.height=ccv.height;
   const s=sky.getContext?sky.getContext('2d'):null;
@@ -1517,7 +1522,7 @@ function mtBuildTiles(song,H,loops,dbl){
   return {tiles,ppb,loopLen};
 }
 function mtBuild(song,endless){
-  const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
   mcv2.width=Math.round(W*dpr);mcv2.height=Math.round(H*dpr);mcv2.style.width=W+'px';mcv2.style.height=H+'px';
   const {tiles,ppb,loopLen}=mtBuildTiles(song,H,endless?12:3,song.lvl==='Zor'?0.22:song.lvl==='Orta'?0.1:0);
   const first=endless?tiles.slice(0,loopLen):tiles,max=first.length*10+first.filter(t=>t.long).length*10;
@@ -1789,7 +1794,7 @@ function mgRegister(d){
 function mgOpen(id){state=id;stopMusic();hideAll();show('g_'+id,true);mgStart(id)}
 function mgStart(id){
   id=id||mgR.id;mgR.id=id;const d=MG[id];
-  const cv=$('c_'+id),W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
+  const cv=$('c_'+id),W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2);
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
   const G={d,W,H,dpr,ctx:cv.getContext?cv.getContext('2d'):null,score:0,coins:0,over:false,t:0,overT:0,shown:false,msg:'',newBest:false,hint:!ld('tv_h_'+id,0),_s:-1,parts:[],pops:[],shake:0};
   mgR.G=G;d.init(G);
@@ -2498,7 +2503,7 @@ QPOOL.push({type:'arrows',target:3,text:'Ok Kaçışı: 3 seviye geç',reward:15
 const ar={G:null,raf:false,last:0};
 const arCell=W=>Math.max(15,Math.min(26,Math.floor((W-16)/19)));
 function arLayout(G){
-  const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_ar');
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_ar');
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
   G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;
   const ah=H-90-84;G.cell=arCell(W);
@@ -2506,7 +2511,7 @@ function arLayout(G){
 }
 let arCur=1;
 function arStart(lv){
-  arCur=lv||arLevel;const cs0=arCell(innerWidth),g=arGen(arCur,Math.floor((innerWidth-16)/cs0),Math.floor((innerHeight-174)/cs0));const G=Object.assign(g,{hearts:3,left:g.pcs.length,t:0,hintId:0,done:false,lost:false,revived:false,hint:!ld('tv_arhint',0),parts:[],shake:0});
+  arCur=lv||arLevel;const cs0=arCell(VW()),g=arGen(arCur,Math.floor((VW()-16)/cs0),Math.floor((innerHeight-174)/cs0));const G=Object.assign(g,{hearts:3,left:g.pcs.length,t:0,hintId:0,done:false,lost:false,revived:false,hint:!ld('tv_arhint',0),parts:[],shake:0});
   ar.G=G;arLayout(G);
   show('ar_win',false);show('ar_lose',false);show('ar_shop',false);arHud();
   if(!ar.raf){ar.raf=true;ar.last=performance.now();requestAnimationFrame(arFrame)}
@@ -2630,7 +2635,7 @@ $('arrows').addEventListener('pointerdown',e=>{if(state!=='arrows'||e.target.clo
 // ---- Oyun giriş ekranı (her oyun için) ----
 document.body.insertAdjacentHTML('beforeend','<div id="lobby" class="hidden mgscr" style="overflow:auto"><div class="mtop"><button id="lb_back" class="ibtn alt">‹</button><div class="sp"></div><div class="pill" id="lb_w" style="color:var(--gold)"></div></div>'
  +'<div style="min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:84px 24px 28px;text-align:center">'
- +'<div id="lb_emo" style="font-size:84px;line-height:1"></div><div id="lb_t" style="font-size:30px;font-weight:700"></div><div id="lb_d" style="color:var(--mute);max-width:300px"></div><div id="lb_i" style="font-size:18px;font-weight:600"></div>'
+ +'<div id="lb_emo" style="font-size:84px;line-height:1"></div><div id="lb_t" style="font-size:30px;font-weight:700"></div><div id="lb_d" style="color:var(--mute);max-width:300px"></div><div id="lb_i" style="font-size:18px;font-weight:600"></div><div id="lb_k" style="color:var(--mute);font-size:13px;max-width:300px"></div>'
  +'<button id="lb_play" class="gold" style="width:min(280px,80vw);font-size:22px;padding:16px">▶ OYNA</button><div id="lb_x" style="display:flex;flex-direction:column;gap:10px;width:min(280px,80vw)"></div>'
  +'<div id="lb_lv" class="hidden" style="width:min(340px,92vw)"><div style="color:var(--mute);margin:6px 0">Seviyeler</div><div id="lb_grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px"></div></div></div></div>');
 SCR.push('lobby');
@@ -2648,7 +2653,7 @@ function lbCfg(id){
 function openLobby(id){
   lbId=id;const c=lbCfg(id);state='hub';curHome='hub';stopMusic();hideAll();show('lobby',true);
   if(c.wk)useW(c.wk);
-  $('lb_emo').textContent=c.emo;$('lb_t').textContent=c.t;$('lb_d').textContent=c.d;$('lb_i').textContent=c.i;
+  $('lb_emo').textContent=c.emo;$('lb_t').textContent=c.t;$('lb_d').textContent=c.d;$('lb_i').textContent=c.i;kbHint(id);
   $('lb_w').style.display=c.w?'':'none';$('lb_w').textContent=c.w||'';
   $('lb_play').onclick=c.play;
   const x=$('lb_x');x.innerHTML='';for(const [l,f] of c.x){const b=document.createElement('button');b.className='alt';b.textContent=l;b.onclick=f;x.appendChild(b)}
@@ -2739,7 +2744,7 @@ const skRaf={on:false,last:0,acc:0,save:0},skFx={T:0},skG={sh:0,tw:50,th:25,ox:0
 let skSel=null,skFloat=[],skParts=[],skFlash={};
 const skCostTxt=(t,b)=>SK_T[t].cur+' '+fmt(b.own)+(b.pre?' + '+SK_T[SK_T[t].prev].cur+' '+fmt(b.pre):'');
 function skLayout(){
-  const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('sk_cv');
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('sk_cv');
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
   skG.W=W;skG.H=H;skG.dpr=dpr;skG.ctx=cv.getContext?cv.getContext('2d'):null;skG.tw=W*0.96/SKG;skG.th=skG.tw*0.7;skG.ox=W/2;skG.oy=Math.max(190,H*0.5-skG.th*SKG/2-70);
 }
@@ -3194,7 +3199,7 @@ function soGen(level){
   const tubes=[];const units=[];for(let c=0;c<nc;c++)for(let i=0;i<cap;i++)units.push(c);for(let c=0;c<nc;c++)tubes.push(units.slice(c*cap,c*cap+cap));tubes.push([],[]);return{tubes,cap,nc};
 }
 function soLayout(G){
-  const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_so');
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_so');
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
   G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;
   const n=G.tubes.length,top=104,bot=H-118,avail=bot-top,rows=n<=5?1:2,per=Math.ceil(n/rows);
@@ -3495,7 +3500,7 @@ function clMakeDirt(G,level){
   G.gx=gr.getContext('2d');G.cx=cr.getContext('2d');
 }
 function clLayout(G){
-  const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_cl');
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_cl');
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
   G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext('2d');
   G.sc=Math.min((W-24)/CL_OW,(H-300)/CL_OH,1.35);G.ox=W/2-CL_OW*G.sc/2;G.oy=H*0.46-CL_OH*G.sc/2+20;
@@ -3898,7 +3903,7 @@ function jbStart(off,res){
   if(!jb.raf){jb.raf=true;jb.last=performance.now();requestAnimationFrame(jbFrame)}
 }
 function jbLayout(G){
-  const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_jb');cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_jb');cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
   G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext('2d');G.sc=Math.min((W-20)/CL_OW,(H-340)/CL_OH,1.4);G.ox=W/2-CL_OW*G.sc/2;G.oy=H*.44-CL_OH*G.sc/2+40;G.chy=H-122;G.cs=Math.min(1.05,Math.max(.7,(H-190-(G.oy+CL_OH*G.sc*.8))/120));G.nx=W*.3;G.ny=G.chy-70;
 }
 function openJobs(){state='job';useW('clean');stopMusic();hideAll();show('job',true);jb.G=null;const a=ld('tv_cljobact',null);if(a&&a.off&&JB_JOB[a.off.k]&&!jbDay()){jbStart(a.off,a);toast('İşine devam ediyorsun')}else jbShowOffers()}
@@ -4146,7 +4151,7 @@ function ghStart(lv){
 }
 function openGh(lv){state='gh';useW('ghost');stopMusic();hideAll();show('gh',true);ghStart(lv)}
 function ghLayout(G){
-  const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_gh');
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_gh');
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
   G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;
   G.u=(W-16)/Math.min(GH_VIS,G.L);G.gy=Math.round(H*0.54);
@@ -4311,7 +4316,7 @@ function lkStart(lv){
 }
 function openLk(lv){state='lock';useW('lock');stopMusic();hideAll();show('lock',true);lkStart(lv)}
 function lkLayout(G){
-  const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_lk');
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_lk');
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
   G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;
   G.cx=W/2;G.cy=H*0.5;G.R=Math.min(W*0.31,H*0.21);
@@ -4337,6 +4342,7 @@ function lkUpdate(G,dt){
   G.t+=dt;G.glow=Math.max(0,G.glow-dt);G.shake=Math.max(0,G.shake-dt);G.flash=Math.max(0,G.flash-dt);G.steth=Math.max(0,G.steth-dt);G.cool=Math.max(0,G.cool-dt);G.banner=Math.max(0,G.banner-dt);G.msgT=Math.max(0,G.msgT-dt);
   for(const p of G.parts){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=500*dt}G.parts=G.parts.filter(p=>p.life>0);
   if(G.won||G.failed)return;
+  if(kbK.l||kbK.r){G.dial=((G.dial+(kbK.r-kbK.l)*(kbK.f?18:55)*dt)%360+360)%360}
   const sd=((G.dial-G.lastA+540)%360)-180;G.lastA=G.dial;
   const sp=Math.abs(sd)/Math.max(dt,0.001);G.speed+=(sp-G.speed)*Math.min(1,dt*12);G.mvS+=(sd/Math.max(dt,0.001)-G.mvS)*Math.min(1,dt*10);
   lkHaptic(G,dt);
@@ -4347,8 +4353,9 @@ function lkUpdate(G,dt){
   if(G.cool>0){G.hold=0;return}
   const okDir=!pin.dir||G.enter===pin.dir;
   G.wrong=inNow&&!okDir?1:0;
-  const inPin=lk.drag&&inNow&&okDir&&G.speed<40+pin.amp*2;
-  let inDec=false;if(lk.drag&&G.speed<40)for(const d of G.layers[G.li].dec)if(lkDiff(G.dial,d)<G.tol)inDec=true;
+  const lkT=lk.drag||kbK.l||kbK.r||kbK.h;
+  const inPin=lkT&&inNow&&okDir&&G.speed<40+pin.amp*2;
+  let inDec=false;if(lkT&&G.speed<40)for(const d of G.layers[G.li].dec)if(lkDiff(G.dial,d)<G.tol)inDec=true;
   if(inPin){G.hold+=dt;if(G.hold>=G.holdT)lkSetPin(G)}
   else if(inDec){G.hold+=dt;if(G.hold>=G.holdT+0.1)lkBreak(G)}
   else G.hold=Math.max(0,G.hold-dt*2.5);
@@ -4501,7 +4508,7 @@ function sgStart(lv){
 }
 function openSg(lv){state='shadow';useW('shadow');stopMusic();hideAll();show('shadow',true);sgStart(lv)}
 function sgLayout(G){
-  const W=innerWidth,H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_sg');
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_sg');
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
   G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;
   const side=Math.min(W-24,H*0.46);G.wall={x:(W-side)/2,y:H*0.13,s:side};
@@ -4512,6 +4519,7 @@ function sgHint(){const G=sg.G;if(!G||G.won)return;const go=()=>{G.hintT=6};if(t
 function sgUpdate(G,dt){
   G.t+=dt;G.banner=Math.max(0,(G.banner||0)-dt);G.hintT=Math.max(0,G.hintT-dt);
   for(const p of G.parts){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=500*dt}G.parts=G.parts.filter(p=>p.life>0);
+  if(!G.won&&(kbK.sl||kbK.sr||kbK.su||kbK.sd||kbK.rl||kbK.rr)){const cl=(v,m)=>Math.max(-m,Math.min(m,v));const dx=kbK.sr-kbK.sl,dy=kbK.sd-kbK.su;if(dx||dy)G.L=[cl(G.L[0]+dx*0.8*dt,0.7),cl(G.L[1]+dy*0.8*dt,0.7)];if(G.useRot&&(kbK.rr||kbK.rl))G.phi=cl(G.phi+(kbK.rr-kbK.rl)*1.3*dt,1.5)}
   if(G.won){
     if(G.sn0&&G.snT<1){G.snT=Math.min(1,G.snT+dt/0.5);const e=1-Math.pow(1-G.snT,3);
       G.L=[G.sn0.L[0]+(G.Lt[0]-G.sn0.L[0])*e,G.sn0.L[1]+(G.Lt[1]-G.sn0.L[1])*e];G.phi=G.sn0.phi+(G.phiT-G.sn0.phi)*e;
@@ -4958,7 +4966,7 @@ $('pvExit').onclick=()=>{show('pauseOv',false);state='run';toMenu()};
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')pauseRun()});
 addEventListener('pagehide',pauseRun);
 setInterval(()=>{const on=state==='run';const b=$('pauseBtn');if(b)b.style.display=on?'':'none'},150);
-const BACKS=['pvResume','setBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','lk_back','sg_back','lb_back'];
+const BACKS=['pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','lk_back','sg_back','lb_back'];
 function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
 function goBack(){
   if(state==='pause'){resumeRun();return true}
@@ -4973,7 +4981,146 @@ let backArmed=false;
 function armBack(){if(backArmed)return;try{history.pushState({tv:1},'');backArmed=true}catch(e){}}
 addEventListener('popstate',()=>{backArmed=false;let ok=false;try{ok=goBack()}catch(e){}if(ok)armBack()});
 setInterval(()=>{if(state!=='hub'||visEl($('lobby'))||visEl($('settings'))||visEl($('shop'))||visEl($('lb'))||visEl($('ach'))||visEl($('quests'))||visEl($('wheel')))armBack()},300);
+// ---- Klavye ve geniş ekran ----
+let KOFF=0;function kUpd(){try{KOFF=document.body.getBoundingClientRect().left}catch(e){}}
+addEventListener('resize',kUpd);kUpd();
+(function(){const d=Object.getOwnPropertyDescriptor(MouseEvent.prototype,'clientX');if(d&&d.get)Object.defineProperty(MouseEvent.prototype,'clientX',{configurable:true,get(){return d.get.call(this)-KOFF}})})();
+const KB_DIRS=(l,r,u,d)=>[['left',l,'ArrowLeft',['ArrowLeft','KeyA']],['right',r,'ArrowRight',['ArrowRight','KeyD']],['up',u,'ArrowUp',['ArrowUp','KeyW']],['down',d,'ArrowDown',['ArrowDown','KeyS']]];
+const KB_G={
+  run:{n:'Sonsuz Koşu',a:[['left','Sola','ArrowLeft',['ArrowLeft','KeyA']],['right','Sağa','ArrowRight',['ArrowRight','KeyD']],['jump','Zıpla','ArrowUp',['ArrowUp','Space','KeyW']],['slide','Kay','ArrowDown',['ArrowDown','KeyS']]]},
+  maze:{n:'Tek Parmak Labirent',a:KB_DIRS('Sola','Sağa','Yukarı','Aşağı')},
+  city:{n:'Tek Tuş Şehir',a:[['hold','Zıpla (basılı tut)','Space',['Space','ArrowUp']]]},
+  tiles:{n:'Melodi Karoları',a:[['l1','1. şerit','KeyD',['KeyD']],['l2','2. şerit','KeyF',['KeyF']],['l3','3. şerit','KeyJ',['KeyJ']],['l4','4. şerit','KeyK',['KeyK']]]},
+  stack:{n:'Zıpla Kule',a:[['tap','Bloğu bırak','Space',['Space','ArrowUp']]]},
+  snake:{n:'Yılan Neon',a:KB_DIRS('Sola','Sağa','Yukarı','Aşağı')},
+  color:{n:'Renk Değiştir',a:[['tap','Zıpla','Space',['Space','ArrowUp']]]},
+  flap:{n:'Kanat Çırp',a:[['tap','Kanat çırp','Space',['Space','ArrowUp']]]},
+  gh:{n:'Hayalet Takım',a:[['left','Sola','ArrowLeft',['ArrowLeft','KeyA']],['right','Sağa','ArrowRight',['ArrowRight','KeyD']],['jump','Zıpla','ArrowUp',['ArrowUp','Space','KeyW']],['done','Kaydı bitir','Enter',['Enter']]]},
+  lock:{n:'Kasa Uzmanı',a:[['l','Kadranı sola çevir','ArrowLeft',['ArrowLeft','KeyA']],['r','Kadranı sağa çevir','ArrowRight',['ArrowRight','KeyD']],['f','Hassas (basılı tut)','ShiftLeft',['ShiftLeft','ShiftRight']],['h','Parmağı sabit tut','Space',['Space']]]},
+  shadow:{n:'Gölge Bahçesi',a:[['left','Işığı sola','ArrowLeft',['ArrowLeft','KeyA']],['right','Işığı sağa','ArrowRight',['ArrowRight','KeyD']],['up','Işığı yukarı','ArrowUp',['ArrowUp','KeyW']],['down','Işığı aşağı','ArrowDown',['ArrowDown','KeyS']],['rl','Döndür sola','KeyQ',['KeyQ']],['rr','Döndür sağa','KeyE',['KeyE']]]},
+  global:{n:'Genel',a:[['back','Geri / Duraklat','Escape',['Escape']]]}
+};
+const KB_MOUSE=['arrows','sort','clean','job','sky','balloon','blocks'];
+const KB_NM={arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik Simülatörü',job:'Günlük İş',sky:'Gök Adaları',balloon:'Balon Patlat',blocks:'Blok Bulmaca'};
+const KB_L2G={maze:'maze',city:'city',gh:'gh',lk:'lock',sg:'shadow',stack:'stack',snake:'snake',color:'color',flap:'flap',ar:'-',so:'-',cl:'-',sky:'-',balloon:'-',blocks:'-'};
+let KBS=ld('tv_keys',{});if(!KBS||typeof KBS!=='object')KBS={};
+let kbOn=false;try{kbOn=matchMedia('(hover:hover) and (pointer:fine)').matches}catch(e){}
+function kbCodes(g,a){return(KBS[g]&&KBS[g][a[0]])||a[3]}
+function kbLab(c){const m={ArrowLeft:'←',ArrowRight:'→',ArrowUp:'↑',ArrowDown:'↓',Space:'Boşluk',Enter:'Enter',Escape:'Esc',ShiftLeft:'Shift',ShiftRight:'Shift',Backspace:'⌫',Tab:'Tab'};return m[c]||c.replace(/^Key/,'').replace(/^Digit/,'').replace(/^Numpad/,'Num ')}
+function kbLabs(codes){const o=[];for(const c of codes){const l=kbLab(c);if(!o.includes(l))o.push(l)}return o.join(' / ')}
+const kbHeld=new Map(),kbBlk=new Set();let kbCap=null;
+const kbIsInput=t=>t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT');
+function kbSend(type,code,rep){const ev=new KeyboardEvent(type,{code,key:code,bubbles:true,cancelable:true,repeat:!!rep});ev.__tv=1;document.dispatchEvent(ev)}
+addEventListener('keydown',e=>{
+  if(e.__tv)return;
+  if(!kbOn){kbOn=true;kbShow()}
+  if(kbIsInput(e.target)&&!kbCap)return;
+  if(kbCap){e.preventDefault();e.stopImmediatePropagation();kbAssign(e.code);return}
+  const glob=KB_G.global.a[0];
+  if(kbCodes('global',glob).includes(e.code)){e.preventDefault();e.stopImmediatePropagation();if(!e.repeat){try{goBack()}catch(_){}}return}
+  const gid=KB_G[state]&&state!=='global'?state:null;if(!gid)return;
+  const acts=KB_G[gid].a;let hit=null;
+  for(const a of acts){if(kbCodes(gid,a).includes(e.code)){hit=a;break}}
+  if(hit){
+    e.preventDefault();try{if(document.activeElement&&document.activeElement.blur)document.activeElement.blur()}catch(_){}
+    if(hit[2]===e.code)return;
+    e.stopImmediatePropagation();kbHeld.set(e.code,hit[2]);kbSend('keydown',hit[2],e.repeat);return;
+  }
+  for(const a of acts){if(a[2]===e.code||a[3].includes(e.code)){e.stopImmediatePropagation();kbBlk.add(e.code);return}}
+},true);
+addEventListener('keyup',e=>{
+  if(e.__tv)return;
+  const c=kbHeld.get(e.code);
+  if(c){e.stopImmediatePropagation();kbHeld.delete(e.code);kbSend('keyup',c,false);return}
+  if(kbBlk.has(e.code)){e.stopImmediatePropagation();kbBlk.delete(e.code)}
+},true);
+addEventListener('blur',()=>{for(const c of kbHeld.values())kbSend('keyup',c,false);kbHeld.clear();kbBlk.clear()});
+// kasa ve gölge için klavye
+const kbK={l:0,r:0,f:0,h:0,sl:0,sr:0,su:0,sd:0,rl:0,rr:0};
+const kbMapLock={ArrowLeft:'l',ArrowRight:'r',ShiftLeft:'f',Space:'h'},kbMapSg={ArrowLeft:'sl',ArrowRight:'sr',ArrowUp:'su',ArrowDown:'sd',KeyQ:'rl',KeyE:'rr'};
+addEventListener('keydown',e=>{
+  if(state==='lock'&&kbMapLock[e.code]){kbK[kbMapLock[e.code]]=1;e.preventDefault()}
+  else if(state==='shadow'&&kbMapSg[e.code]){kbK[kbMapSg[e.code]]=1;e.preventDefault()}
+  else if(state==='gh'&&e.code==='Enter'&&!e.repeat){const b=$('gh_done');if(visEl(b))b.click()}
+});
+addEventListener('keyup',e=>{
+  if(kbMapLock[e.code])kbK[kbMapLock[e.code]]=0;
+  if(kbMapSg[e.code])kbK[kbMapSg[e.code]]=0;
+});
+// ayar ekranı
+function kbShow(){$('keyRow').classList.toggle('hidden',!kbOn)}
+let kbSel='run';
+function kbRender(){
+  const sel=$('keyGame');if(!sel.options.length){const o=[];for(const g in KB_G)o.push('<option value="'+g+'">'+(g==='global'?'Genel':KB_G[g].n)+'</option>');for(const g of KB_MOUSE)o.push('<option value="m_'+g+'">'+KB_NM[g]+'</option>');sel.innerHTML=o.join('');sel.onchange=()=>{kbSel=sel.value;kbCap=null;kbRender()}}
+  sel.value=kbSel;const list=$('keyList');list.innerHTML='';
+  if(kbSel.startsWith('m_')){list.innerHTML='<div class="row"><div class="tx">🖱️ Fare ile oynanır<small>Bu oyunda tıklayıp sürüklersin, tuş ayarı yok. Esc ile geri dönersin.</small></div></div>';$('keyReset').classList.add('hidden');return}
+  $('keyReset').classList.remove('hidden');
+  for(const a of KB_G[kbSel].a){
+    const row=document.createElement('div');row.className='row';
+    const tx=document.createElement('div');tx.className='tx';tx.textContent=a[1];
+    const b=document.createElement('button');b.className=(kbCap&&kbCap.a===a[0])?'gold':'alt';b.style.cssText='width:auto;min-width:96px;padding:8px 14px;font-size:14px';
+    b.textContent=(kbCap&&kbCap.a===a[0])?'Tuşa bas…':kbLabs(kbCodes(kbSel,a));
+    b.onclick=()=>{kbCap=(kbCap&&kbCap.a===a[0])?null:{g:kbSel,a:a[0]};kbRender()};
+    row.appendChild(tx);row.appendChild(b);list.appendChild(row);
+  }
+}
+function kbAssign(code){
+  const c=kbCap;kbCap=null;
+  if(code==='Escape'&&c.a!=='back'){kbRender();return}
+  if(code==='Tab'||code==='MetaLeft'||code==='MetaRight'||code==='ContextMenu'){kbRender();return}
+  const acts=KB_G[c.g].a,map={};for(const a of acts)map[a[0]]=kbCodes(c.g,a).slice();
+  const old=map[c.a][0];
+  for(const k in map){if(k!==c.a&&map[k].includes(code)){map[k]=map[k].filter(x=>x!==code);if(!map[k].length)map[k]=[old]}}
+  map[c.a]=[code];KBS[c.g]=map;sv('tv_keys',KBS);toast('Kaydedildi');kbRender();
+}
+function kbHint(id){
+  const el=$('lb_k');if(!el)return;el.textContent='';if(!kbOn)return;
+  const g=KB_L2G[id];if(!g)return;
+  if(g==='-'){el.textContent='🖱️ Fare ile oynanır';return}
+  el.textContent='⌨️ '+KB_G[g].a.map(a=>kbLabs(kbCodes(g,a))+' '+a[1]).join(' · ');
+}
+$('keyBtn').onclick=()=>{kbSel='run';kbCap=null;kbRender();show('settings',false);show('keys',true)};
+$('keyBack').onclick=()=>{kbCap=null;show('keys',false);show('settings',true)};
+$('keyReset').onclick=()=>{delete KBS[kbSel];sv('tv_keys',KBS);kbCap=null;kbRender();toast('Kaydedildi')};
+kbShow();
+
 const I18N=String.raw`
+⌨️ Klavye tuşları|⌨️ Keyboard keys|⌨️ Teclas del teclado|⌨️ Teclas do teclado|⌨️ Tastaturtasten|⌨️ Touches du clavier|⌨️ Клавиши клавиатуры|⌨️ Tombol keyboard
+Tuşları kendin ayarla|Set the keys yourself|Configura las teclas tú mismo|Configure as teclas você mesmo|Stelle die Tasten selbst ein|Règle les touches toi-même|Настрой клавиши сам|Atur tombolnya sendiri
+Ayarla|Set|Configurar|Configurar|Einstellen|Régler|Настроить|Atur
+⌨️ Klavye|⌨️ Keyboard|⌨️ Teclado|⌨️ Teclado|⌨️ Tastatur|⌨️ Clavier|⌨️ Клавиатура|⌨️ Keyboard
+Varsayılana dön|Reset to default|Restablecer|Restaurar padrão|Zurücksetzen|Réinitialiser|Сбросить|Kembalikan default
+Tuşa bas…|Press a key…|Pulsa una tecla…|Pressione uma tecla…|Taste drücken…|Appuie sur une touche…|Нажми клавишу…|Tekan tombol…
+Fare ile oynanır|Played with the mouse|Se juega con el ratón|Joga-se com o mouse|Wird mit der Maus gespielt|Se joue à la souris|Играется мышью|Dimainkan dengan mouse
+🖱️ Fare ile oynanır|🖱️ Played with the mouse|🖱️ Se juega con el ratón|🖱️ Joga-se com o mouse|🖱️ Wird mit der Maus gespielt|🖱️ Se joue à la souris|🖱️ Играется мышью|🖱️ Dimainkan dengan mouse
+Bu oyunda tıklayıp sürüklersin, tuş ayarı yok. Esc ile geri dönersin.|In this game you click and drag, there are no key settings. Press Esc to go back.|En este juego haces clic y arrastras, no hay teclas que configurar. Esc para volver.|Neste jogo você clica e arrasta, não há teclas para configurar. Esc para voltar.|In diesem Spiel klickst und ziehst du, es gibt keine Tasteneinstellung. Mit Esc gehst du zurück.|Dans ce jeu, tu cliques et tu glisses, pas de réglage de touches. Esc pour revenir.|В этой игре ты кликаешь и перетаскиваешь, настройки клавиш нет. Esc — назад.|Di game ini kamu klik dan geser, tidak ada pengaturan tombol. Tekan Esc untuk kembali.
+Genel|General|General|Geral|Allgemein|Général|Общее|Umum
+Sola|Left|Izquierda|Esquerda|Links|Gauche|Влево|Kiri
+Sağa|Right|Derecha|Direita|Rechts|Droite|Вправо|Kanan
+Yukarı|Up|Arriba|Cima|Hoch|Haut|Вверх|Atas
+Aşağı|Down|Abajo|Baixo|Runter|Bas|Вниз|Bawah
+Zıpla|Jump|Saltar|Pular|Springen|Sauter|Прыжок|Lompat
+Kay|Slide|Deslizar|Deslizar|Rutschen|Glisser|Подкат|Meluncur
+Zıpla (basılı tut)|Jump (hold)|Saltar (mantén)|Pular (segure)|Springen (halten)|Sauter (maintenir)|Прыжок (удерживай)|Lompat (tahan)
+1. şerit|Lane 1|Carril 1|Faixa 1|Spur 1|Voie 1|Полоса 1|Jalur 1
+2. şerit|Lane 2|Carril 2|Faixa 2|Spur 2|Voie 2|Полоса 2|Jalur 2
+3. şerit|Lane 3|Carril 3|Faixa 3|Spur 3|Voie 3|Полоса 3|Jalur 3
+4. şerit|Lane 4|Carril 4|Faixa 4|Spur 4|Voie 4|Полоса 4|Jalur 4
+Bloğu bırak|Drop block|Soltar bloque|Soltar bloco|Block fallen lassen|Lâcher le bloc|Бросить блок|Jatuhkan blok
+Kanat çırp|Flap|Aletear|Bater asas|Flattern|Battre des ailes|Взмах|Kepak
+Kaydı bitir|Finish recording|Terminar grabación|Terminar gravação|Aufnahme beenden|Terminer l'enregistrement|Закончить запись|Selesai rekam
+Kadranı sola çevir|Turn dial left|Girar el dial a la izquierda|Girar o disco para a esquerda|Rad nach links drehen|Tourner le cadran à gauche|Крутить диск влево|Putar piringan ke kiri
+Kadranı sağa çevir|Turn dial right|Girar el dial a la derecha|Girar o disco para a direita|Rad nach rechts drehen|Tourner le cadran à droite|Крутить диск вправо|Putar piringan ke kanan
+Hassas (basılı tut)|Fine (hold)|Preciso (mantén)|Preciso (segure)|Fein (halten)|Précis (maintenir)|Точно (удерживай)|Halus (tahan)
+Parmağı sabit tut|Hold still|Mantener quieto|Manter parado|Stillhalten|Rester immobile|Держать неподвижно|Tahan diam
+Işığı sola|Light left|Luz a la izquierda|Luz para a esquerda|Licht nach links|Lumière à gauche|Свет влево|Cahaya ke kiri
+Işığı sağa|Light right|Luz a la derecha|Luz para a direita|Licht nach rechts|Lumière à droite|Свет вправо|Cahaya ke kanan
+Işığı yukarı|Light up|Luz arriba|Luz para cima|Licht nach oben|Lumière en haut|Свет вверх|Cahaya ke atas
+Işığı aşağı|Light down|Luz abajo|Luz para baixo|Licht nach unten|Lumière en bas|Свет вниз|Cahaya ke bawah
+Döndür sola|Rotate left|Girar a la izquierda|Girar para a esquerda|Nach links drehen|Tourner à gauche|Повернуть влево|Putar ke kiri
+Döndür sağa|Rotate right|Girar a la derecha|Girar para a direita|Nach rechts drehen|Tourner à droite|Повернуть вправо|Putar ke kanan
+Geri / Duraklat|Back / Pause|Atrás / Pausa|Voltar / Pausar|Zurück / Pause|Retour / Pause|Назад / Пауза|Kembali / Jeda
+Boşluk|Space|Espacio|Espaço|Leertaste|Espace|Пробел|Spasi
 Yeni sürüm var|New version available|Hay una versión nueva|Há uma nova versão|Neue Version verfügbar|Nouvelle version disponible|Доступна новая версия|Versi baru tersedia
 Daha iyi oyun için güncelle|Update for a better game|Actualiza para un mejor juego|Atualize para um jogo melhor|Aktualisiere für ein besseres Spiel|Mets à jour pour un meilleur jeu|Обнови для лучшей игры|Perbarui untuk game yang lebih baik
 🔄 Yeni sürüm var|🔄 New version available|🔄 Hay una versión nueva|🔄 Há uma nova versão|🔄 Neue Version verfügbar|🔄 Nouvelle version disponible|🔄 Доступна новая версия|🔄 Versi baru tersedia
