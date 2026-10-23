@@ -4877,13 +4877,14 @@ async function notSchedule(){
     return true;
   }catch(e){return false}
 }
-async function notSky(on){
+let skNotAt=0;
+async function notSky(on,at){
   if(!LN||!notOn)return;
   try{
-    await LN.cancel({notifications:[{id:5}]});
+    await LN.cancel({notifications:[{id:5}]});skNotAt=0;
     if(!on)return;
     const inc=sk.l.some((l,li)=>{const i=skInc(li);return i.c+i.e+i.k>0});if(!inc)return;
-    await LN.schedule({notifications:[{id:5,title:trStr('Gök Adaları 🏝️'),body:trStr('Adaların depoları doldu! Gelip topla ve geliştir.'),smallIcon:'ic_stat_tv',iconColor:'#8B5CF6',schedule:{at:new Date(Date.now()+10800000)}}]});
+    await LN.schedule({notifications:[{id:5,title:trStr('Gök Adaları 🏝️'),body:trStr('Adaların depoları doldu! Gelip topla ve geliştir.'),smallIcon:'ic_stat_tv',iconColor:'#8B5CF6',schedule:{at:new Date(skNotAt=(at||Date.now()+10800000))}}]});
   }catch(e){}
 }
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&state==='sky')notSky(false)});
@@ -5743,7 +5744,7 @@ function trAll(){
   document.querySelectorAll('[placeholder],[title]').forEach(el=>{for(const a of ['placeholder','title']){if(el['__a'+a]!==undefined&&el.getAttribute(a)===el['__t'+a]){el.setAttribute(a,el['__a'+a]);el['__a'+a]=undefined}}trAttr(el)});
   document.documentElement.lang=lang;
 }
-function setLang(l){lang=l;try{$('langSel').value=l}catch(e){}sv('tv_lang',l);TRC.clear();trAll();try{refreshSw()}catch(e){}}
+function setLang(l){lang=l;try{$('langSel').value=l}catch(e){}sv('tv_lang',l);TRC.clear();trAll();try{refreshSw()}catch(e){}try{if(notOn){notSchedule();if(skNotAt>Date.now())notSky(true,skNotAt)}}catch(e){}}
 (function(){
   trLoad();
   const P=CanvasRenderingContext2D.prototype;
