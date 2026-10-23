@@ -652,7 +652,7 @@ function renderQuests(){
 
 // ---- Skor tablosu (Supabase) ----
 // Sunucu hazır olunca sadece bu iki satırı doldur:
-const SB={url:'',key:''};
+const SB={url:'https://supabase.mangocash.tech',key:'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJzdXBhYmFzZSIsImlhdCI6MTc4NTc3MjY4MCwiZXhwIjo0OTQxNDQ2MjgwLCJyb2xlIjoiYW5vbiJ9.X3wvaxDhs_ObrxK1UOPk57lyBKIh4jVEDVxfo3P98UU'};
 let pid=ld('tv_pid',null);if(!pid){pid=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2));sv('tv_pid',pid)}
 let pname=ld('tv_name','');
 const sbOn=()=>!!(SB.url&&SB.key);

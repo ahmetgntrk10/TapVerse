@@ -43,3 +43,5 @@ $$;
 
 grant execute on function public.submit_score(text, text, integer) to anon, authenticated;
 grant select on public.tapverse_scores to anon, authenticated;
+
+notify pgrst, 'reload schema';
