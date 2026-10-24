@@ -7357,9 +7357,12 @@ function wdLayout(G){
   const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,1.6),cv=$('c_wd');
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
   G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;
-  const barH=86+0;G.R=Math.min(W*0.4,H*0.19,170);G.cx=W/2;G.cy=H-barH-G.R-14;
-  G.pillY=G.cy-G.R-34;const top=86,bot=G.pillY-30,g=G.g;
-  G.cell=Math.max(18,Math.min(54,(W-28)/g.cols,(bot-top)/g.rows));
+  const barH=86+0,top=86,g=G.g,Rmax=Math.min(W*0.4,H*0.19,170),Rmin=Math.min(W*0.28,H*0.125,118);
+  let R=Rmax,cell=0;
+  for(;;){const cy=H-barH-R-14,bot=cy-R-34-30;cell=Math.max(18,Math.min(54,(W-28)/g.cols,(bot-top)/g.rows));if(cell>=40||R<=Rmin)break;R=Math.max(Rmin,R-5)}
+  G.R=R;G.cx=W/2;G.cy=H-barH-G.R-14;
+  G.pillY=G.cy-G.R-34;const bot=G.pillY-30;
+  G.cell=cell;
   G.gx=(W-G.cell*g.cols)/2;G.gy=top+((bot-top)-G.cell*g.rows)/2;
   const n=g.n;G.br=Math.min(G.R*(n<=4?0.27:n<=5?0.25:0.23),34);G.lr=G.R-G.br-8;
   G.tp=g.letters.map((_,i)=>{const a=-Math.PI/2+i/n*Math.PI*2;return{x:G.cx+Math.cos(a)*G.lr,y:G.cy+Math.sin(a)*G.lr}});
