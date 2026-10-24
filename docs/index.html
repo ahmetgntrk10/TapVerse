@@ -2786,7 +2786,7 @@ function lbCfg(id){
   if(id==='sky')return{emo:'🏝️',t:'Gök Adaları',d:'10 dünya, her birinin kendi parası var. Birinin parasıyla sıradakini açarsın. Sen yokken de kazanır!',i:SK_T.c.cur+' '+fmt(sk.c)+'  '+SK_T.e.cur+' '+fmt(sk.e)+'  '+SK_T.k.cur+' '+fmt(sk.k)+'  · Dünya '+(sk.cur+1),play:()=>openSky(),x:[]};
   if(id==='city')return{emo:'🏙️',t:'Tek Tuş Şehir',d:'Basılı tut, çatıdan çatıya zıpla. Ne kadar uzun basarsan o kadar uzağa gidersin.',i:'🏅 '+wkTxt('city'),play:()=>openCity(),x:[]};
   if(id==='cl')return{emo:'🧼',t:'Temizlik Simülatörü',d:'Serbest modda su sıkarak yıka. Günlük İş: müşteriden teklif al, doğru aletle doğru kiri temizle!',i:'Seviye '+clLevel,w:wl('clean'),wk:'clean',play:()=>openClean(clLevel),x:[[jbDay()?'📅 Günlük İş ✅ (yarın yeni)':ld('tv_cljobact',null)?'📅 Günlük İş · DEVAM ET':'📅 Günlük İş · 3 teklif',()=>openJobs()]],levels:true,cur:()=>clLevel,open:openClean};
-  if(id==='so')return{emo:'🧪',t:'Su Sıralama',d:'Renkli suları tüplere ayır: her tüpte tek renk kalsın. Aynı renk ya da boş tüpe dökebilirsin.',i:'Seviye '+soLevel,w:wl('sort'),wk:'sort',play:()=>openSort(soLevel),x:[],levels:true,cur:()=>soLevel,open:openSort};
+  if(id==='so')return{emo:'🧪',t:'Su Sıralama',d:'Renkli suları tüplere ayır: her tüpte tek renk kalsın. Aynı renk ya da boş tüpe dökebilirsin.',i:'Seviye '+soLevel,w:wl('sort'),wk:'sort',play:()=>openSort(soLevel),x:[['🐠 Akvaryum',aqOpen]],levels:true,cur:()=>soLevel,open:openSort};
   if(id==='ar')return{emo:'🎯',t:'Ok Kaçışı',d:'Oklara dokun, yönüne kayıp çıksınlar. Yolu tıkalıysa çıkmaz!',i:'Seviye '+arLevel,w:wl('arrows'),wk:'arrows',play:()=>openArrows(arLevel),x:[['🎨 Ok Renkleri',()=>{openArrows(arLevel);arSkins();show('ar_shop',true)}]],levels:true};
   const d=MG[id];return{emo:d.emo,t:d.title,d:d.desc,i:'🏅 '+wkTxt(id),play:()=>mgOpen(id),x:id==='snake'?[['🎨 Yılan Rengi: '+SN_SK[snSkin].n,()=>{const b=mgBest.snake||0;let n=snSkin;for(let k=1;k<=SN_SK.length;k++){const j=(snSkin+k)%SN_SK.length;if(b>=SN_SK[j].u){n=j;break}}if(n===snSkin){const nx=SN_SK.find(q=>q.u>b);toast(nx?nx.n+' rengi '+nx.u+' puanda açılır':'Başka renk yok')}else{snSkin=n;sv('tv_snskin',n)}openLobby('snake')}]]:[]};
 }
@@ -3296,7 +3296,7 @@ const SO_COL=[['#ff6b8a','#d62a58'],['#ffb938','#e07a06'],['#ffe86a','#d9ad00'],
 document.body.insertAdjacentHTML('beforeend','<div id="sort" class="hidden mgscr"><canvas id="c_so"></canvas>'
  +'<div class="mtop"><button id="so_back" class="ibtn alt">‹</button><div class="pill" id="so_lv">Seviye 1</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
  +'<div class="sobar"><button id="so_undo"><i>↶</i><span>Geri Al</span></button><button id="so_reset"><i>🔄</i><span>Yeniden</span></button><button id="so_tube"><i>🧪</i><span>Tüp Ekle</span></button><button id="so_hint"><i>💡</i><span>İpucu</span></button></div>'
- +'<div id="so_win" class="overlay hidden"><div class="card"><div class="ttl" style="color:var(--gold)">Harika! 🎉</div><div id="so_wi" style="color:var(--mute)"></div><button id="so_next" class="gold">▶ Sonraki Seviye</button><button id="so_dbl" class="alt">📺 Altını 2 kat yap</button><button id="so_wh" class="alt">🎮 Oyunlar</button></div></div></div>');
+ +'<div id="so_win" class="overlay hidden"><div class="card"><div class="ttl" style="color:var(--gold)">Harika! 🎉</div><div id="so_wi" style="color:var(--mute)"></div><button id="so_next" class="gold">▶ Sonraki Seviye</button><button id="so_dbl" class="alt">📺 Altını 2 kat yap</button><button id="so_aq" class="alt">🐠 Akvaryum</button><button id="so_wh" class="alt">🎮 Oyunlar</button></div></div></div>');
 document.head.insertAdjacentHTML('beforeend','<style>.sobar{position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(5,3,30,.65))}.sobar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 0;border-radius:16px;border:1px solid rgba(255,255,255,.18);background:linear-gradient(#3b2f86,#251c5c);color:#fff;font-family:inherit;box-shadow:0 4px 0 rgba(0,0,0,.35)}.sobar button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.35)}.sobar i{font-style:normal;font-size:22px;line-height:1}.sobar span{font-size:11px;font-weight:600}.sobar button.off{opacity:.45}</style>');
 SCR.push('sort');
 $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardSo" style="background:linear-gradient(135deg,#06b6d4,#3b82f6 55%,#a855f7)"><div class="gicon">🧪</div><div class="gtx"><b>Su Sıralama</b><small>Renkli suları tüplerde aynı renge sırala.</small><span class="gtag" id="hsSo">Seviye 1</span></div><div class="gplay" style="color:#3b82f6">▶</div></div>');
@@ -3385,11 +3385,11 @@ function soFinish(G){
 function soWin(G){
   G.won=true;const fresh=G.level>=soLevel;
   const coins=Math.round((6+G.nc*2+(fresh?0:-4))*(G.boss?1.5:1));G.reward=Math.max(3,coins);
-  credit('sort',G.reward);stats.coins+=G.reward;addProg('coins',G.reward);addProg('c_sort',G.reward);addProg('sort',1);
+  G.aqb=aqBonus(G.reward);credit('sort',G.reward+G.aqb);stats.coins+=G.reward+G.aqb;addProg('coins',G.reward+G.aqb);addProg('c_sort',G.reward+G.aqb);addProg('sort',1);
   if(fresh){soLevel=G.level+1;sv('tv_solevel',soLevel)}
   saveDaily();checkAch();refreshCoins();sfx.power();
   for(let k=0;k<70;k++){const ang=Math.random()*6.283,v=100+Math.random()*320;G.parts.push({x:G.W/2,y:G.H*0.42,vx:Math.cos(ang)*v,vy:Math.sin(ang)*v-220,life:1.4,max:1.4,c:SO_COL[k%SO_COL.length][0],r:3+Math.random()*4,g:420,sq:1})}
-  $('so_wi').textContent='🪙 +'+G.reward+' · '+G.moves+' hamlede çözdün';
+  $('so_wi').textContent='🪙 +'+G.reward+(G.aqb?' · 🐠 +'+G.aqb:'')+' · '+G.moves+' hamlede çözdün';
   setTimeout(()=>{if(state==='sort'&&so.G===G)show('so_win',true)},1100);
 }
 function soTap(x,y){
@@ -3536,6 +3536,136 @@ function soFrame(now){
 }
 $('cardSo').onclick=()=>openLobby('so');
 $('so_back').onclick=()=>openLobby('so');$('so_wh').onclick=()=>openHub();
+// ---- Su Sıralama: Akvaryum ----
+const AQ_F=[{e:'🐟',p:1,c:40},{e:'🐠',p:2,c:90},{e:'🦐',p:2,c:120},{e:'🐡',p:3,c:180},{e:'🦑',p:4,c:280},{e:'🐙',p:5,c:380},{e:'🐢',p:6,c:520},{e:'🦈',p:8,c:800},{e:'🐬',p:10,c:1200},{e:'🐋',p:14,c:2000}];
+const AQ_D=[{e:'🌿',p:1,c:30},{e:'🐚',p:1,c:45},{e:'🪨',p:1,c:60},{e:'🪸',p:2,c:110},{e:'⚓',p:2,c:150},{e:'🗿',p:3,c:260},{e:'🏰',p:4,c:420},{e:'💎',p:5,c:700}];
+const AQ_MF=12,AQ_MD=8;
+let aqS=ld('tv_aq',null);
+if(!aqS||!Array.isArray(aqS.fish)||!Array.isArray(aqS.dec))aqS={fish:[],dec:[],tab:0};
+const aq={open:false,raf:false,last:0,G:null};
+const aqScore=()=>aqS.fish.reduce((a,t)=>a+(AQ_F[t]?AQ_F[t].p:0),0)+aqS.dec.reduce((a,t)=>a+(AQ_D[t]?AQ_D[t].p:0),0);
+const aqBonus=reward=>Math.min(Math.round(reward*0.6),aqScore());
+document.body.insertAdjacentHTML('beforeend','<div id="aq" class="hidden" style="position:fixed;inset:0;z-index:35;background:#06223f;touch-action:none"><canvas id="c_aq" style="display:block"></canvas>'
+ +'<div class="mtop"><button id="aq_x" class="ibtn alt">‹</button><div class="pill" id="aq_sc">🐠 Akvaryum</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
+ +'<div id="aq_sh"><div id="aq_tabs"><button id="aq_t0">🐠 Balıklar</button><button id="aq_t1">🪸 Süsler</button></div><div id="aq_info"></div><div id="aq_list"></div></div></div>');
+document.head.insertAdjacentHTML('beforeend','<style>#aq_sh{position:absolute;left:0;right:0;bottom:0;height:206px;background:linear-gradient(#143a63,#0b1f3d);border-top:2px solid #38bdf8;border-radius:22px 22px 0 0;padding:10px 10px calc(8px + env(safe-area-inset-bottom));box-sizing:border-box}#aq_tabs{display:flex;gap:8px}#aq_tabs button{flex:1;padding:8px 4px;font-size:15px;background:rgba(255,255,255,.1);box-shadow:none;color:#bae6fd}#aq_tabs button.on{background:linear-gradient(#38bdf8,#0284c7);color:#fff}#aq_info{font-size:12px;color:#bae6fd;margin:6px 2px 6px;text-align:center}#aq_list{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch}.aqc{flex:none;width:82px;padding:8px 4px;border-radius:14px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:#fff;box-shadow:none}.aqc i{font-style:normal;font-size:34px;line-height:1.1}.aqc b{color:#ffd34d}.aqc small{color:#7dd3fc;font-size:11px}.aqc.no{opacity:.45}</style>');
+function aqInfo(){
+  const f=aqS.fish.length,d=aqS.dec.length;
+  $('aq_sc').textContent='🐠 '+aqScore();
+  $('aq_t0').textContent='🐠 Balıklar '+f+'/'+AQ_MF;$('aq_t1').textContent='🪸 Süsler '+d+'/'+AQ_MD;
+  $('aq_t0').classList.toggle('on',!aqS.tab);$('aq_t1').classList.toggle('on',!!aqS.tab);
+  $('aq_info').textContent='Her seviye bitince bonus: +'+Math.min(aqScore(),99999)+' 🪙 (en fazla ödülün %60\'ı)';
+}
+function aqList(){
+  const L=$('aq_list');L.innerHTML='';const arr=aqS.tab?AQ_D:AQ_F;
+  arr.forEach((it,i)=>{
+    const b=document.createElement('button');b.className='aqc'+(totalCoins>=it.c?'':' no');
+    b.innerHTML='<i>'+it.e+'</i><b>🪙 '+it.c+'</b><small>+'+it.p+' puan</small>';
+    b.onclick=()=>aqBuy(i);L.appendChild(b);
+  });
+  aqInfo();
+}
+function aqBuy(i){
+  const G=aq.G;if(!G)return;const arr=aqS.tab?AQ_D:AQ_F,it=arr[i],list=aqS.tab?aqS.dec:aqS.fish,mx=aqS.tab?AQ_MD:AQ_MF;
+  if(list.length>=mx){toast(aqS.tab?'Süs alanı dolu':'Akvaryum dolu');buzz(40);return}
+  if(totalCoins<it.c){toast('Yeterli paran yok');buzz(40);return}
+  credit('sort',-it.c);list.push(i);sv('tv_aq',aqS);refreshCoins();checkAch();
+  if(aqS.tab)aqLayoutDec(G);else G.fish.push(aqMakeFish(G,i,true));
+  for(let k=0;k<14;k++)G.bub.push({x:G.W/2+(Math.random()-.5)*G.W*0.5,y:G.tb-20,r:2+Math.random()*4,v:30+Math.random()*50,w:Math.random()*6,once:1});
+  sfx.coin();buzz(25);toast(it.e+' '+trStr('Akvaryuma eklendi'));aqList();
+}
+$('aq_t0').onclick=()=>{aqS.tab=0;sv('tv_aq',aqS);aqList()};
+$('aq_t1').onclick=()=>{aqS.tab=1;sv('tv_aq',aqS);aqList()};
+function aqMakeFish(G,t,drop){
+  const sz=22+Math.min(26,AQ_F[t].p*3);
+  return{t,x:drop?G.W/2:30+Math.random()*(G.W-60),y:drop?G.tb*0.3:G.top+30+Math.random()*(G.tb-G.top-90),tx:0,ty:0,sp:24+Math.random()*26,dir:Math.random()<.5?-1:1,sz,wt:Math.random()*5,tm:0,hl:0}
+}
+function aqLayoutDec(G){
+  const n=aqS.dec.length;G.dec=aqS.dec.map((t,i)=>({t,x:(i+.5)*(G.W/Math.max(n,4)),s:34+AQ_D[t].p*3+Math.random()*6,fl:Math.random()<.5?-1:1}));
+}
+function aqOpen(){
+  useW('sort');
+  const cv=$('c_aq'),W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,1.6);
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
+  const G={W,H,dpr,ctx:cv.getContext?cv.getContext('2d'):null,top:60,tb:H-206,t:0,fish:[],dec:[],bub:[],food:[],hearts:[]};
+  aq.G=G;aq.open=true;
+  aqS.fish=aqS.fish.filter(t=>AQ_F[t]);aqS.dec=aqS.dec.filter(t=>AQ_D[t]);
+  aqS.fish.forEach(t=>G.fish.push(aqMakeFish(G,t)));aqLayoutDec(G);
+  for(let i=0;i<14;i++)G.bub.push({x:Math.random()*W,y:G.top+Math.random()*(G.tb-G.top),r:1.5+Math.random()*3,v:20+Math.random()*30,w:Math.random()*6});
+  show('aq',true);aqList();refreshCoins();
+  if(!aq.raf){aq.raf=true;aq.last=performance.now();requestAnimationFrame(aqFrame)}
+}
+function aqClose(){aq.open=false;aq.G=null;show('aq',false);const c=$('c_aq');if(c&&c.width>1){c.width=1;c.height=1}refreshCoins()}
+$('aq_x').onclick=aqClose;
+function aqTick(G,dt){
+  G.t+=dt;
+  for(const f of G.fish){
+    f.wt+=dt;f.hl=Math.max(0,f.hl-dt);
+    let tgt=null,bd=1e9;
+    for(const fd of G.food){const d=Math.hypot(fd.x-f.x,fd.y-f.y);if(d<bd){bd=d;tgt=fd}}
+    if(tgt&&bd<G.W){f.tx=tgt.x;f.ty=tgt.y;f.tm=1}
+    else{f.tm-=dt;if(f.tm<=0||Math.hypot(f.tx-f.x,f.ty-f.y)<20){f.tm=2+Math.random()*4;f.tx=24+Math.random()*(G.W-48);f.ty=G.top+30+Math.random()*(G.tb-G.top-100)}}
+    const dx=f.tx-f.x,dy=f.ty-f.y,dd=Math.hypot(dx,dy)||1,sp=f.sp*(tgt?2.4:1);
+    f.x+=dx/dd*sp*dt;f.y+=dy/dd*sp*dt+Math.sin(f.wt*2)*10*dt;
+    if(Math.abs(dx)>6)f.dir=dx<0?-1:1;
+    if(tgt&&bd<f.sz*0.6){tgt.eat=1;f.hl=1;G.hearts.push({x:f.x,y:f.y-f.sz*.6,l:1})}
+  }
+  G.food=G.food.filter(fd=>!fd.eat);
+  for(const fd of G.food){fd.y=Math.min(G.tb-24,fd.y+28*dt);fd.l-=dt;}
+  G.food=G.food.filter(fd=>fd.l>-8);
+  for(const b of G.bub){b.y-=b.v*dt;b.w+=dt*2;if(b.y<G.top-10){if(b.once)b.dead=1;else{b.y=G.tb-10;b.x=Math.random()*G.W}}}
+  if(G.bub.some(b=>b.dead))G.bub=G.bub.filter(b=>!b.dead);
+  for(const h of G.hearts){h.y-=30*dt;h.l-=dt}G.hearts=G.hearts.filter(h=>h.l>0);
+}
+function aqDraw(G){
+  const c=G.ctx;if(!c)return;const d=G.dpr,W=G.W,t=G.t;
+  c.setTransform(d,0,0,d,0,0);
+  const g=c.createLinearGradient(0,0,0,G.tb);g.addColorStop(0,'#38bdf8');g.addColorStop(.45,'#0369a1');g.addColorStop(1,'#082f49');
+  c.fillStyle=g;c.fillRect(0,0,W,G.H);
+  // ışık huzmeleri
+  c.save();c.globalAlpha=.09;c.fillStyle='#fff';
+  for(let i=0;i<4;i++){const x=W*(0.1+i*0.27)+Math.sin(t*.4+i)*18;c.beginPath();c.moveTo(x,0);c.lineTo(x+46,0);c.lineTo(x-60,G.tb);c.lineTo(x-130,G.tb);c.closePath();c.fill()}
+  c.restore();
+  // kum
+  const sg=c.createLinearGradient(0,G.tb-34,0,G.tb);sg.addColorStop(0,'#d6b46a');sg.addColorStop(1,'#a9843e');
+  c.fillStyle=sg;c.beginPath();c.moveTo(0,G.tb);c.lineTo(0,G.tb-22);
+  for(let x=0;x<=W;x+=20)c.lineTo(x,G.tb-22-Math.sin(x*.03)*6);
+  c.lineTo(W,G.tb);c.closePath();c.fill();
+  // süsler
+  c.textAlign='center';c.textBaseline='alphabetic';
+  for(const o of G.dec){c.save();c.translate(o.x,G.tb-18);c.rotate(Math.sin(t*1.2+o.x)*(AQ_D[o.t].e==='🌿'?0.12:0.02));c.scale(o.fl,1);c.font=o.s+'px sans-serif';c.fillText(AQ_D[o.t].e,0,0);c.restore()}
+  // kabarcıklar
+  c.strokeStyle='rgba(255,255,255,.6)';c.lineWidth=1.2;
+  for(const b of G.bub){c.beginPath();c.arc(b.x+Math.sin(b.w)*5,b.y,b.r,0,6.283);c.stroke()}
+  // yem
+  c.fillStyle='#f59e0b';for(const fd of G.food){c.beginPath();c.arc(fd.x,fd.y,3.5,0,6.283);c.fill()}
+  // balıklar
+  c.textBaseline='middle';
+  for(const f of G.fish){
+    c.save();c.translate(f.x,f.y);c.rotate(Math.sin(f.wt*5)*0.06);c.scale(-f.dir,1);
+    c.font=f.sz+'px sans-serif';c.fillText(AQ_F[f.t].e,0,0);c.restore();
+  }
+  c.font='16px sans-serif';
+  for(const h of G.hearts){c.globalAlpha=Math.min(1,h.l);c.fillText('❤️',h.x,h.y)}
+  c.globalAlpha=1;
+  if(!G.fish.length){c.font='bold 15px sans-serif';c.fillStyle='rgba(255,255,255,.85)';c.fillText(trStr('İlk balığını aşağıdan al!'),W/2,G.tb*0.45)}
+  else if(!G.fed){c.font='13px sans-serif';c.fillStyle='rgba(255,255,255,.7)';c.fillText(trStr('Suya dokun: yem at'),W/2,G.top+14)}
+}
+function aqFrame(now){
+  if(!aq.open||!aq.G){aq.raf=false;return}
+  const dt=Math.max(0,Math.min((now-aq.last)/1000||0,0.05));aq.last=now;
+  aqTick(aq.G,dt);aqDraw(aq.G);requestAnimationFrame(aqFrame);
+}
+$('c_aq').addEventListener('pointerdown',e=>{
+  const G=aq.G;if(!G)return;ac();const r=$('c_aq').getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  if(y>G.tb||y<G.top-20)return;
+  G.fed=true;if(G.food.length<8)G.food.push({x,y:Math.max(G.top,y),l:12});
+  tone(700,500,0.05,'sine',0.04);
+  for(const f of G.fish)if(Math.hypot(f.x-x,f.y-y)<f.sz*0.7){f.hl=1;G.hearts.push({x:f.x,y:f.y-f.sz*.6,l:1});tone(900,1100,0.06,'sine',0.05)}
+});
+ACH.push({id:'soaq1',name:'Balıkçı',text:'Su Sıralama: akvaryuma 5 balık ekle',get:()=>aqS.fish.length,target:5,reward:100},{id:'soaq2',name:'Akvaryum Ustası',text:'Su Sıralama: akvaryum puanı 40 olsun',get:()=>aqScore(),target:40,reward:300});
+
+$('so_aq').onclick=aqOpen;
 $('so_next').onclick=()=>soStart(soLevel);
 $('so_dbl').onclick=()=>Ads.rewarded(()=>{const G=so.G;credit('sort',G.reward);refreshCoins();$('so_dbl').classList.add('hidden');$('so_wi').textContent+=' · 2 kat yapıldı!'});
 $('so_undo').onclick=soUndo;$('so_tube').onclick=soAddTube;$('so_hint').onclick=soHint;
@@ -4164,6 +4294,7 @@ $('jb_done').onclick=()=>openLobby('cl');
 $('jb_dbl').onclick=()=>Ads.rewarded(()=>{const G=jb.G;credit('clean',G.pay);refreshCoins();$('jb_dbl').classList.add('hidden');$('jb_wi').textContent+='\n2 kat yapıldı!'});
 
 function freeBig(){
+  if(aq.open)aqClose();
   if(state!=='sort'){so.G=null;const c=$('c_so');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='clean'){cl.G=null;const c=$('c_cl');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='shadow'){sg.G=null;const c=$('c_sg');if(c&&c.width>1){c.width=1;c.height=1}}
@@ -6010,7 +6141,7 @@ $('exitNo').onclick=()=>show('exitOv',false);
 $('exitYes').onclick=()=>{try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()){C.registerPlugin('App').exitApp();return}}catch(e){}show('exitOv',false);try{window.close()}catch(e){}};
 // Açılış animasyonu
 (function(){const s=$('splash');if(!s)return;let done=false;const end=()=>{if(done)return;done=true;s.classList.add('out');setTimeout(()=>s.remove(),500)};s.onclick=end;setTimeout(end,2300)})();
-const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','lb_back'];
+const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','aq_x','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','lb_back'];
 function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
 function goBack(){
   if(state==='pause'){resumeRun();return true}
@@ -7117,6 +7248,21 @@ Yuva Birleştir: 8 ürün keşfet|Nest Merge: discover 8 items|Fusión de Nidos:
 Yuva Efsanesi|Nest Legend|Leyenda del Nido|Lenda do Ninho|Nest-Legende|Légende du Nid|Легенда гнезда|Legenda Sarang
 Yuva Birleştir: Ejderha ve Gökkuşağı'nı keşfet|Nest Merge: discover the Dragon and the Rainbow|Fusión de Nidos: descubre el Dragón y el Arcoíris|Fusão de Ninhos: descubra o Dragão e o Arco-íris|Nestfusion: entdecke Drache und Regenbogen|Fusion de Nids : découvre le Dragon et l'Arc-en-ciel|Слияние гнёзд: открой Дракона и Радугу|Gabung Sarang: temukan Naga dan Pelangi
 {} ürün keşfet|discover {} items|descubre {} objetos|descubra {} itens|entdecke {} Items|découvre {} objets|открой {} предметов|temukan {} benda
+🐠 Akvaryum|🐠 Aquarium|🐠 Acuario|🐠 Aquário|🐠 Aquarium|🐠 Aquarium|🐠 Аквариум|🐠 Akuarium
+🐠 Balıklar {}/{}|🐠 Fish {}/{}|🐠 Peces {}/{}|🐠 Peixes {}/{}|🐠 Fische {}/{}|🐠 Poissons {}/{}|🐠 Рыбы {}/{}|🐠 Ikan {}/{}
+🪸 Süsler {}/{}|🪸 Decor {}/{}|🪸 Adornos {}/{}|🪸 Enfeites {}/{}|🪸 Deko {}/{}|🪸 Décor {}/{}|🪸 Декор {}/{}|🪸 Dekor {}/{}
+Her seviye bitince bonus: +{} 🪙 (en fazla ödülün %{}'ı)|Bonus per level: +{} 🪙 (max {}% of the reward)|Bono por nivel: +{} 🪙 (máx. {}% del premio)|Bônus por nível: +{} 🪙 (máx. {}% do prêmio)|Bonus pro Level: +{} 🪙 (max. {}% der Belohnung)|Bonus par niveau : +{} 🪙 (max {} % de la récompense)|Бонус за уровень: +{} 🪙 (макс. {}% награды)|Bonus per level: +{} 🪙 (maks. {}% hadiah)
++{} puan|+{} points|+{} puntos|+{} pontos|+{} Punkte|+{} points|+{} очк.|+{} poin
+Süs alanı dolu|Decor area is full|Zona de adornos llena|Área de enfeites cheia|Deko-Bereich voll|Zone de décor pleine|Место для декора занято|Area dekor penuh
+Akvaryum dolu|Aquarium is full|Acuario lleno|Aquário cheio|Aquarium voll|Aquarium plein|Аквариум полон|Akuarium penuh
+Yeterli paran yok|Not enough coins|No tienes suficientes monedas|Moedas insuficientes|Nicht genug Münzen|Pas assez de pièces|Недостаточно монет|Koin tidak cukup
+Akvaryuma eklendi|Added to aquarium|Añadido al acuario|Adicionado ao aquário|Zum Aquarium hinzugefügt|Ajouté à l'aquarium|Добавлено в аквариум|Ditambahkan ke akuarium
+İlk balığını aşağıdan al!|Buy your first fish below!|¡Compra tu primer pez abajo!|Compre seu primeiro peixe abaixo!|Kaufe unten deinen ersten Fisch!|Achète ton premier poisson en bas !|Купи первую рыбку внизу!|Beli ikan pertamamu di bawah!
+Suya dokun: yem at|Tap the water to feed|Toca el agua para dar de comer|Toque na água para alimentar|Tippe aufs Wasser zum Füttern|Touche l'eau pour nourrir|Коснись воды, чтобы покормить|Sentuh air untuk memberi makan
+Balıkçı|Angler|Pescador|Pescador|Angler|Pêcheur|Рыбак|Pemancing
+Su Sıralama: akvaryuma 5 balık ekle|Water Sort: add 5 fish to the aquarium|Ordenar Agua: añade 5 peces al acuario|Separar Água: adicione 5 peixes ao aquário|Wasser sortieren: füge 5 Fische hinzu|Tri d'Eau : ajoute 5 poissons|Сортировка воды: добавь 5 рыб|Susun Air: tambah 5 ikan
+Akvaryum Ustası|Aquarium Master|Maestro del Acuario|Mestre do Aquário|Aquarium-Meister|Maître de l'Aquarium|Мастер аквариума|Master Akuarium
+Su Sıralama: akvaryum puanı 40 olsun|Water Sort: reach aquarium score 40|Ordenar Agua: llega a 40 puntos de acuario|Separar Água: chegue a 40 pontos de aquário|Wasser sortieren: erreiche Aquarium-Punktzahl 40|Tri d'Eau : atteins 40 points d'aquarium|Сортировка воды: набери 40 очков аквариума|Susun Air: capai skor akuarium 40
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];
