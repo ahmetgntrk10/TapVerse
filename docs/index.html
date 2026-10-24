@@ -220,6 +220,7 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
     </div>
   </div>
   <div class="htitle"><div class="logo">TapVerse</div><div class="sub">OYUN SEÇ</div></div>
+  <div id="dgBan" class="dgban"></div>
   <div class="cards" id="hubCards">
     <div class="gcard g1" id="cardRun"><div class="gicon">🏃</div><div class="gtx"><b>Sonsuz Koşu</b><small>3 şeritte koş, engellerden kaç, altın topla.</small><span class="gtag" id="hsRun">En iyi: 0</span></div><div class="gplay">▶</div></div>
     <div class="gcard g2" id="cardMaze"><div class="gicon">🌀</div><div class="gtx"><b>Tek Parmak Labirent</b><small>Parmağınla topu yönlendir, çıkışı bul.</small><span class="gtag" id="hsMaze">Seviye 1</span></div><div class="gplay">▶</div></div>
@@ -584,7 +585,8 @@ const WALLET=W0,WN={run:'Sonsuz Koşu',maze:'Labirent',tiles:'Melodi Karoları',
 let curW='run',totalCoins=WALLET.run||0;
 function saveW(){WALLET[curW]=totalCoins;sv('tv_wallets',WALLET)}
 function useW(k){WALLET[curW]=totalCoins;curW=k;totalCoins=WALLET[k]||0;if(typeof refreshCoins==='function')refreshCoins()}
-function credit(k,n){if(k===curW)totalCoins+=n;else WALLET[k]=(WALLET[k]||0)+n;saveW()}
+function dgKey(){return WKEYS[Math.floor(Date.now()/864e5)%WKEYS.length]}
+function credit(k,n){if(n>0&&k===dgKey())n+=Math.floor(n*0.5);if(k===curW)totalCoins+=n;else WALLET[k]=(WALLET[k]||0)+n;saveW()}
 let owned=ld('tv_owned',['klasik']),selected=ld('tv_sel','klasik');
 let pets=ld('tv_pets',[]),petSel=ld('tv_pet','');
 const BALLS=[
@@ -6673,6 +6675,7 @@ function hoEat(G,h,o){
   if(h.me||Math.hypot(h.x-G.me.x,h.y-G.me.y)<500){if(o.s>=14)hoBurst(G,o.x,o.y,Math.min(10,3+Math.round(o.s/8)),['#e5e7eb','#cbd5e1','#fff'])}
   if(h.me&&o.s>=26){G.shake=Math.min(1,G.shake+o.s/110);tone(140,55,0.16,'sine',0.09)}
   h.xp+=o.v;const gi=G.gidx[o.k];
+  if(h.me)hoDexAdd(o.k);
   if(gi!==undefined&&h.pg[gi]<G.goals[gi].n){h.pg[gi]++;if(h.me){hoFx(G,o.x,o.y-20,'+1','#fde047');ho.hudT=0}}
   else if(h.me&&o.v>=10)hoFx(G,o.x,o.y-20,'+'+o.v,'#fff');
   if(h.me){tone(280+Math.min(500,o.s*10),480+Math.min(700,o.s*14),0.07,'sine',0.045);if(o.s>=20)buzz(12)}
@@ -9642,6 +9645,11 @@ Joystick ile gez, ürünleri raflara taşı!|Walk with the joystick, carry goods
 GİRİŞ|ENTRANCE|ENTRADA|ENTRADA|EINGANG|ENTRÉE|ВХОД|MASUK
 Kasa|Register|Caja|Caixa|Kasse|Caisse|Касса|Kasir
 Kasiyer|Cashier|Cajero|Caixa|Kassierer|Caissier|Кассир|Kasir
+Koleksiyon|Collection|Colección|Coleção|Sammlung|Collection|Коллекция|Koleksi
+Yeni nesne|New item|Nuevo objeto|Novo item|Neues Objekt|Nouvel objet|Новый предмет|Item baru
+Her nesne: 10, 100 ve 500 yutunca ödül|Reward at 10, 100 and 500 eaten per item|Premio al tragar 10, 100 y 500 de cada objeto|Prêmio ao engolir 10, 100 e 500 de cada item|Belohnung bei 10, 100 und 500 pro Objekt|Récompense à 10, 100 et 500 par objet|Награда за 10, 100 и 500 каждого предмета|Hadiah saat 10, 100, dan 500 per item
+Günün Oyunu|Game of the Day|Juego del día|Jogo do dia|Spiel des Tages|Jeu du jour|Игра дня|Game Hari Ini
+kazançlar +%50|earnings +50%|ganancias +50%|ganhos +50%|Einnahmen +50 %|gains +50 %|доход +50%|pendapatan +50%
 Bakkal|Grocery|Tienda|Mercearia|Kiosk|Épicerie|Бакалея|Warung
 Süpermarket|Supermarket|Supermercado|Supermercado|Supermarkt|Supermarché|Супермаркет|Supermarket
 Pazar|Bazaar|Mercado|Feira|Basar|Bazar|Базар|Pasar
@@ -9774,6 +9782,35 @@ player.rotation.y=0;
 openHub();refreshSw();if(notOn)notSchedule();
 if(!ld('tv_tut',0))setTimeout(tutOpen,400);
 requestAnimationFrame(frame);
+
+// ---- Günün Oyunu (her gün başka oyunda kazançlar +%50) ----
+document.head.insertAdjacentHTML('beforeend','<style>.dgban{margin:6px 14px 2px;padding:9px 12px;border-radius:14px;background:linear-gradient(90deg,#f59e0b,#ef4444);color:#fff;font-weight:800;font-size:14px;text-align:center;box-shadow:0 4px 14px rgba(239,68,68,.35)}</style>');
+function dgRefresh(){const k=dgKey(),n=WN[k]||(QG[k]&&QG[k].n)||k;const el=$('dgBan');if(el)el.textContent='🔥 '+trStr('Günün Oyunu')+': '+trStr(n)+' · '+trStr('kazançlar +%50')}
+dgRefresh();setInterval(dgRefresh,600000);
+
+// ---- Obur Delik Koleksiyon Kitabı ----
+const hoDex=ld('tv_hodex',{});let hoDexDirty=0;
+const HO_DX=[[10,15],[100,80],[500,300]];
+function hoDexAdd(k){const c=(hoDex[k]||0)+1;hoDex[k]=c;hoDexDirty=1;
+  if(c===1){toast('📖 '+trStr('Yeni nesne')+'!')}
+  for(const m of HO_DX)if(c===m[0]){credit('hole',m[1]);toast('📖 '+m[0]+'× → +'+m[1]+' 🪙');refreshCoins()}}
+setInterval(()=>{if(hoDexDirty){hoDexDirty=0;sv('tv_hodex',hoDex)}},4000);
+document.body.insertAdjacentHTML('beforeend','<div id="ho_dx" class="overlay hidden" style="z-index:30"><div class="card" style="width:min(94vw,420px);max-height:86vh;display:flex;flex-direction:column"><div class="ttl">📖 Koleksiyon</div><div id="ho_dxs" style="text-align:center;font-size:13px;opacity:.9;margin-top:4px"></div><div id="ho_dxl" style="overflow:auto;margin:10px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div><button id="ho_dxx" class="alt">Kapat</button></div></div>');
+document.head.insertAdjacentHTML('beforeend','<style>.dxc{background:rgba(255,255,255,.08);border-radius:12px;padding:6px 2px;text-align:center;font-size:11px}.dxc img{width:48px;height:48px;display:block;margin:0 auto 2px}.dxc .q{font-size:30px;height:48px;line-height:48px;opacity:.35}</style>');
+$('ho_dxx').onclick=()=>show('ho_dx',false);
+function hoDexOpen(){
+  const ks=Object.keys(HO_K),L=$('ho_dxl');L.innerHTML='';const got=ks.filter(k=>hoDex[k]>0);
+  $('ho_dxs').textContent=got.length+' / '+ks.length+' · '+trStr('Her nesne: 10, 100 ve 500 yutunca ödül');
+  const todo=[];
+  ks.forEach(k=>{const d=document.createElement('div'),c=hoDex[k]||0;d.className='dxc';
+    const nx=HO_DX.find(m=>c<m[0]);
+    d.innerHTML=(c?'<img alt="">':'<div class="q">❓</div>')+'<b>'+(c||'')+'</b>'+(c&&nx?'<div style="opacity:.6">/'+nx[0]+'</div>':'');
+    if(c)todo.push([k,d.querySelector('img')]);L.appendChild(d)});
+  show('ho_dx',true);
+  (function step(){const t=todo.splice(0,5);t.forEach(([k,im])=>{try{im.src=hoIcon(k)}catch(e){}});if(todo.length&&!$('ho_dx').classList.contains('hidden'))setTimeout(step,30)})();
+}
+const _lbCfgDex=lbCfg;
+lbCfg=function(id){const r=_lbCfgDex(id);if(id==='ho'&&r&&r.x&&!r._dx){r._dx=1;r.x=r.x.concat([['📖 Koleksiyon',()=>{openLobby('ho');hoDexOpen()}]])}return r};
 </script>
 </body>
 </html>
