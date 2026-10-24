@@ -24,3 +24,4 @@ Tek uygulamada mini oyunlar. İlk oyun: sonsuz koşu. Dosyalar `docs/` klasörü
 
 - Market Ustası: marketi yönet, rafları doldur, müşterilere hizmet et (kendi parası, geliştirmeler, yardımcılar, Kalabalık Saati).
 - Drift Rotası ve Salıncak Kancası: iki yeni arcade oyunu.
+- Obur Delik: her 10 seviyede yeni bölge (Şehir, Sahil, Çiftlik, Kar Köyü, Lunapark, Çöl; sonra baştan, daha zor). Her bölgenin kendi nesneleri, zemini ve hedef havuzu var (`HO_BIO`). Hedef sayısı 2–5 arasında değişir (az hedef = çok nesne). Boyut en fazla 16.
