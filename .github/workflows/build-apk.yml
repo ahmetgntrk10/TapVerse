@@ -28,6 +28,7 @@ jobs:
         run: |
           mkdir -p www
           cp docs/index.html www/index.html
+          mkdir -p www/words && cp docs/words/*.json www/words/
           cp node_modules/three/build/three.module.js www/three.module.js
           sed -i 's#https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js#./three.module.js#' www/index.html
 

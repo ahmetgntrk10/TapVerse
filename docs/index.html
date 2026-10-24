@@ -634,8 +634,8 @@ const yestStr=()=>{const d=new Date(Date.now()-864e5);return d.getFullYear()+'-'
 const weekId=()=>{const d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5-4)/7)};
 const weekLeft=()=>{const d=new Date(),dow=(d.getDay()+6)%7;const end=new Date(d.getFullYear(),d.getMonth(),d.getDate()+(7-dow));return Math.max(0,end-d)};
 // Oyun tablosu: n=ad, e=simge, w=ödülün yatacağı cüzdan (parası olmayan oyunlar Sonsuz Koşu cüzdanına yazar)
-const QG={run:{n:'Sonsuz Koşu',e:'🏃',w:'run'},maze:{n:'Labirent',e:'🌀',w:'maze'},city:{n:'Tek Tuş Şehir',e:'🏙️',w:'run'},tiles:{n:'Melodi Karoları',e:'🎹',w:'tiles'},arrows:{n:'Ok Kaçışı',e:'🎯',w:'arrows'},sort:{n:'Su Sıralama',e:'🧪',w:'sort'},clean:{n:'Temizlik',e:'🧼',w:'clean'},ghost:{n:'Hayalet Takım',e:'👻',w:'ghost'},lock:{n:'Kasa Uzmanı',e:'🔐',w:'lock'},shadow:{n:'Gölge Bahçesi',e:'🌙',w:'shadow'},mini:{n:'Mini Oyunlar',e:'🎮',w:'run'},any:{n:'Genel',e:'⭐',w:'run'}};
-const WNAME={run:'Sonsuz Koşu',maze:'Labirent',tiles:'Melodi Karoları',arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik',ghost:'Hayalet Takım',lock:'Kasa Uzmanı',shadow:'Gölge Bahçesi'};
+const QG={run:{n:'Sonsuz Koşu',e:'🏃',w:'run'},maze:{n:'Labirent',e:'🌀',w:'maze'},city:{n:'Tek Tuş Şehir',e:'🏙️',w:'run'},tiles:{n:'Melodi Karoları',e:'🎹',w:'tiles'},arrows:{n:'Ok Kaçışı',e:'🎯',w:'arrows'},sort:{n:'Su Sıralama',e:'🧪',w:'sort'},clean:{n:'Temizlik',e:'🧼',w:'clean'},ghost:{n:'Hayalet Takım',e:'👻',w:'ghost'},lock:{n:'Kasa Uzmanı',e:'🔐',w:'lock'},shadow:{n:'Gölge Bahçesi',e:'🌙',w:'shadow'},words:{n:'Kelime Çiçeği',e:'🌸',w:'words'},mini:{n:'Mini Oyunlar',e:'🎮',w:'run'},any:{n:'Genel',e:'⭐',w:'run'}};
+const WNAME={words:'Kelime Çiçeği',run:'Sonsuz Koşu',maze:'Labirent',tiles:'Melodi Karoları',arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik',ghost:'Hayalet Takım',lock:'Kasa Uzmanı',shadow:'Gölge Bahçesi'};
 // t: günlük [kolay,orta,zor], w: haftalık [kolay,orta,zor], x: metin ({n} sayı yerine geçer)
 const QT=[
  {k:'play',g:'run',m:'sum',x:'{n} kez koş',t:[2,4,8],w:[8,16,30]},
@@ -659,6 +659,7 @@ const QT=[
  {k:'ghost',g:'ghost',m:'sum',x:'{n} seviye bitir',t:[1,3,5],w:[4,8,14]},
  {k:'lock',g:'lock',m:'sum',x:'{n} kasa aç',t:[1,3,5],w:[4,8,14]},
  {k:'shadow',g:'shadow',m:'sum',x:'{n} bahçe bitir',t:[1,3,5],w:[4,8,14]},
+ {k:'words',g:'words',m:'sum',x:'{n} kelime seviyesi bitir',t:[2,4,7],w:[8,16,28]},
  {k:'mgplay',g:'mini',m:'sum',x:'{n} tur oyna',t:[3,6,12],w:[12,25,45]},
  {k:'diff',g:'any',m:'diff',x:'{n} farklı oyun oyna',t:[2,3,5],w:[4,7,10]}
 ];
@@ -666,7 +667,7 @@ const WORLD_TX=['','',"Buz Dünyası'na ulaş","Çöl Dünyası'na ulaş","Lav D
 const QRW={d:[40,90,180],w:[120,280,550]},QRF={run:1.5};
 const DIFFN=['Kolay','Orta','Zor'],DIFFC=['#52e08a','#ffd34d','#ff6b7a'];
 const GIFTS=[30,40,50,60,80,100,150];
-const GOF={play:'run',score:'run',runcoins:'run',c_run:'run',jump:'run',slide:'run',power:'run',world:'run',boss:'run',maze:'maze',c_maze:'maze',city:'city',cjump:'city',tile:'tiles',song:'tiles',c_tiles:'tiles',arrows:'arrows',c_arrows:'arrows',sort:'sort',c_sort:'sort',clean:'clean',c_clean:'clean',ghost:'ghost',c_ghost:'ghost',lock:'lock',c_lock:'lock',shadow:'shadow',c_shadow:'shadow'};
+const GOF={play:'run',score:'run',runcoins:'run',c_run:'run',jump:'run',slide:'run',power:'run',world:'run',boss:'run',maze:'maze',c_maze:'maze',city:'city',cjump:'city',tile:'tiles',song:'tiles',c_tiles:'tiles',arrows:'arrows',c_arrows:'arrows',sort:'sort',c_sort:'sort',clean:'clean',c_clean:'clean',ghost:'ghost',c_ghost:'ghost',lock:'lock',c_lock:'lock',shadow:'shadow',c_shadow:'shadow',words:'words',c_words:'words'};
 function gameOf(t){return GOF[t]||(t.indexOf('g_')===0?t.slice(2):t.indexOf('gp_')===0?t.slice(3):null)}
 let daily=ld('tv_daily',null),weekly=ld('tv_weekly',null),streak=ld('tv_streak',{last:'',count:0});
 let gs=ld('tv_gs',{});if(!gs.pl)gs.pl={};
@@ -1167,7 +1168,7 @@ function openHub(){
   state='hub';curHome='hub';stopMusic();
   hideAll();
   $('coinhud').style.display='none';$('pw').textContent='';scoreEl.textContent='';
-  show('hub',true);refreshCoins();updateBadge();refreshHub();try{$('hsGh').textContent='Seviye '+ghLevel;$('hsLk').textContent='Kasa '+lkLevel;$('hsSg').textContent='Bahçe '+sgLevel}catch(e){}
+  show('hub',true);refreshCoins();updateBadge();refreshHub();try{$('hsGh').textContent='Seviye '+ghLevel;$('hsLk').textContent='Kasa '+lkLevel;$('hsSg').textContent='Bahçe '+sgLevel;$('hsWd').textContent='Seviye '+wdLevel}catch(e){}
 }
 $('cardRun').onclick=()=>{show('hub',false);toMenu()};
 $('cardMaze').onclick=()=>openMaze();
@@ -4165,6 +4166,7 @@ function freeBig(){
   if(state!=='sort'){so.G=null;const c=$('c_so');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='clean'){cl.G=null;const c=$('c_cl');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='shadow'){sg.G=null;const c=$('c_sg');if(c&&c.width>1){c.width=1;c.height=1}}
+  if(state!=='words'){wd.G=null;const c=$('c_wd');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='lock'){lk.G=null;const c=$('c_lk');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='gh'){gh.G=null;const c=$('c_gh');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='job'){jb.G=null;const c=$('c_jb');if(c&&c.width>1){c.width=1;c.height=1}}
@@ -4575,6 +4577,420 @@ $('lk_steth').onclick=()=>{const G=lk.G;if(!G||G.won||G.failed)return;const go=(
 $('lk_dbl').onclick=()=>{const G=lk.G;if(!G)return;if(G.failed){Ads.rewarded(()=>{G.failed=false;G.pk=2;G.cool=0.5;G.tl=G.timeL;show('lk_win',false);lkHud()});return}Ads.rewarded(()=>{credit('lock',G.reward);refreshCoins();$('lk_dbl').classList.add('hidden');$('lk_wi').textContent+=' · 2 kat yapıldı!'})};
 
 
+// ---- Kelime Çiçeği: seviye üretici ----
+const WD_TIER=[
+  {id:'vez',n:'Çok Kolay',c:'#6ee7b7',L:[4,4,4],words:[3,4,4],min:3,max:4,mult:.7},
+  {id:'ez',n:'Kolay',c:'#86efac',L:[4,5,5],words:[4,5,6],min:3,max:5,mult:.85},
+  {id:'md',n:'Orta',c:'#fde047',L:[5,5,6],words:[5,6,7],min:3,max:6,mult:1.05},
+  {id:'hd',n:'Zor',c:'#fb923c',L:[6,6,7],words:[7,8,9],min:3,max:7,mult:1.3},
+  {id:'vhd',n:'Çok Zor',c:'#f87171',L:[7,7,7],words:[9,10,11],min:3,max:7,mult:1.6},
+  {id:'ez2',n:'Kolay',c:'#86efac',L:[4,5,5],words:[4,5,6],min:3,max:5,mult:.85},
+  {id:'boss',n:'BOSS',c:'#f0abfc',L:[6,7,7],words:[9,11,12],min:3,max:7,mult:2.1}
+];
+const wdTier=l=>WD_TIER[(l-1)%7],wdCycle=l=>Math.floor((l-1)/7);
+const wdBossL=l=>(l-1)%7===6;
+function wdSig(w){return w.split('').sort().join('')}
+function wdCan(w,cnt){const c=Object.assign({},cnt);for(const ch of w){if(!c[ch])return false;c[ch]--}return true}
+function wdPlace(words,rnd,maxN){
+  const G=new Map(),P=[];
+  const get=(r,c)=>G.get(r+','+c);
+  let R0=0,R1=0,C0=0,C1=0;
+  function can(w,r,c,dir){
+    const dr=dir?1:0,dc=dir?0:1;
+    if(get(r-dr,c-dc)||get(r+dr*w.length,c+dc*w.length))return -1;
+    let cross=0;
+    for(let i=0;i<w.length;i++){
+      const rr=r+dr*i,cc=c+dc*i,e=get(rr,cc);
+      if(e){if(e.ch!==w[i])return -1;if(dir?e.v:e.h)return -1;cross++}
+      else if(get(rr+dc,cc+dr)||get(rr-dc,cc-dr))return -1;
+    }
+    return cross;
+  }
+  function put(w,r,c,dir){
+    const dr=dir?1:0,dc=dir?0:1;
+    for(let i=0;i<w.length;i++){const rr=r+dr*i,cc=c+dc*i,k=rr+','+cc;let e=G.get(k);if(!e){e={ch:w[i],h:0,v:0};G.set(k,e)}if(dir)e.v=1;else e.h=1}
+    const er=r+dr*(w.length-1),ec=c+dc*(w.length-1);
+    if(!P.length){R0=r;R1=er;C0=c;C1=ec}else{R0=Math.min(R0,r);R1=Math.max(R1,er);C0=Math.min(C0,c);C1=Math.max(C1,ec)}
+    P.push({w,r,c,dir});
+  }
+  put(words[0],0,0,rnd()<.5?0:1);
+  for(let wi=1;wi<words.length;wi++){
+    const w=words[wi];let best=null,bs=-1e9;
+    for(const p of P){
+      for(let i=0;i<p.w.length;i++){
+        const cr=p.r+(p.dir?i:0),cc=p.c+(p.dir?0:i);
+        for(let j=0;j<w.length;j++){
+          if(w[j]!==p.w[i])continue;
+          const nd=p.dir?0:1;
+          const sr=nd?cr-j:cr,sc=nd?cc:cc-j;
+          const x=can(w,sr,sc,nd);if(x<=0)continue;
+          const er=sr+(nd?w.length-1:0),ec=sc+(nd?0:w.length-1);
+          const h=Math.max(R1,er)-Math.min(R0,sr)+1,wd=Math.max(C1,ec)-Math.min(C0,sc)+1;
+          if(h>maxN||wd>maxN)continue;
+          const sco=x*10-(h*wd)*0.35-Math.abs(h-wd)*0.8+rnd()*4;
+          if(sco>bs){bs=sco;best=[w,sr,sc,nd]}
+        }
+      }
+    }
+    if(best)put(best[0],best[1],best[2],best[3]);
+  }
+  return{P,rows:R1-R0+1,cols:C1-C0+1,R0,C0};
+}
+let wdLists={};
+function wdMk(lj){
+  const a=lj.a||[],v=lj.v||[],set=new Set(a);for(const w of v)set.add(w);
+  return{a,set,rank:new Map(a.map((w,i)=>[w,i]))};
+}
+function wdHash(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+function wdGen(level,code,L,rx){rx=rx||0;
+  const t=wdTier(level),k=wdCycle(level),ph=Math.min(2,k),boss=wdBossL(level);
+  const rnd=mzRng(level*7919+wdHash(code)*13+5);
+  let n=t.L[ph];
+  let target=t.words[ph]+(k>=4&&t.id!=='vez'?1:0);
+  if(level===1){n=4;target=3}else if(level===2){n=4;target=4}
+  if(rx>=2){n=n<7?n+1:n-1;target=Math.max(3,target-2)}
+  const maxN=n>=6?8:7;
+  const cap=rx?1e9:t.id==='vez'?1800:t.id==='ez'||t.id==='ez2'?3200:t.id==='md'?4800:1e9;
+  const bases=L.a.filter(w=>w.length===n&&L.rank.get(w)<(boss||t.id==='vhd'||t.id==='hd'?1e9:cap));
+  let bestRes=null,bestScore=-1;
+  for(let at=0;at<(rx?250:60)&&bases.length;at++){
+    const base=bases[Math.floor(rnd()*bases.length)];
+    const cnt={};for(const ch of base)cnt[ch]=(cnt[ch]||0)+1;
+    const cand=L.a.filter(w=>w.length>=t.min&&w.length<=n&&w!==base&&L.rank.get(w)<cap&&wdCan(w,cnt));
+    const need=Math.max(3,target-1);
+    if(cand.length+1<need)continue;
+    // seçim: uzunlukları dengele
+    const pool=cand.slice();for(let i=pool.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+    pool.sort((a,b)=>(b.length-a.length)*(rnd()<.35?0:1));
+    const pick=[base];
+    for(const w of pool){if(pick.length>=target+1)break;if(pick.every(x=>x!==w))pick.push(w)}
+    let bestP=null;
+    for(let tr=0;tr<14;tr++){
+      const ord=pick.slice(0,1).concat(pick.slice(1,target+1).sort((a,b)=>(b.length-a.length)+(rnd()-.5)*2.2));
+      if(tr>0&&n<=5)ord[0]=ord.reduce((m,w)=>w.length>m.length?w:m,ord[0]);
+      const r=wdPlace(ord,rnd,maxN);
+      const sc=Math.min(r.P.length,target)*100-r.rows*r.cols-(r.P.length>target?0:0);
+      if(!bestP||sc>bestP.sc){bestP=r;bestP.sc=sc}
+      if(r.P.length>=target&&tr>3)break;
+    }
+    const placed=Math.min(bestP.P.length,target);
+    const score=placed*100+bestP.P.length*3-bestP.rows*bestP.cols;
+    if(score>bestScore){bestScore=score;bestRes={base,cnt,P:bestP}}
+    if(bestP.P.length>=target)break;
+  }
+  if(!bestRes)return null;
+  const {base,cnt,P}=bestRes;
+  // fazlayı kırp (hedefi aşanlar kalsın ama 2 fazla fazla)
+  let words=P.P;
+  const placedSet=new Set(words.map(p=>p.w));
+  const bonus=[];
+  for(const w of L.set){if(w.length>=3&&w.length<=n&&!placedSet.has(w)&&wdCan(w,cnt))bonus.push(w)}
+  // altın kelime (nadir)
+  const coin=[];
+  const pc=t.id==='hd'?.05:t.id==='vhd'?.12:boss?.2:0;
+  if(level>7&&rnd()<pc){
+    const longs=words.map((p,i)=>i).filter(i=>words[i].w.length>=5);
+    if(longs.length){coin.push(longs.splice(Math.floor(rnd()*longs.length),1)[0]);
+      if(longs.length&&(t.id==='vhd'||boss)&&rnd()<.22)coin.push(longs[Math.floor(rnd()*longs.length)])}
+  }
+  let letters=base.split('');
+  for(let i=0;i<9;i++){for(let j=letters.length-1;j>0;j--){const q=Math.floor(rnd()*(j+1));[letters[j],letters[q]]=[letters[q],letters[j]]}if(letters.join('')!==base)break}
+  return{level,tier:t,boss,n,base,letters,words:words.map(p=>({w:p.w,r:p.r-P.R0,c:p.c-P.C0,dir:p.dir})),rows:P.rows,cols:P.cols,bonus,coin};
+}
+function wdGet(level,code,L){return wdGen(level,code,L,0)||wdGen(level,code,L,1)||wdGen(level,code,L,2)||wdGen(level,code,L,3)}
+
+// ---- Kelime Çiçeği (harf çarkı kelime bulmaca) ----
+WN.words='Kelime Çiçeği';WKEYS.push('words');
+let wdLevel=ld('tv_wdlevel',1),wdHints=ld('tv_wdh',3),wdSt=ld('tv_wdst',{b:0,g:0,w:0});
+const wd={G:null,raf:false,last:0,sel:null,lists:{},loading:false,pick:false};
+const WD_LANGS=['tr','en','es','pt','de','fr','ru'];
+const WD_BG={vez:['#115e59','#0c1a3a'],ez:['#166534','#0a2a30'],md:['#4c3ba8','#1b1447'],hd:['#9a3412','#2b1233'],vhd:['#991b1b','#1f0f2e'],ez2:['#166534','#0a2a30'],boss:['#6b21a8','#190a2c']};
+const WD_PAL=['#fb7185','#fbbf24','#34d399','#38bdf8','#a78bfa','#f472b6','#fb923c','#2dd4bf','#a3e635','#60a5fa','#e879f9','#facc15'];
+const WD_HP=30;
+document.body.insertAdjacentHTML('beforeend','<div id="words" class="hidden mgscr"><canvas id="c_wd" style="touch-action:none"></canvas>'
+ +'<div class="mtop"><button id="wd_back" class="ibtn alt">‹</button><div class="pill" id="wd_lv">Seviye 1</div><div class="pill sm" id="wd_tier">Çok Kolay</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
+ +'<div class="sobar"><button id="wd_sh"><i>🔀</i><span>Karıştır</span></button><button id="wd_hint"><i>💡</i><span id="wd_hn">İpucu</span></button><button id="wd_fg"><i>👆</i><span>Harf Seç</span></button><button id="wd_bn"><i>📖</i><span id="wd_bnn">Bonus 0</span></button><button id="wd_sk"><i>⏭</i><span>Atla 📺</span></button></div>'
+ +'<div id="wd_win" class="overlay hidden"><div class="card"><div class="ttl" id="wd_t" style="color:var(--gold)">Harika! 🌸</div><div id="wd_wi" style="color:var(--mute);margin:8px 0;white-space:pre-line"></div><button id="wd_next" class="gold">▶ Sonraki Seviye</button><button id="wd_dbl" class="alt">📺 Ödülü 2 kat yap</button><button id="wd_wh" class="alt">🎮 Oyunlar</button></div></div>'
+ +'<div id="wd_bs" class="overlay hidden"><div class="card" style="max-height:80vh;overflow:auto"><div class="ttl">📖 Bonus Kelimeler</div><div id="wd_bi" style="color:var(--mute);margin:6px 0 10px;font-size:14px"></div><div id="wd_bl" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px"></div><button id="wd_bx" class="alt">Kapat</button></div></div></div>');
+document.head.insertAdjacentHTML('beforeend','<style>#wd_lv{font-size:15px;padding:6px 11px;white-space:nowrap}#wd_tier{white-space:nowrap;font-weight:700}#wd_back{flex:none}#words .sobar button{padding:7px 0}.wdchip{background:rgba(255,255,255,.12);border-radius:10px;padding:4px 10px;font-weight:700;font-size:14px;letter-spacing:1px}</style>');
+SCR.push('words');
+$('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardWd" style="background:linear-gradient(135deg,#0d9488,#6366f1 55%,#ec4899)"><div class="gicon">🌸</div><div class="gtx"><b>Kelime Çiçeği</b><small>Harfleri kaydır, kelimeleri bul, çiçeği aç. Her dilde!</small><span class="gtag" id="hsWd">Seviye 1</span></div><div class="gplay" style="color:#0d9488">▶</div></div>');
+ACH3('t_wd','words','{n} seviye bitir',()=>wdLevel-1,[5,25,80],RS);
+ACH.push({id:'wdb1',name:'Bonus Avcısı',text:'Kelime Çiçeği: 50 bonus kelime bul',get:()=>wdSt.b,target:50,reward:200,w:'words'},{id:'wdb2',name:'Kelime Ustası',text:'Kelime Çiçeği: 500 bonus kelime bul',get:()=>wdSt.b,target:500,reward:1200,w:'words'},{id:'wdg1',name:'Altın Avcısı',text:'Kelime Çiçeği: 5 altın kelime bul',get:()=>wdSt.g,target:5,reward:300,w:'words'},{id:'wdw1',name:'Kelime Kurdu',text:'Kelime Çiçeği: 300 kelime bul',get:()=>wdSt.w,target:300,reward:400,w:'words'});
+const _lbCfgWd=lbCfg;
+lbCfg=function(id){
+  if(id==='wd'){const wl=k=>'🪙 '+(k===curW?totalCoins:(WALLET[k]||0));return{emo:'🌸',t:'Kelime Çiçeği',d:'Harf çarkında parmağını kaydırarak kelime yap, bulmacadaki boşlukları doldur. Bulmacada olmayan geçerli kelimeler bonus sayılır. Altın kutulu kelimeler ekstra para verir. Her 7. seviye BOSS!',i:'Seviye '+wdLevel+' · 💡 '+wdHints,w:wl('words'),wk:'words',play:()=>openWd(wdLevel),x:[],levels:true,cur:()=>wdLevel,open:openWd}}
+  return _lbCfgWd(id);
+};
+const wdCode=()=>WD_LANGS.includes(lang)?lang:'en';
+const wdUp=(ch)=>ch.toLocaleUpperCase(wdCode()==='tr'?'tr':undefined);
+async function wdLoad(code){
+  if(wd.lists[code])return wd.lists[code];
+  const r=await fetch('words/'+code+'.json');if(!r.ok)throw new Error('wl');
+  const L=wdMk(await r.json());wd.lists[code]=L;return L;
+}
+function wdSaveP(G){try{sv('tv_wdp',{l:G.level,c:G.code,f:[...G.found],r:[...G.rev],b:G.bonusF,h:G.hu,bc:G.bcoin,bh:G.bhint})}catch(e){}}
+async function openWd(lv){
+  if(wd.loading)return;
+  state='words';useW('words');stopMusic();hideAll();show('words',true);show('wd_win',false);show('wd_bs',false);
+  wd.G=null;wd.loading=true;wd.sel=null;wd.pick=false;
+  const code=wdCode();let L;
+  try{L=await wdLoad(code)}catch(e){wd.loading=false;toast('Kelime listesi yüklenemedi');openLobby('wd');return}
+  wd.loading=false;if(state!=='words')return;
+  wdStart(lv||wdLevel,code,L);
+}
+function wdStart(level,code,L){
+  const g=wdGet(level,code,L);
+  if(!g){toast('Seviye üretilemedi');openLobby('wd');return}
+  const G={level,code,L,g,t:0,found:new Set(),rev:new Set(),cellT:new Map(),sel:[],bonusF:[],bonusSet:new Set(g.bonus),ghosts:[],parts:[],floats:[],shake:0,bad:0,pulse:null,pulseT:0,banner:2.2,hu:0,bcoin:0,bhint:0,won:false,coinGot:0,ord:g.letters.map((_,i)=>i),bp:[],msg:'',msgT:0,prevBonus:0,tutT:0,wrongT:0};
+  const sp=ld('tv_wdp',null);
+  if(sp&&sp.l===level&&sp.c===code){sp.f.forEach(i=>G.found.add(i));sp.r.forEach(k=>G.rev.add(k));G.bonusF=sp.b||[];G.hu=sp.h||0;G.bcoin=sp.bc||0;G.bhint=sp.bh||0;G.banner=0.8}
+  g.words.forEach((p,i)=>{if(G.found.has(i)){for(let k=0;k<p.w.length;k++)G.rev.add((p.r+(p.dir?k:0))+','+(p.c+(p.dir?0:k)))}});
+  wd.G=G;wd.pick=false;wd.sel=null;show('wd_win',false);show('wd_bs',false);wdLayout(G);wdHud();wdSaveP(G);
+  if(!wd.raf){wd.raf=true;wd.last=performance.now();requestAnimationFrame(wdFrame)}
+}
+function wdLayout(G){
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_wd');
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
+  G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;
+  const barH=86+0;G.R=Math.min(W*0.4,H*0.19,170);G.cx=W/2;G.cy=H-barH-G.R-14;
+  G.pillY=G.cy-G.R-34;const top=70,bot=G.pillY-30,g=G.g;
+  G.cell=Math.max(18,Math.min(54,(W-28)/g.cols,(bot-top)/g.rows));
+  G.gx=(W-G.cell*g.cols)/2;G.gy=top+((bot-top)-G.cell*g.rows)/2;
+  const n=g.n;G.br=Math.min(G.R*(n<=4?0.27:n<=5?0.25:0.23),34);G.lr=G.R-G.br-8;
+  G.tp=g.letters.map((_,i)=>{const a=-Math.PI/2+i/n*Math.PI*2;return{x:G.cx+Math.cos(a)*G.lr,y:G.cy+Math.sin(a)*G.lr}});
+  G.bp=G.ord.map((_,i)=>({x:G.tp[i].x,y:G.tp[i].y,fx:G.tp[i].x,fy:G.tp[i].y,t0:-9}));
+}
+function wdHud(){
+  const G=wd.G;if(!G)return;const t=G.g.tier;
+  $('wd_lv').textContent=(G.g.boss?'🔥 ':'')+'Seviye '+G.level;
+  const tt=$('wd_tier');tt.textContent=t.n;tt.style.color=t.c;
+  $('wd_hn').textContent=wdHints>0?'İpucu ×'+wdHints:'İpucu 🪙'+WD_HP;
+  $('wd_bnn').textContent='Bonus '+G.bonusF.length;
+  $('wd_fg').classList.toggle('off',!!wd.pick);$('wd_fg').style.outline=wd.pick?'2px solid #ffd34d':'none';
+}
+const wdCellKey=(p,k)=>(p.r+(p.dir?k:0))+','+(p.c+(p.dir?0:k));
+function wdCellPos(G,r,c){return{x:G.gx+c*G.cell+G.cell/2,y:G.gy+r*G.cell+G.cell/2}}
+function wdWordOf(G,k){const o=[];G.g.words.forEach((p,i)=>{if(G.found.has(i))return;for(let j=0;j<p.w.length;j++)if(wdCellKey(p,j)===k)o.push(i)});return o}
+function wdBurst(G,x,y,n,cols,sp){for(let i=0;i<n;i++){const a=Math.random()*6.283,v=(sp||120)*(0.4+Math.random());G.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-60,life:0.7+Math.random()*0.5,max:1.2,c:cols[i%cols.length],s:3+Math.random()*4,g:420,pet:Math.random()<0.35,rot:Math.random()*6})}}
+function wdFloat(G,x,y,t,c){G.floats.push({x,y,t,c:c||'#ffd34d',life:1.3})}
+function wdFound(G,idx,fromPill){
+  if(G.found.has(idx))return;
+  const p=G.g.words[idx];G.found.add(idx);wdSt.w++;sv('tv_wdst',wdSt);
+  const col=WD_PAL[idx%WD_PAL.length],isCoin=G.g.coin.includes(idx);
+  for(let k=0;k<p.w.length;k++){
+    const key=wdCellKey(p,k),pos=wdCellPos(G,p.r+(p.dir?k:0),p.c+(p.dir?0:k));
+    if(!G.rev.has(key)){G.rev.add(key);G.cellT.set(key,G.t+(fromPill?0.28:0)+k*0.07);
+      if(fromPill){const sx=G.cx+(k-(p.w.length-1)/2)*Math.min(34,(G.W-40)/p.w.length);G.ghosts.push({ch:p.w[k],x0:sx,y0:G.pillY,x1:pos.x,y1:pos.y,t0:G.t+k*0.04,d:0.3,c:col})}
+      else wdBurst(G,pos.x,pos.y,5,[col,'#fff'],90)}
+  }
+  sfx.coin&&tone(520+idx%5*60,900+idx%5*60,0.16,'triangle',0.09);buzz(25);
+  if(isCoin){const n=p.w.length;credit('words',n);G.coinGot+=n;wdSt.g++;sv('tv_wdst',wdSt);stats.coins+=n;addProg('coins',n);addProg('c_words',n);refreshCoins();
+    const m=wdCellPos(G,p.r+(p.dir?Math.floor(p.w.length/2):0),p.c+(p.dir?0:Math.floor(p.w.length/2)));
+    wdBurst(G,m.x,m.y,26,['#ffd34d','#fff7b0','#fb923c'],220);wdFloat(G,m.x,m.y-10,'🪙 +'+n);tone(900,1700,0.3,'sine',0.12);buzz([30,40,60])}
+  wdSaveP(G);
+  if(G.found.size>=G.g.words.length)wdWin(G);
+}
+function wdCheckDone(G){
+  let any=false;
+  G.g.words.forEach((p,i)=>{if(G.found.has(i))return;let all=true;for(let k=0;k<p.w.length;k++)if(!G.rev.has(wdCellKey(p,k))){all=false;break}if(all){any=true;wdFound(G,i,false)}});
+  return any;
+}
+function wdBonus(G,w){
+  G.bonusF.push(w);wdSt.b++;sv('tv_wdst',wdSt);
+  const gain=G.bcoin<12?1:0;if(gain){G.bcoin++;credit('words',1);stats.coins++;addProg('coins',1);addProg('c_words',1);G.coinGot++}
+  const b=$('wd_bn').getBoundingClientRect(),W=G.W;
+  for(let k=0;k<w.length;k++){const sx=G.cx+(k-(w.length-1)/2)*Math.min(34,(G.W-40)/w.length);G.ghosts.push({ch:w[k],x0:sx,y0:G.pillY,x1:b.left+b.width/2,y1:b.top+b.height/2,t0:G.t+k*0.03,d:0.45,c:'#a5b4fc',bonus:1})}
+  wdFloat(G,G.cx,G.pillY-26,gain?'Bonus! 🪙+1':'Bonus!','#a5b4fc');tone(700,1100,0.14,'sine',0.09);buzz(20);
+  if(G.bonusF.length%5===0&&G.bhint<2){G.bhint++;wdHints++;sv('tv_wdh',wdHints);wdFloat(G,G.cx,G.pillY-52,'💡 +1 ipucu','#fde68a');tone(500,1300,0.25,'triangle',0.1)}
+  refreshCoins();wdHud();wdSaveP(G);
+}
+function wdSubmit(G){
+  const idxs=G.sel.slice();G.sel=[];wd.sel=null;
+  const w=idxs.map(i=>G.g.letters[i]).join('');
+  if(w.length<2)return;
+  if(w.length<3){G.shake=0.35;G.bad=1;tone(200,150,0.12,'sawtooth',0.05);return}
+  G.lastW=w;
+  const wi=G.g.words.findIndex(p=>p.w===w);
+  if(wi>=0){
+    if(G.found.has(wi)){G.pulse=wi;G.pulseT=0.9;G.msg='Zaten buldun';G.msgT=1;tone(330,330,0.08,'sine',0.06);return}
+    wdFound(G,wi,true);return}
+  if(G.bonusSet.has(w)){
+    if(G.bonusF.includes(w)){G.shake=0.3;G.msg='Bonusu zaten buldun';G.msgT=1;return}
+    wdBonus(G,w);return}
+  G.shake=0.45;G.bad=1;G.msg=w.length>=3?'Listede yok':'';G.msgT=0.9;tone(220,120,0.2,'sawtooth',0.07);buzz([20,30,20]);
+}
+function wdReward(G){
+  const t=G.g.tier,words=G.g.words.length;
+  return Math.max(6,Math.round((10+Math.min(60,G.level*0.8)+words*2)*t.mult));
+}
+function wdWin(G){
+  if(G.won)return;G.won=true;
+  const base=wdReward(G),fresh=G.level>=wdLevel,coins=fresh?base:Math.max(4,Math.round(base*0.35));
+  G.reward=coins;credit('words',coins);stats.coins+=coins;addProg('coins',coins);addProg('c_words',coins);addProg('words',1);
+  let extra='';
+  if(fresh){wdLevel=G.level+1;sv('tv_wdlevel',wdLevel);if(G.level%5===0||G.g.boss){wdHints++;sv('tv_wdh',wdHints);extra='\n💡 +1 ipucu hediye'}}
+  try{sv('tv_wdp',null)}catch(e){}
+  saveDaily();checkAch();refreshCoins();sfx.power();buzz([40,40,40,120]);
+  const cx=G.W/2;for(let i=0;i<70;i++)G.parts.push({x:cx,y:G.gy+G.cell*G.g.rows/2,vx:(Math.random()-.5)*520,vy:-Math.random()*420-60,life:1.6,max:1.6,c:WD_PAL[i%WD_PAL.length],s:4+Math.random()*5,g:520,pet:i%2===0,rot:Math.random()*6});
+  $('wd_t').textContent=G.g.boss?'BOSS geçildi! 🏆':'Çiçek açtı! 🌸';
+  $('wd_wi').textContent='🪙 +'+coins+(G.coinGot?' · altın/bonus dahil +'+G.coinGot:'')+(fresh?'':' · tekrar oynama')+extra;
+  $('wd_next').textContent='▶ Sonraki Seviye';$('wd_dbl').classList.remove('hidden');$('wd_dbl').textContent='📺 Ödülü 2 kat yap';
+  setTimeout(()=>{if(state==='words'&&wd.G===G)show('wd_win',true)},1100);
+}
+function wdReveal(G,key){
+  if(G.rev.has(key))return false;
+  const [r,c]=key.split(',').map(Number),pos=wdCellPos(G,r,c);
+  G.rev.add(key);G.cellT.set(key,G.t);wdBurst(G,pos.x,pos.y,8,['#fde68a','#fff'],110);wdCheckDone(G);wdSaveP(G);return true;
+}
+function wdSpend(n,go){
+  if(wdHints>=n){wdHints-=n;sv('tv_wdh',wdHints);go();wdHud();return}
+  const need=(n-wdHints)*WD_HP;
+  if(totalCoins>=need){totalCoins-=need;wdHints=0;sv('tv_wdh',0);saveW();refreshCoins();go();wdHud();return}
+  Ads.rewarded(()=>{go();wdHud()});
+}
+function wdUnrevKeys(G){const o=[];G.g.words.forEach((p,i)=>{if(G.found.has(i))return;for(let k=0;k<p.w.length;k++){const key=wdCellKey(p,k);if(!G.rev.has(key)&&!o.includes(key))o.push(key)}});return o}
+function wdShuffle(G){
+  if(G.sel.length)return;
+  const n=G.g.letters.length;let o=[...Array(n).keys()];
+  for(let t=0;t<6;t++){for(let i=n-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]]}if(o.some((v,i)=>v!==i))break}
+  const old=G.bp.map(b=>wdBpos(b,G.t)),L=G.g.letters;
+  G.g.letters=o.map(i=>L[i]);
+  G.bp=G.tp.map((p,i)=>({x:p.x,y:p.y,fx:old[o[i]].x,fy:old[o[i]].y,t0:G.t}));
+  tone(300,600,0.15,'triangle',0.06);buzz(10);
+}
+function wdBpos(b,t){const k=Math.min(1,Math.max(0,(t-b.t0)/0.38)),e=1-Math.pow(1-k,3),s=Math.sin(k*Math.PI)*18;return{x:b.fx+(b.x-b.fx)*e,y:b.fy+(b.y-b.fy)*e-s*0}}
+function wdBubbleAt(G,x,y,r){let best=-1,bd=r;for(let i=0;i<G.bp.length;i++){const q=wdBpos(G.bp[i],G.t),d=Math.hypot(q.x-x,q.y-y);if(d<bd){bd=d;best=i}}return best}
+function wdUpdate(G,dt){
+  G.t+=dt;G.shake=Math.max(0,G.shake-dt);G.pulseT=Math.max(0,G.pulseT-dt);G.banner=Math.max(0,G.banner-dt);G.msgT=Math.max(0,G.msgT-dt);G.tutT+=dt;if(G.shake<=0)G.bad=0;
+  for(const p of G.parts){p.life-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=p.g*dt;p.rot+=dt*4}G.parts=G.parts.filter(p=>p.life>0);
+  for(const f of G.floats){f.life-=dt;f.y-=36*dt}G.floats=G.floats.filter(f=>f.life>0);
+  G.ghosts=G.ghosts.filter(g=>G.t<g.t0+g.d+0.05);
+}
+const wdEase=k=>1-Math.pow(1-k,3),wdBack=k=>{const c=1.70158+1;return 1+c*Math.pow(k-1,3)+1.70158*Math.pow(k-1,2)};
+function wdRR(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+const wdFly=[];for(let i=0;i<26;i++)wdFly.push({x:Math.random(),y:Math.random(),s:0.4+Math.random()*1.2,p:Math.random()*6.28,v:0.01+Math.random()*0.03});
+function wdDraw(G){
+  const c=G.ctx;if(!c)return;const W=G.W,H=G.H,t=G.t,T=G.g.tier,bg=WD_BG[T.id];c.setTransform(G.dpr,0,0,G.dpr,0,0);
+  const gr=c.createLinearGradient(0,0,0,H);gr.addColorStop(0,bg[0]);gr.addColorStop(1,bg[1]);c.fillStyle=gr;c.fillRect(0,0,W,H);
+  // ışıldayan polenler
+  for(const f of wdFly){const x=((f.x+Math.sin(t*f.v*8+f.p)*0.04)%1)*W,y=((f.y-t*f.v*0.6)%1+1)%1*H;c.globalAlpha=0.25+0.35*Math.sin(t*f.s+f.p)**2;c.fillStyle='#fef9c3';c.beginPath();c.arc(x,y,1.2+f.s*1.3,0,6.283);c.fill()}c.globalAlpha=1;
+  if(G.g.boss){const rg=c.createRadialGradient(W/2,H*0.45,H*0.2,W/2,H*0.45,H*0.8);rg.addColorStop(0,'rgba(0,0,0,0)');rg.addColorStop(1,'rgba(220,38,38,.28)');c.fillStyle=rg;c.fillRect(0,0,W,H)}
+  // ızgara
+  const cs=G.cell,g=G.g,fs=Math.round(cs*0.56);
+  const cells=new Map();
+  g.words.forEach((p,i)=>{for(let k=0;k<p.w.length;k++){const key=wdCellKey(p,k);let e=cells.get(key);if(!e){e={ch:p.w[k],r:p.r+(p.dir?k:0),c:p.c+(p.dir?0:k),ws:[]};cells.set(key,e)}e.ws.push(i)}});
+  for(const [key,e] of cells){
+    const x=G.gx+e.c*cs,y=G.gy+e.r*cs,rev=G.rev.has(key),isCoin=e.ws.some(i=>g.coin.includes(i)&&!G.found.has(i)),pul=G.pulse!=null&&G.pulseT>0&&e.ws.includes(G.pulse);
+    let sc=1,off=0;
+    if(rev){const ct=G.cellT.get(key);if(ct!==undefined){const k=(t-ct)/0.4;if(k<0){sc=0}else if(k<1)sc=Math.max(0.01,wdBack(k))}}
+    if(sc===0)continue;
+    const pad=cs*0.06,s=(cs-pad*2)*sc,cx=x+cs/2,cy=y+cs/2;
+    c.save();c.translate(cx,cy);if(pul)c.scale(1+0.12*Math.sin(G.pulseT*14),1+0.12*Math.sin(G.pulseT*14));
+    c.shadowColor='rgba(0,0,0,.35)';c.shadowBlur=6;c.shadowOffsetY=2;
+    if(rev){
+      const wi=e.ws.find(i=>G.found.has(i)),col=wi!=null?WD_PAL[wi%WD_PAL.length]:'#fde68a';
+      const tg=c.createLinearGradient(0,-s/2,0,s/2);tg.addColorStop(0,'#fffdf5');tg.addColorStop(1,'#f3e8c8');c.fillStyle=tg;wdRR(c,-s/2,-s/2,s,s,cs*0.16);c.fill();c.shadowColor='transparent';
+      c.lineWidth=Math.max(2,cs*0.07);c.strokeStyle=col;wdRR(c,-s/2,-s/2,s,s,cs*0.16);c.stroke();
+      c.fillStyle='#3b2a52';c.font='800 '+Math.round(fs*sc)+'px system-ui,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(wdUp(e.ch),0,cs*0.02);
+      if(e.ws.some(i=>g.coin.includes(i))){c.font=Math.round(cs*0.26)+'px sans-serif';c.fillText('🪙',s*0.28,-s*0.28)}
+    }else{
+      if(isCoin){const gg=c.createLinearGradient(0,-s/2,0,s/2);gg.addColorStop(0,'#fde047');gg.addColorStop(1,'#d97706');c.fillStyle=gg;wdRR(c,-s/2,-s/2,s,s,cs*0.16);c.fill();c.shadowColor='transparent';c.strokeStyle='#fff7b0';c.lineWidth=2;wdRR(c,-s/2,-s/2,s,s,cs*0.16);c.stroke();c.font=Math.round(cs*0.52)+'px sans-serif';c.textAlign='center';c.textBaseline='middle';c.globalAlpha=0.9+0.1*Math.sin(t*4);c.fillText('🪙',0,cs*0.03);c.globalAlpha=1}
+      else{c.fillStyle='rgba(255,255,255,.16)';wdRR(c,-s/2,-s/2,s,s,cs*0.16);c.fill();c.shadowColor='transparent';c.strokeStyle='rgba(255,255,255,.28)';c.lineWidth=1.5;wdRR(c,-s/2,-s/2,s,s,cs*0.16);c.stroke();
+        if(wd.pick){c.strokeStyle='rgba(253,224,71,'+(0.5+0.4*Math.sin(t*6))+')';c.lineWidth=2.5;wdRR(c,-s/2,-s/2,s,s,cs*0.16);c.stroke()}}
+    }
+    c.restore();
+  }
+  // yazılan kelime hapı
+  const sel=G.sel,word=sel.map(i=>wdUp(g.letters[i])).join('');
+  if(word){
+    c.font='800 22px system-ui,sans-serif';const tw=Math.max(40,c.measureText(word.split('').join(' ')).width+30),px=G.cx-tw/2+(G.shake>0?Math.sin(t*60)*7*G.shake:0);
+    c.fillStyle=G.bad?'#ef4444':T.c;c.shadowColor='rgba(0,0,0,.3)';c.shadowBlur=8;wdRR(c,px,G.pillY-18,tw,36,18);c.fill();c.shadowColor='transparent';
+    c.fillStyle=G.bad?'#fff':'#1f1747';c.textAlign='center';c.textBaseline='middle';c.fillText(word.split('').join(' '),px+tw/2,G.pillY+1);
+  }else if(G.msgT>0){c.globalAlpha=Math.min(1,G.msgT*1.5);c.fillStyle='#fff';c.font='700 15px system-ui,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(trStr(G.msg),G.cx,G.pillY);c.globalAlpha=1}
+  // çark
+  const R=G.R,cx=G.cx,cy=G.cy;
+  c.save();c.shadowColor='rgba(0,0,0,.45)';c.shadowBlur=22;c.shadowOffsetY=6;
+  const dg=c.createRadialGradient(cx,cy-R*0.3,R*0.1,cx,cy,R);dg.addColorStop(0,'rgba(255,255,255,.97)');dg.addColorStop(1,'rgba(224,214,255,.93)');c.fillStyle=dg;c.beginPath();c.arc(cx,cy,R,0,6.283);c.fill();c.restore();
+  c.strokeStyle=T.c;c.lineWidth=3;c.globalAlpha=0.55+0.25*Math.sin(t*2);c.beginPath();c.arc(cx,cy,R+2,0,6.283);c.stroke();c.globalAlpha=1;
+  // çiçek yaprakları (dekor)
+  c.fillStyle='rgba(120,100,200,.10)';for(let i=0;i<g.n;i++){const a=-Math.PI/2+i/g.n*6.283;c.beginPath();c.ellipse(cx+Math.cos(a)*R*0.38,cy+Math.sin(a)*R*0.38,R*0.34,R*0.12,a,0,6.283);c.fill()}
+  // seçim çizgisi
+  const P=G.bp.map(b=>wdBpos(b,t));
+  if(sel.length){c.strokeStyle=G.bad?'#ef4444':T.c;c.lineWidth=Math.max(8,G.br*0.34);c.lineCap='round';c.lineJoin='round';c.globalAlpha=0.85;c.beginPath();sel.forEach((i,k)=>{k?c.lineTo(P[i].x,P[i].y):c.moveTo(P[i].x,P[i].y)});if(wd.sel&&wd.sel.x!=null&&!G.bad)c.lineTo(wd.sel.x,wd.sel.y);c.stroke();c.globalAlpha=1}
+  for(let i=0;i<P.length;i++){
+    const on=sel.includes(i),p=P[i],pr=G.br*(on?1.1:1);
+    c.save();if(!on){c.shadowColor='rgba(60,40,120,.25)';c.shadowBlur=6;c.shadowOffsetY=2}
+    c.fillStyle=on?(G.bad?'#ef4444':T.c):'#ffffff';c.beginPath();c.arc(p.x,p.y,pr,0,6.283);c.fill();c.restore();
+    c.fillStyle=on?(G.bad?'#fff':'#1f1747'):'#3b2a6b';c.font='800 '+Math.round(G.br*1.15)+'px system-ui,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(wdUp(g.letters[i]),p.x,p.y+G.br*0.06);
+  }
+  // öğretici el
+  if(G.level<=2&&G.found.size===0&&!sel.length&&!G.won){
+    const w0=g.words[0].w,used=[],path=[];for(const ch of w0){const j=g.letters.findIndex((l,q)=>l===ch&&!used.includes(q));used.push(j);path.push(P[j])}
+    const seg=path.length-1,k=(G.tutT*0.7)%(1.4),u=Math.min(1,k/1.0)*seg,s0=Math.min(seg-1,Math.floor(u)),f=u-s0,hx=path[s0].x+(path[s0+1].x-path[s0].x)*f,hy=path[s0].y+(path[s0+1].y-path[s0].y)*f;
+    c.globalAlpha=k<1.15?0.95:Math.max(0,1-(k-1.15)*4);c.font='34px sans-serif';c.textAlign='left';c.textBaseline='top';c.fillText('👆',hx-8,hy-6);c.globalAlpha=1;
+    c.fillStyle='rgba(255,255,255,.9)';c.font='600 13px system-ui,sans-serif';c.textAlign='center';c.fillText(trStr('Harflerin üzerinden parmağını kaydır'),cx,G.pillY-62);
+  }
+  // uçan harfler
+  for(const gh of G.ghosts){const k=(t-gh.t0)/gh.d;if(k<0||k>1)continue;const e=wdEase(k),x=gh.x0+(gh.x1-gh.x0)*e,y=gh.y0+(gh.y1-gh.y0)*e-Math.sin(k*Math.PI)*34,sz=gh.bonus?20*(1-k*0.6):G.cell*0.5*(0.8+0.4*k);
+    c.globalAlpha=gh.bonus?1-k*0.5:1;c.fillStyle=gh.c;c.beginPath();c.arc(x,y,sz*0.7,0,6.283);c.fill();c.fillStyle='#1f1747';c.font='800 '+Math.round(sz)+'px system-ui,sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(wdUp(gh.ch),x,y+1);c.globalAlpha=1}
+  // parçacıklar
+  for(const p of G.parts){c.globalAlpha=Math.max(0,Math.min(1,p.life/0.5));c.fillStyle=p.c;if(p.pet){c.save();c.translate(p.x,p.y);c.rotate(p.rot);c.beginPath();c.ellipse(0,0,p.s*1.3,p.s*0.6,0,0,6.283);c.fill();c.restore()}else{c.beginPath();c.arc(p.x,p.y,p.s*0.6,0,6.283);c.fill()}}c.globalAlpha=1;
+  for(const f of G.floats){c.globalAlpha=Math.min(1,f.life*1.5);c.fillStyle=f.c;c.font='800 18px system-ui,sans-serif';c.textAlign='center';c.textBaseline='middle';c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=3;c.strokeText(trStr(f.t),f.x,f.y);c.fillText(trStr(f.t),f.x,f.y);c.globalAlpha=1}
+  if(G.banner>0&&(G.g.boss||T.id==='vhd'||T.id==='hd'||G.level===1)){const a=Math.min(1,G.banner*1.2),k=Math.min(1,(2.2-G.banner)/0.35),sz=(G.g.boss?44:34)*(0.6+0.4*wdBack(k));c.globalAlpha=a;c.fillStyle=T.c;c.font='900 '+Math.round(sz)+'px system-ui,sans-serif';c.textAlign='center';c.textBaseline='middle';c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=6;c.lineJoin='round';const tx=G.g.boss?'🔥 BOSS 🔥':T.n;c.strokeText(trStr(tx),G.W/2,G.H*0.38);c.fillText(trStr(tx),G.W/2,G.H*0.38);c.globalAlpha=1}
+}
+function wdFrame(now){
+  if(state!=='words'){wd.raf=false;return}
+  requestAnimationFrame(wdFrame);
+  const G=wd.G,dt=Math.max(0,Math.min((now-wd.last)/1000||0,0.05));wd.last=now;if(!G)return;
+  wdUpdate(G,dt);wdDraw(G);
+}
+(function(){
+  const cv=$('words');
+  const pt=e=>({x:e.clientX,y:e.clientY});
+  cv.addEventListener('pointerdown',e=>{
+    const G=wd.G;if(state!=='words'||!G||G.won||e.target.closest('button')||e.target.closest('.overlay'))return;ac();
+    const p=pt(e);
+    if(wd.pick){
+      const c=Math.floor((p.x-G.gx)/G.cell),r=Math.floor((p.y-G.gy)/G.cell),key=r+','+c;
+      const ok=wdWordOf(G,key).length>0&&!G.rev.has(key);
+      if(ok){wd.pick=false;wdHud();wdSpend(2,()=>{G.hu++;wdReveal(G,key);tone(600,1200,0.2,'triangle',0.09)})}
+      else if(r>=0&&c>=0&&r<G.g.rows&&c<G.g.cols){toast('Boş bir kutu seç')}
+      else{wd.pick=false;wdHud()}
+      return}
+    if(Math.hypot(p.x-G.cx,p.y-G.cy)>G.R*1.1)return;
+    const i=wdBubbleAt(G,p.x,p.y,G.br*1.25);if(i<0)return;
+    G.sel=[i];wd.sel={id:e.pointerId,x:p.x,y:p.y};try{cv.setPointerCapture(e.pointerId)}catch(_){}tone(500,520,0.05,'sine',0.05);buzz(6);
+  });
+  cv.addEventListener('pointermove',e=>{
+    const G=wd.G;if(state!=='words'||!G||!wd.sel||e.pointerId!==wd.sel.id)return;const p=pt(e);wd.sel.x=p.x;wd.sel.y=p.y;
+    const i=wdBubbleAt(G,p.x,p.y,G.br*0.95);if(i<0)return;
+    const s=G.sel;
+    if(s.length>1&&s[s.length-2]===i){s.pop();tone(420,400,0.04,'sine',0.04)}
+    else if(!s.includes(i)){s.push(i);tone(480+s.length*70,500+s.length*70,0.06,'sine',0.06);buzz(5)}
+  });
+  const up=e=>{const G=wd.G;if(!G||!wd.sel||e.pointerId!==wd.sel.id)return;wdSubmit(G)};
+  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+})();
+addEventListener('keydown',e=>{
+  const G=wd.G;if(state!=='words'||!G||G.won||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.code==='Enter'){if(G.sel.length){wdSubmit(G);e.preventDefault()}return}
+  if(e.code==='Backspace'){G.sel.pop();e.preventDefault();return}
+  if(e.code==='Space'){wdShuffle(G);e.preventDefault();return}
+  if(e.key&&e.key.length===1){const ch=e.key.toLocaleLowerCase(wdCode()==='tr'?'tr':undefined);const j=G.g.letters.findIndex((l,i)=>l===ch&&!G.sel.includes(i));if(j>=0){G.sel.push(j);tone(480+G.sel.length*70,500+G.sel.length*70,0.06,'sine',0.06);e.preventDefault()}}
+});
+$('cardWd').onclick=()=>openLobby('wd');
+$('wd_back').onclick=()=>{wd.sel=null;openLobby('wd')};$('wd_wh').onclick=()=>openHub();
+$('wd_sh').onclick=()=>{const G=wd.G;if(G&&!G.won)wdShuffle(G)};
+$('wd_hint').onclick=()=>{const G=wd.G;if(!G||G.won)return;const ks=wdUnrevKeys(G);if(!ks.length)return;wd.pick=false;wdSpend(1,()=>{G.hu++;wdReveal(G,ks[Math.floor(Math.random()*ks.length)]);tone(600,1200,0.2,'triangle',0.09)});wdHud()};
+$('wd_fg').onclick=()=>{const G=wd.G;if(!G||G.won)return;wd.pick=!wd.pick;wdHud();if(wd.pick)toast('Açmak istediğin kutuya dokun (2 ipucu)')};
+$('wd_bn').onclick=()=>{const G=wd.G;if(!G)return;$('wd_bi').textContent='Bulduğun: '+G.bonusF.length+' / '+G.bonusSet.size+' · Her 5 bonus kelimede 💡 hediye';const l=$('wd_bl');l.innerHTML='';G.bonusF.forEach(w=>{const s=document.createElement('span');s.className='wdchip';s.textContent=w.split('').map(wdUp).join('');l.appendChild(s)});if(!G.bonusF.length)l.innerHTML='<small style="color:var(--mute)">Henüz yok. Bulmacada olmayan geçerli kelimeler yaz!</small>';show('wd_bs',true)};
+$('wd_bx').onclick=()=>show('wd_bs',false);
+$('wd_sk').onclick=()=>{const G=wd.G;if(!G||G.won)return;Ads.rewarded(()=>{const fresh=G.level>=wdLevel;if(fresh){wdLevel=G.level+1;sv('tv_wdlevel',wdLevel)}try{sv('tv_wdp',null)}catch(e){}wdStart(wdLevel,G.code,G.L);toast('Seviye atlandı')})};
+$('wd_next').onclick=()=>{const G=wd.G;if(G)wdStart(wdLevel,G.code,G.L)};
+$('wd_dbl').onclick=()=>{const G=wd.G;if(!G)return;Ads.rewarded(()=>{credit('words',G.reward);refreshCoins();$('wd_dbl').classList.add('hidden');$('wd_wi').textContent+=' · 2 kat yapıldı!'})};
+
+
 // ---- Gölge Bahçesi ----
 WN.shadow='Gölge Bahçesi';WKEYS.push('shadow');
 let sgLevel=ld('tv_sglevel',1);
@@ -4795,7 +5211,7 @@ const cP=new THREE.Vector3(0,1.7,4.4),cL=new THREE.Vector3(0,0.8,0),dP=new THREE
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min(Math.max((now-last)/1000||0,0),0.05);last=now;
-  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||state==='gh'||state==='lock'||state==='shadow'||state==='pause'||MG[state])return;
+  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||state==='gh'||state==='lock'||state==='shadow'||state==='words'||state==='pause'||MG[state])return;
   if(state==='run'){
     speedMul+=(1-speedMul)*Math.min(1,dt*0.45);
     speed=Math.min(14+score*0.02,40)*speedMul;   // zamanla hızlanır
@@ -5104,8 +5520,8 @@ addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')
 addEventListener('pagehide',pauseRun);
 setInterval(()=>{const on=state==='run';const b=$('pauseBtn');if(b)b.style.display=on?'':'none'},150);
 // ---- Skor tablosu: oyuncu kaydı, haftalık sıralama, benzersiz isim ----
-const LVG={maze:()=>mz.best,ar:()=>arLevel,so:()=>soLevel,cl:()=>clLevel,gh:()=>ghLevel,lk:()=>lkLevel,sg:()=>sgLevel};
-const LVL_G=[{id:'maze',e:'🌀',n:'Tek Parmak Labirent'},{id:'ar',e:'🎯',n:'Ok Kaçışı'},{id:'so',e:'🧪',n:'Su Sıralama'},{id:'cl',e:'🧼',n:'Temizlik Simülatörü'},{id:'gh',e:'👻',n:'Hayalet Takım'},{id:'lk',e:'🔐',n:'Kasa Uzmanı'},{id:'sg',e:'🌙',n:'Gölge Bahçesi'}];
+const LVG={maze:()=>mz.best,ar:()=>arLevel,so:()=>soLevel,cl:()=>clLevel,gh:()=>ghLevel,lk:()=>lkLevel,sg:()=>sgLevel,wd:()=>wdLevel};
+const LVL_G=[{id:'maze',e:'🌀',n:'Tek Parmak Labirent'},{id:'ar',e:'🎯',n:'Ok Kaçışı'},{id:'so',e:'🧪',n:'Su Sıralama'},{id:'cl',e:'🧼',n:'Temizlik Simülatörü'},{id:'gh',e:'👻',n:'Hayalet Takım'},{id:'lk',e:'🔐',n:'Kasa Uzmanı'},{id:'sg',e:'🌙',n:'Gölge Bahçesi'},{id:'wd',e:'🌸',n:'Kelime Çiçeği'}];
 function lbGames(){const a=[{id:'run',e:'🏃',n:'Sonsuz Koşu'},{id:'city',e:'🏙️',n:'Tek Tuş Şehir'}];for(const k in MG)a.push({id:k,e:MG[k].emo,n:MG[k].title});return a.concat(LVL_G)}
 function lbIds(){return lbGames().map(x=>x.id)}
 function lbAll(g){let v=g==='run'?best:g==='city'?cityBest:LVG[g]?LVG[g]():(mgBest[g]||0);return Math.max(0,Math.floor(v)||0)}
@@ -5220,7 +5636,7 @@ $('exitNo').onclick=()=>show('exitOv',false);
 $('exitYes').onclick=()=>{try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()){C.registerPlugin('App').exitApp();return}}catch(e){}show('exitOv',false);try{window.close()}catch(e){}};
 // Açılış animasyonu
 (function(){const s=$('splash');if(!s)return;let done=false;const end=()=>{if(done)return;done=true;s.classList.add('out');setTimeout(()=>s.remove(),500)};s.onclick=end;setTimeout(end,2300)})();
-const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','lk_back','sg_back','lb_back'];
+const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','wd_bx','lk_back','sg_back','wd_back','lb_back'];
 function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
 function goBack(){
   if(state==='pause'){resumeRun();return true}
@@ -5257,7 +5673,7 @@ const KB_G={
 };
 const KB_MOUSE=['arrows','sort','clean','job','sky','balloon','blocks'];
 const KB_NM={arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik Simülatörü',job:'Günlük İş',sky:'Gök Adaları',balloon:'Balon Patlat',blocks:'Blok Bulmaca'};
-const KB_L2G={maze:'maze',city:'city',gh:'gh',lk:'lock',sg:'shadow',stack:'stack',snake:'snake',color:'color',flap:'flap',ar:'-',so:'-',cl:'-',sky:'-',balloon:'-',blocks:'-'};
+const KB_L2G={maze:'maze',city:'city',gh:'gh',lk:'lock',sg:'shadow',wd:'-',stack:'stack',snake:'snake',color:'color',flap:'flap',ar:'-',so:'-',cl:'-',sky:'-',balloon:'-',blocks:'-'};
 let KBS=ld('tv_keys',{});if(!KBS||typeof KBS!=='object')KBS={};
 let kbOn=false;try{kbOn=matchMedia('(hover:hover) and (pointer:fine)').matches}catch(e){}
 function kbCodes(g,a){return(KBS[g]&&KBS[g][a[0]])||a[3]}
@@ -6227,6 +6643,49 @@ Tek koşuda {} altın topla|Collect {} coins in one run|Recoge {} monedas en una
 {} haftalık görev tamamla|Complete {} weekly quests|Completa {} misiones semanales|Complete {} missões semanais|Schließe {} Wochenaufgaben ab|Termine {} quêtes hebdo|Выполни {} недельных заданий|Selesaikan {} misi mingguan
 Çarkı {} kez çevir|Spin the wheel {} times|Gira la rueda {} veces|Gire a roleta {} vezes|Drehe das Rad {} Mal|Tourne la roue {} fois|Крутани колесо {} раз|Putar roda {} kali
 Tek oyunda {} puan yap|Score {} points in one game|Haz {} puntos en una partida|Faça {} pontos em uma partida|Erreiche {} Punkte in einem Spiel|Fais {} points en une partie|Набери {} очков за игру|Raih {} poin dalam satu game
+Kelime Çiçeği|Word Bloom|Flor de Palabras|Flor de Palavras|Wortblüte|Fleur de Mots|Цветок слов|Bunga Kata
+Harfleri kaydır, kelimeleri bul, çiçeği aç. Her dilde!|Swipe letters, find words, make the flower bloom. In every language!|Desliza letras, encuentra palabras y haz florecer la flor. ¡En todos los idiomas!|Deslize letras, encontre palavras e faça a flor desabrochar. Em todos os idiomas!|Wische über Buchstaben, finde Wörter und lass die Blume erblühen. In jeder Sprache!|Glisse les lettres, trouve les mots et fais éclore la fleur. Dans toutes les langues !|Води по буквам, находи слова и расцветай цветок. На любом языке!|Geser huruf, temukan kata, mekarkan bunganya. Di semua bahasa!
+Harf çarkında parmağını kaydırarak kelime yap, bulmacadaki boşlukları doldur. Bulmacada olmayan geçerli kelimeler bonus sayılır. Altın kutulu kelimeler ekstra para verir. Her 7. seviye BOSS!|Swipe across the letter wheel to make words and fill the puzzle grid. Valid words that are not in the grid count as bonus words. Words with gold tiles pay extra coins. Every 7th level is a BOSS!|Desliza por la rueda de letras para formar palabras y rellenar la cuadrícula. Las palabras válidas que no estén en la cuadrícula cuentan como bonus. Las palabras con casillas doradas dan monedas extra. ¡Cada 7.º nivel es un JEFE!|Deslize pela roda de letras para formar palavras e preencher a grade. Palavras válidas fora da grade contam como bônus. Palavras com casas douradas dão moedas extras. Todo 7º nível é um CHEFE!|Wische über das Buchstabenrad, bilde Wörter und fülle das Rätselgitter. Gültige Wörter, die nicht im Gitter stehen, zählen als Bonus. Wörter mit goldenen Feldern geben Extra-Münzen. Jedes 7. Level ist ein BOSS!|Glisse sur la roue de lettres pour former des mots et remplir la grille. Les mots valides absents de la grille comptent comme bonus. Les mots à cases dorées rapportent des pièces en plus. Tous les 7 niveaux, un BOSS !|Води пальцем по кругу букв, составляй слова и заполняй сетку. Допустимые слова, которых нет в сетке, считаются бонусными. Слова с золотыми клетками дают больше монет. Каждый 7-й уровень — БОСС!|Geser di roda huruf untuk membuat kata dan mengisi kotak teka-teki. Kata valid yang tidak ada di kotak dihitung bonus. Kata dengan kotak emas memberi koin ekstra. Setiap level ke-7 adalah BOSS!
+Karıştır|Shuffle|Mezclar|Embaralhar|Mischen|Mélanger|Перемешать|Acak
+Harf Seç|Pick Tile|Elegir|Escolher|Feld wählen|Choisir|Выбрать|Pilih
+Atla 📺|Skip 📺|Saltar 📺|Pular 📺|Überspringen 📺|Passer 📺|Пропуск 📺|Lewati 📺
+Bonus {}|Bonus {}|Bonus {}|Bônus {}|Bonus {}|Bonus {}|Бонус {}|Bonus {}
+Çok Kolay|Very Easy|Muy fácil|Muito fácil|Sehr leicht|Très facile|Очень легко|Sangat Mudah
+Çok Zor|Very Hard|Muy difícil|Muito difícil|Sehr schwer|Très difficile|Очень сложно|Sangat Sulit
+Çiçek açtı! 🌸|It bloomed! 🌸|¡Floreció! 🌸|Desabrochou! 🌸|Sie blüht! 🌸|Elle a éclos ! 🌸|Расцвёл! 🌸|Mekar! 🌸
+BOSS geçildi! 🏆|BOSS beaten! 🏆|¡JEFE derrotado! 🏆|CHEFE derrotado! 🏆|BOSS besiegt! 🏆|BOSS vaincu ! 🏆|БОСС побеждён! 🏆|BOSS dikalahkan! 🏆
+📖 Bonus Kelimeler|📖 Bonus Words|📖 Palabras bonus|📖 Palavras bônus|📖 Bonuswörter|📖 Mots bonus|📖 Бонусные слова|📖 Kata Bonus
+Zaten buldun|Already found|Ya la encontraste|Você já achou|Schon gefunden|Déjà trouvé|Уже найдено|Sudah ditemukan
+Bonusu zaten buldun|Bonus already found|Bonus ya encontrado|Bônus já encontrado|Bonus schon gefunden|Bonus déjà trouvé|Бонус уже найден|Bonus sudah ditemukan
+Listede yok|Not in the list|No está en la lista|Não está na lista|Nicht in der Liste|Pas dans la liste|Нет в списке|Tidak ada di daftar
+Bonus!|Bonus!|¡Bonus!|Bônus!|Bonus!|Bonus !|Бонус!|Bonus!
+Bonus! 🪙+1|Bonus! 🪙+1|¡Bonus! 🪙+1|Bônus! 🪙+1|Bonus! 🪙+1|Bonus ! 🪙+1|Бонус! 🪙+1|Bonus! 🪙+1
+💡 +1 ipucu|💡 +1 hint|💡 +1 pista|💡 +1 dica|💡 +1 Tipp|💡 +1 indice|💡 +1 подсказка|💡 +1 petunjuk
+Harflerin üzerinden parmağını kaydır|Slide your finger over the letters|Desliza el dedo sobre las letras|Deslize o dedo sobre as letras|Wische mit dem Finger über die Buchstaben|Glisse ton doigt sur les lettres|Води пальцем по буквам|Geser jarimu di atas huruf
+Kelime listesi yüklenemedi|Could not load the word list|No se pudo cargar la lista de palabras|Não foi possível carregar a lista de palavras|Wortliste konnte nicht geladen werden|Impossible de charger la liste de mots|Не удалось загрузить список слов|Gagal memuat daftar kata
+Seviye üretilemedi|Could not create the level|No se pudo crear el nivel|Não foi possível criar o nível|Level konnte nicht erstellt werden|Impossible de créer le niveau|Не удалось создать уровень|Gagal membuat level
+Boş bir kutu seç|Pick an empty tile|Elige una casilla vacía|Escolha uma casa vazia|Wähle ein leeres Feld|Choisis une case vide|Выбери пустую клетку|Pilih kotak kosong
+Açmak istediğin kutuya dokun (2 ipucu)|Tap the tile you want to reveal (2 hints)|Toca la casilla que quieres revelar (2 pistas)|Toque na casa que quer revelar (2 dicas)|Tippe auf das Feld, das du aufdecken willst (2 Tipps)|Touche la case à révéler (2 indices)|Нажми на клетку, которую открыть (2 подсказки)|Ketuk kotak yang ingin dibuka (2 petunjuk)
+Seviye atlandı|Level skipped|Nivel saltado|Nível pulado|Level übersprungen|Niveau passé|Уровень пропущен|Level dilewati
+Henüz yok. Bulmacada olmayan geçerli kelimeler yaz!|None yet. Type valid words that are not in the grid!|Aún no hay. ¡Escribe palabras válidas que no estén en la cuadrícula!|Ainda não há. Escreva palavras válidas que não estão na grade!|Noch keine. Schreibe gültige Wörter, die nicht im Gitter stehen!|Aucun pour l'instant. Écris des mots valides absents de la grille !|Пока нет. Составляй допустимые слова, которых нет в сетке!|Belum ada. Ketik kata valid yang tidak ada di kotak!
+💡 +1 ipucu hediye|💡 +1 free hint|💡 +1 pista gratis|💡 +1 dica grátis|💡 +1 Gratis-Tipp|💡 +1 indice offert|💡 +1 бесплатная подсказка|💡 +1 petunjuk gratis
+tekrar oynama|replay|repetición|repetição|Wiederholung|rejeu|повтор|ulang
+Kelime Çiçeği: {} bonus kelime bul|Word Bloom: find {} bonus words|Flor de Palabras: encuentra {} palabras bonus|Flor de Palavras: ache {} palavras bônus|Wortblüte: finde {} Bonuswörter|Fleur de Mots : trouve {} mots bonus|Цветок слов: найди {} бонусных слов|Bunga Kata: temukan {} kata bonus
+Kelime Çiçeği: {} kelime bul|Word Bloom: find {} words|Flor de Palabras: encuentra {} palabras|Flor de Palavras: ache {} palavras|Wortblüte: finde {} Wörter|Fleur de Mots : trouve {} mots|Цветок слов: найди {} слов|Bunga Kata: temukan {} kata
+Kelime Çiçeği: {} altın kelime bul|Word Bloom: find {} gold words|Flor de Palabras: encuentra {} palabras doradas|Flor de Palavras: ache {} palavras douradas|Wortblüte: finde {} Goldwörter|Fleur de Mots : trouve {} mots dorés|Цветок слов: найди {} золотых слов|Bunga Kata: temukan {} kata emas
+Bonus Avcısı|Bonus Hunter|Cazador de Bonus|Caçador de Bônus|Bonusjäger|Chasseur de Bonus|Охотник за бонусами|Pemburu Bonus
+Kelime Ustası|Word Master|Maestro de Palabras|Mestre das Palavras|Wortmeister|Maître des Mots|Мастер слов|Master Kata
+Altın Avcısı|Gold Hunter|Cazador de Oro|Caçador de Ouro|Goldjäger|Chasseur d'Or|Охотник за золотом|Pemburu Emas
+Kelime Kurdu|Bookworm|Ratón de biblioteca|Rato de biblioteca|Bücherwurm|Rat de bibliothèque|Книжный червь|Kutu Buku
+{} kelime seviyesi bitir|finish {} word levels|termina {} niveles de palabras|termine {} níveis de palavras|schließe {} Wort-Level ab|termine {} niveaux de mots|пройди {} словесных уровней|selesaikan {} level kata
+Kelime Çiçeği Çırağı|Word Bloom Apprentice|Aprendiz de Flor de Palabras|Aprendiz de Flor de Palavras|Wortblüten-Lehrling|Apprenti Fleur de Mots|Ученик цветка слов|Murid Bunga Kata
+Kelime Çiçeği Ustası|Word Bloom Master|Maestro de Flor de Palabras|Mestre da Flor de Palavras|Wortblüten-Meister|Maître Fleur de Mots|Мастер цветка слов|Master Bunga Kata
+Kelime Çiçeği Efsanesi|Word Bloom Legend|Leyenda de Flor de Palabras|Lenda da Flor de Palavras|Wortblüten-Legende|Légende Fleur de Mots|Легенда цветка слов|Legenda Bunga Kata
+Kelime Çiçeği: {} seviye bitir|Word Bloom: finish {} levels|Flor de Palabras: termina {} niveles|Flor de Palavras: termine {} níveis|Wortblüte: schließe {} Level ab|Fleur de Mots : termine {} niveaux|Цветок слов: пройди {} уровней|Bunga Kata: selesaikan {} level
+Bulduğun: {} / {}|Found: {} / {}|Encontradas: {} / {}|Encontradas: {} / {}|Gefunden: {} / {}|Trouvés : {} / {}|Найдено: {} / {}|Ditemukan: {} / {}
+Her 5 bonus kelimede 💡 hediye|A free 💡 every 5 bonus words|Una 💡 gratis cada 5 bonus|Uma 💡 grátis a cada 5 bônus|Alle 5 Bonuswörter ein 💡 gratis|Une 💡 offerte tous les 5 bonus|Бесплатная 💡 за каждые 5 бонусов|Gratis 💡 tiap 5 kata bonus
+altın/bonus dahil +{}|incl. gold/bonus +{}|incl. oro/bonus +{}|incl. ouro/bônus +{}|inkl. Gold/Bonus +{}|dont or/bonus +{}|включая золото/бонус +{}|termasuk emas/bonus +{}
+2 kat yapıldı!|doubled!|¡duplicado!|dobrado!|verdoppelt!|doublé !|удвоено!|digandakan!
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];

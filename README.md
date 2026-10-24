@@ -10,3 +10,8 @@ Tek uygulamada mini oyunlar. İlk oyun: sonsuz koşu. Dosyalar `docs/` klasörü
 - Sunucu: `db/002_tapverse_players_admin.sql` dosyasını Supabase SQL Editor'de çalıştır, en alttaki `tv_set_admin_pass` satırıyla admin şifreni belirle.
 - Skor tablosu her oyun için haftalık (Pazartesi 03:00 TR) ve tüm zamanlar sıralaması gösterir. İsimler benzersizdir.
 - Admin paneli uygulamanın içinde değildir: `https://ahmetgntrk10.github.io/TapVerse/admin.html` adresinden şifreyle girilir.
+
+## Kelime Çiçeği (kelime bulmaca)
+- Kelime listeleri `docs/words/<dil>.json` (tr, en, es, pt, de, fr, ru). Endonezce için liste yok, İngilizceye düşer.
+- Listeler: OpenSubtitles frekans listesi (FrequencyWords) + hunspell sözlükleriyle özel isim/gürültü filtresi + LDNOOBW küfür filtresi.
+- APK build'i `docs/words` klasörünü `www/words` içine kopyalar.
