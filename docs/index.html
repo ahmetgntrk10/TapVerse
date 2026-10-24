@@ -6029,8 +6029,8 @@ function hoFinishSprite(cv,P){
   const gl=c.createRadialGradient(w*.3,h*.22,0,w*.3,h*.22,Math.max(w,h)*.62);gl.addColorStop(0,'rgba(255,255,255,.26)');gl.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=gl;c.fillRect(0,0,w,h);
   c.drawImage(lo,0,0);c.drawImage(hi,0,0);c.restore();
   const t=mk(),tc=t.getContext('2d');
-  tc.drawImage(cv,0,0);tc.globalCompositeOperation='source-in';tc.fillStyle='rgba(32,16,66,.62)';tc.fillRect(0,0,w,h);
-  const o=Math.max(0.7,P*0.4),out=mk(),oc=out.getContext('2d');
+  tc.drawImage(cv,0,0);tc.globalCompositeOperation='source-in';tc.fillStyle='rgba(32,16,66,.32)';tc.fillRect(0,0,w,h);
+  const o=Math.max(0.6,P*0.34),out=mk(),oc=out.getContext('2d');
   for(let a=0;a<8;a++)oc.drawImage(t,Math.cos(a*.785)*o,Math.sin(a*.785)*o);
   oc.drawImage(cv,0,0);c.clearRect(0,0,w,h);c.drawImage(out,0,0);
 }
@@ -6711,8 +6711,18 @@ function hoFx(G,x,y,t,c){G.fl.push({x,y,t,l:1,c:c||'#fff'})}
 function hoBurst(G,x,y,n,col){for(let i=0;i<n;i++){const a=Math.random()*6.283,v=60+Math.random()*140;G.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:.7,m:.7,c:Array.isArray(col)?col[i%col.length]:col,r:2+Math.random()*3})}}
 function hoProg(h,G){let t=0;const n=G.goals.length;for(let i=0;i<n;i++)t+=Math.min(1,h.pg[i]/G.goals[i].n);return t/n}
 function hoDone(h,G){for(let i=0;i<G.goals.length;i++)if(h.pg[i]<G.goals[i].n)return false;return true}
+function hoRespawn(G,o){
+  const solo=G.holes.length<=3;let b=solo?7:20;
+  if(G.me&&o.s>=G.me.r*0.45)b*=0.6;
+  return b*(0.85+Math.random()*0.3);
+}
+function hoNearGoal(G){
+  const me=G.me;let best=null,bd=1e12;
+  for(const o of G.items){if(!o.alive)continue;const gi=G.gidx[o.k];if(gi===undefined||me.pg[gi]>=G.goals[gi].n)continue;if(o.s>me.r*0.85)continue;const d=(o.x-me.x)*(o.x-me.x)+(o.y-me.y)*(o.y-me.y);if(d<bd){bd=d;best=o}}
+  G.garr=best;G.gad=best?Math.sqrt(bd):0;
+}
 function hoEat(G,h,o){
-  o.alive=0;o.fall={t:0,h,x0:o.x,y0:o.y,spin:(Math.random()-.5)*1.3};o.rt=G.t+25;
+  o.alive=0;o.fall={t:0,h,x0:o.x,y0:o.y,spin:(Math.random()-.5)*1.3};o.rt=G.t+hoRespawn(G,o);
   h.pulse=1;if(G.rings.length<12)G.rings.push({h,t:0});
   if(h.me||Math.hypot(h.x-G.me.x,h.y-G.me.y)<500){if(o.s>=14)hoBurst(G,o.x,o.y,Math.min(10,3+Math.round(o.s/8)),['#e5e7eb','#cbd5e1','#fff'])}
   if(h.me&&o.s>=26){G.shake=Math.min(1,G.shake+o.s/110);tone(140,55,0.16,'sine',0.09)}
@@ -6752,7 +6762,7 @@ function hoUpdate(G,dt){
   for(const r of G.rings)r.t+=dt/0.5;G.rings=G.rings.filter(r=>r.t<1);G.shake=Math.max(0,G.shake-dt*3);for(const h of G.holes)if(h.pulse>0)h.pulse=Math.max(0,h.pulse-dt*4.5);
   for(const o of G.items){if(o.fall){o.fall.t+=dt/0.62;if(o.fall.t>=1)o.fall=null}else if(!o.alive&&G.t>=o.rt){o.alive=1;o.pop=0.5}else if(o.pop>0)o.pop-=dt}
   if(G.over)return;
-  G.left-=dt;
+  G.left-=dt;G.gat=(G.gat||0)-dt;if(G.gat<=0){G.gat=0.4;hoNearGoal(G)}
   const me=G.me,st=ho.stick;
   for(const h of G.holes){
     if(h.dead){h.respT-=dt;if(h.respT<=0)hoSpawn(G,h,false);continue}
@@ -6930,6 +6940,11 @@ function hoDraw(G){
     c.fillStyle='rgba(30,20,60,.55)';rr2(c,sx-bw/2,by-6,bw,12,6);c.fill();
     const g=c.createLinearGradient(0,by-6,0,by+6);g.addColorStop(0,'#fde047');g.addColorStop(1,'#f59e0b');c.fillStyle=g;rr2(c,sx-bw/2,by-6,Math.max(10,bw*fr),12,6);c.fill();
     c.font='bold 15px sans-serif';c.lineWidth=4;c.strokeStyle='rgba(30,15,60,.7)';const tx=trStr('Boyut')+' '+me.b;c.strokeText(tx,sx,by+20);c.fillStyle='#fff';c.fillText(tx,sx,by+20);
+  }
+  if(!me.dead&&G.garr&&G.garr.alive&&G.gad>me.r*1.4){
+    const dx=(G.garr.x-me.x)*S,dy=(G.garr.y-me.y)*S*HO_SQ,a=Math.atan2(dy,dx),R=me.r*S*1.28+10+Math.sin(G.t*6)*3,mx=px(me.x),my=py(me.y);
+    c.save();c.translate(mx+Math.cos(a)*R,my+Math.sin(a)*R*HO_SQ);c.rotate(a);
+    c.fillStyle='#38bdf8';c.strokeStyle='#fff';c.lineWidth=3;c.lineJoin='round';c.beginPath();c.moveTo(13,0);c.lineTo(-8,-11);c.lineTo(-3,0);c.lineTo(-8,11);c.closePath();c.stroke();c.fill();c.restore();
   }
   for(const h of G.holes){
     if(h===me||h.dead)continue;const sx=px(h.x),sy=py(h.y);
@@ -9847,7 +9862,6 @@ dgRefresh();setInterval(dgRefresh,600000);
 const hoDex=ld('tv_hodex',{});let hoDexDirty=0;
 const HO_DX=[[10,15],[100,80],[500,300]];
 function hoDexAdd(k){const c=(hoDex[k]||0)+1;hoDex[k]=c;hoDexDirty=1;
-  if(c===1){toast('📖 '+trStr('Yeni nesne')+'!')}
   for(const m of HO_DX)if(c===m[0]){credit('hole',m[1]);toast('📖 '+m[0]+'× → +'+m[1]+' 🪙');refreshCoins()}}
 setInterval(()=>{if(hoDexDirty){hoDexDirty=0;sv('tv_hodex',hoDex)}},4000);
 document.body.insertAdjacentHTML('beforeend','<div id="ho_dx" class="overlay hidden" style="z-index:30"><div class="card" style="width:min(94vw,420px);max-height:86vh;display:flex;flex-direction:column"><div class="ttl">📖 Koleksiyon</div><div id="ho_dxs" style="text-align:center;font-size:13px;opacity:.9;margin-top:4px"></div><div id="ho_dxl" style="overflow:auto;margin:10px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div><button id="ho_dxx" class="alt">Kapat</button></div></div>');
