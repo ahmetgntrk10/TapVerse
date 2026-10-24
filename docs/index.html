@@ -4645,6 +4645,13 @@ function wdMk(lj){
 }
 function wdHash(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
 let wdSalt=0;
+function wdParams(level){const t=wdTier(level),k=wdCycle(level),ph=Math.min(2,k);let n=t.L[ph];if(level===1||level===2)n=4;const boss=wdBossL(level);const cap=t.id==='vez'?1800:t.id==='ez'||t.id==='ez2'?3200:t.id==='md'?4800:1e9;return{n,cap,key:n+'|'+cap}}
+function wdGcd(a,b){return b?wdGcd(b,a%b):a}
+function wdSeqIdx(level,code,size){
+  if(!size)return 0;const key=wdParams(level).key;let j=0;for(let l=1;l<level;l++)if(wdParams(l).key===key)j++;
+  let step=Math.max(1,Math.floor(size*0.382));while(wdGcd(step,size)!==1)step++;
+  return (wdHash(code+key)%size+j*step)%size;
+}
 function wdGen(level,code,L,rx){rx=rx||0;
   const t=wdTier(level),k=wdCycle(level),ph=Math.min(2,k),boss=wdBossL(level);
   const rnd=mzRng(level*7919+wdHash(code)*13+5+wdSalt*104729);
@@ -4657,7 +4664,7 @@ function wdGen(level,code,L,rx){rx=rx||0;
   const bases=(L.byLen[n]||[]).filter(w=>L.rank.get(w)<(boss||t.id==='vhd'||t.id==='hd'?1e9:cap));
   let bestRes=null,bestScore=-1;
   for(let at=0;at<(rx?250:30)&&bases.length;at++){
-    const base=bases[Math.floor(rnd()*bases.length)];
+    const base=rx||wdSalt?bases[Math.floor(rnd()*bases.length)]:bases[(wdSeqIdx(level,code,bases.length)+at)%bases.length];
     const cnt={};for(const ch of base)cnt[ch]=(cnt[ch]||0)+1;
     const cand=[];for(let ln=t.min;ln<=n;ln++){const arr=L.byLen[ln];if(arr)for(const w of arr)if(w!==base&&L.rank.get(w)<cap&&wdCan(w,cnt))cand.push(w)}
     const need=Math.max(3,target-1);
@@ -4712,7 +4719,19 @@ const wd={G:null,raf:false,last:0,sel:null,lists:{},loading:false,pick:false};
 const WD_LANGS=['tr','en','es','pt','de','fr','ru'];
 const WD_BG={vez:['#115e59','#0c1a3a'],ez:['#166534','#0a2a30'],md:['#4c3ba8','#1b1447'],hd:['#9a3412','#2b1233'],vhd:['#991b1b','#1f0f2e'],ez2:['#166534','#0a2a30'],boss:['#6b21a8','#190a2c']};
 const WD_PAL=['#fb7185','#fbbf24','#34d399','#38bdf8','#a78bfa','#f472b6','#fb923c','#2dd4bf','#a3e635','#60a5fa','#e879f9','#facc15'];
-const WD_HP=30;
+const WD_HP=30,WD_WL=21;
+const WD_WORLDS=[
+ {n:'Orman',e:'🌲',bg:['#166534','#0a2a22'],c:'#bbf7d0',sh:0},
+ {n:'Okyanus',e:'🌊',bg:['#0e7490','#0c1a3a'],c:'#a5f3fc',sh:1},
+ {n:'Volkan',e:'🌋',bg:['#9a3412','#2b0f12'],c:'#fdba74',sh:2},
+ {n:'Buz Diyarı',e:'❄️',bg:['#3b82a8','#14213d'],c:'#e0f2fe',sh:3},
+ {n:'Çöl',e:'🏜️',bg:['#b45309','#3a1d0c'],c:'#fde68a',sh:4},
+ {n:'Gökyüzü',e:'☁️',bg:['#4f7fd6','#2a2a6b'],c:'#ffffff',sh:5},
+ {n:'Uzay',e:'🌌',bg:['#4c1d95','#0b0720'],c:'#f5d0fe',sh:6},
+ {n:'Kristal Mağara',e:'💎',bg:['#0f766e','#1e1b4b'],c:'#99f6e4',sh:7}];
+const wdWorld=l=>Math.floor((l-1)/WD_WL),wdWD=l=>WD_WORLDS[wdWorld(l)%WD_WORLDS.length];
+const wdWName=l=>{const r=Math.floor(wdWorld(l)/WD_WORLDS.length);return wdWD(l).n+(r?' '+(r+1):'')};
+const wdChest=w=>({c:120+Math.min(w,20)*25,h:2});
 document.body.insertAdjacentHTML('beforeend','<div id="words" class="hidden mgscr"><canvas id="c_wd" style="touch-action:none"></canvas>'
  +'<div class="mtop"><button id="wd_back" class="ibtn alt">‹</button><div class="pill" id="wd_lv">Seviye 1</div><div class="pill sm" id="wd_tier">Çok Kolay</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
  +'<div class="sobar"><button id="wd_sh"><i>🔀</i><span>Karıştır</span></button><button id="wd_hint"><i>💡</i><span id="wd_hn">İpucu</span></button><button id="wd_fg"><i>👆</i><span>Harf Seç</span></button><button id="wd_bn"><i>📖</i><span id="wd_bnn">Bonus 0</span></button><button id="wd_sk"><i>⏭</i><span>Atla 📺</span></button></div>'
@@ -4720,12 +4739,14 @@ document.body.insertAdjacentHTML('beforeend','<div id="words" class="hidden mgsc
  +'<div id="wd_bs" class="overlay hidden"><div class="card" style="max-height:80vh;overflow:auto"><div class="ttl">📖 Bonus Kelimeler</div><div id="wd_bi" style="color:var(--mute);margin:6px 0 10px;font-size:14px"></div><div id="wd_bl" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px"></div><button id="wd_bx" class="alt">Kapat</button></div></div></div>');
 document.head.insertAdjacentHTML('beforeend','<style>#wd_lv{font-size:15px;padding:6px 11px;white-space:nowrap}#wd_tier{white-space:nowrap;font-weight:700}#wd_back{flex:none}#words .sobar button{padding:7px 0}.wdchip{background:rgba(255,255,255,.12);border-radius:10px;padding:4px 10px;font-weight:700;font-size:14px;letter-spacing:1px}</style>');
 SCR.push('words');
+document.body.insertAdjacentHTML('beforeend','<div id="wd_map" class="overlay hidden" style="z-index:30"><div class="card" style="width:min(94vw,400px);max-height:84vh;display:flex;flex-direction:column"><div class="ttl">🗺️ Dünyalar</div><div id="wd_ml" style="overflow:auto;margin:10px 0;display:flex;flex-direction:column;gap:8px"></div><button id="wd_mx" class="alt">Kapat</button></div></div>');
+document.head.insertAdjacentHTML('beforeend','<style>.wdw{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;border:1px solid rgba(255,255,255,.18);color:#fff;text-align:left;font-family:inherit;width:100%}.wdw i{font-style:normal;font-size:30px;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;flex:none}.wdw b{display:block;font-size:16px}.wdw small{display:block;font-size:12px;opacity:.85;margin-top:2px}.wdw .wdb{height:6px;border-radius:4px;background:rgba(0,0,0,.35);margin-top:6px;overflow:hidden}.wdw .wdb u{display:block;height:100%;background:#ffd34d;border-radius:4px}.wdw.lk{filter:saturate(.3) brightness(.7)}</style>');
 $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardWd" style="background:linear-gradient(135deg,#0d9488,#6366f1 55%,#ec4899)"><div class="gicon">🌸</div><div class="gtx"><b>Kelime Çiçeği</b><small>Harfleri kaydır, kelimeleri bul, çiçeği aç. Her dilde!</small><span class="gtag" id="hsWd">Seviye 1</span></div><div class="gplay" style="color:#0d9488">▶</div></div>');
 ACH3('t_wd','words','{n} seviye bitir',()=>wdLevel-1,[5,25,80],RS);
 ACH.push({id:'wdb1',name:'Bonus Avcısı',text:'Kelime Çiçeği: 50 bonus kelime bul',get:()=>wdSt.b,target:50,reward:200,w:'words'},{id:'wdb2',name:'Kelime Ustası',text:'Kelime Çiçeği: 500 bonus kelime bul',get:()=>wdSt.b,target:500,reward:1200,w:'words'},{id:'wdg1',name:'Altın Avcısı',text:'Kelime Çiçeği: 5 altın kelime bul',get:()=>wdSt.g,target:5,reward:300,w:'words'},{id:'wdw1',name:'Kelime Kurdu',text:'Kelime Çiçeği: 300 kelime bul',get:()=>wdSt.w,target:300,reward:400,w:'words'});
 const _lbCfgWd=lbCfg;
 lbCfg=function(id){
-  if(id==='wd'){const wl=k=>'🪙 '+(k===curW?totalCoins:(WALLET[k]||0));return{emo:'🌸',t:'Kelime Çiçeği',d:'Harf çarkında parmağını kaydırarak kelime yap, bulmacadaki boşlukları doldur. Bulmacada olmayan geçerli kelimeler bonus sayılır. Altın kutulu kelimeler ekstra para verir. Her 7. seviye BOSS!',i:'Seviye '+wdLevel+' · 💡 '+wdHints,w:wl('words'),wk:'words',play:()=>openWd(wdLevel),x:[[wdDailyDone()?'📅 Günlük Bulmaca ✅ (yarın yeni)':'📅 Günlük Bulmaca · ödül x1.5',()=>openWd(0,1)]],levels:true,cur:()=>wdLevel,open:lv=>openWd(lv)}}
+  if(id==='wd'){const wl=k=>'🪙 '+(k===curW?totalCoins:(WALLET[k]||0));return{emo:'🌸',t:'Kelime Çiçeği',d:'Harf çarkında parmağını kaydırarak kelime yap, bulmacadaki boşlukları doldur. Bulmacada olmayan geçerli kelimeler bonus sayılır. Altın kutulu kelimeler ekstra para verir. Her 7. seviye BOSS! Her 21 seviyede yeni bir dünya açılır, dünyayı bitirince sandık verir.',i:wdWName(wdLevel)+' · Seviye '+wdLevel+' · 💡 '+wdHints,w:wl('words'),wk:'words',play:()=>openWd(wdLevel),x:[['🗺️ Dünyalar',wdMapOpen],[wdDailyDone()?'📅 Günlük Bulmaca ✅ (yarın yeni)':'📅 Günlük Bulmaca · ödül x1.5',()=>openWd(0,1)]],levels:true,cur:()=>wdLevel,open:lv=>openWd(lv)}}
   return _lbCfgWd(id);
 };
 const wdCode=()=>WD_LANGS.includes(lang)?lang:'en';
@@ -4736,6 +4757,18 @@ async function wdLoad(code){
   const L=wdMk(await r.json());wd.lists[code]=L;return L;
 }
 function wdSaveP(G){try{sv('tv_wdp',{d:G.daily||0,l:G.level,c:G.code,f:[...G.found],r:[...G.rev],b:G.bonusF,h:G.hu,bc:G.bcoin,bh:G.bhint})}catch(e){}}
+function wdMapOpen(){
+  const cur=wdLevel,cw=wdWorld(cur),l=$('wd_ml');l.innerHTML='';
+  for(let w=0;w<=cw+3;w++){
+    const st=w*WD_WL+1,en=st+WD_WL-1,W=WD_WORLDS[w%WD_WORLDS.length],r=Math.floor(w/WD_WORLDS.length),nm=W.n+(r?' '+(r+1):'');
+    const done=cur>en,open=cur>=st,prog=Math.max(0,Math.min(WD_WL,cur-st)),ch=wdChest(w);
+    const b=document.createElement('button');b.className='wdw'+(open?'':' lk');b.style.background='linear-gradient(135deg,'+W.bg[0]+','+W.bg[1]+')';
+    b.innerHTML='<i>'+(open?W.e:'🔒')+'</i><div style="flex:1;min-width:0"><b>'+nm+(cur>=st&&cur<=en?' · ▶':done?' · ✅':'')+'</b><small>'+(open?'Seviye '+st+'–'+en+' · 🎁 🪙'+ch.c:'Seviye '+st+'\'de açılır')+'</small>'+(open?'<div class="wdb"><u style="width:'+(prog/WD_WL*100)+'%"></u></div>':'')+'</div>';
+    b.onclick=()=>{if(!open){toast('Seviye '+st+'\'de açılır');return}show('wd_map',false);openWd(cur>=st&&cur<=en?cur:st)};
+    l.appendChild(b)}
+  show('wd_map',true);setTimeout(()=>{const a=l.children[cw];a&&a.scrollIntoView&&a.scrollIntoView({block:'center'})},50);
+}
+$('wd_mx').onclick=()=>show('wd_map',false);
 const wdDay=()=>Math.floor(Date.now()/864e5);
 const wdDailyDone=()=>ld('tv_wddaily',0)===wdDay();
 async function openWd(lv,daily){
@@ -4764,7 +4797,7 @@ function wdLayout(G){
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
   G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;
   const barH=86+0;G.R=Math.min(W*0.4,H*0.19,170);G.cx=W/2;G.cy=H-barH-G.R-14;
-  G.pillY=G.cy-G.R-34;const top=70,bot=G.pillY-30,g=G.g;
+  G.pillY=G.cy-G.R-34;const top=86,bot=G.pillY-30,g=G.g;
   G.cell=Math.max(18,Math.min(54,(W-28)/g.cols,(bot-top)/g.rows));
   G.gx=(W-G.cell*g.cols)/2;G.gy=top+((bot-top)-G.cell*g.rows)/2;
   const n=g.n;G.br=Math.min(G.R*(n<=4?0.27:n<=5?0.25:0.23),34);G.lr=G.R-G.br-8;
@@ -4772,7 +4805,7 @@ function wdLayout(G){
   G.bp=G.ord.map((_,i)=>({x:G.tp[i].x,y:G.tp[i].y,fx:G.tp[i].x,fy:G.tp[i].y,t0:-9}));
   // önbellek: arka plan ve çark zemini bir kez çizilir
   const mk=(w,h)=>{const o=document.createElement('canvas');o.width=Math.round(w*dpr);o.height=Math.round(h*dpr);const x=o.getContext('2d');x.scale(dpr,dpr);return[o,x]};
-  const T=G.g.tier,bg=WD_BG[T.id];
+  const T=G.g.tier,bg=wdWD(G.level).bg;
   {const [o,x]=mk(W,H);const gr=x.createLinearGradient(0,0,0,H);gr.addColorStop(0,bg[0]);gr.addColorStop(1,bg[1]);x.fillStyle=gr;x.fillRect(0,0,W,H);
    if(G.g.boss){const rg=x.createRadialGradient(W/2,H*0.45,H*0.2,W/2,H*0.45,H*0.8);rg.addColorStop(0,'rgba(0,0,0,0)');rg.addColorStop(1,'rgba(220,38,38,.28)');x.fillStyle=rg;x.fillRect(0,0,W,H)}G.bgc=o}
   {const R=G.R,pad=34,[o,x]=mk(R*2+pad*2,R*2+pad*2);const cx=R+pad,cy=R+pad;
@@ -4854,6 +4887,7 @@ function wdWin(G){
   let extra='';
   if(G.daily){if(dOk){sv('tv_wddaily',wdDay());wdHints++;sv('tv_wdh',wdHints);extra='\n💡 +1 ipucu hediye'}}
   else if(fresh){wdLevel=G.level+1;sv('tv_wdlevel',wdLevel);if(G.level%5===0||G.g.boss){wdHints++;sv('tv_wdh',wdHints);extra='\n💡 +1 ipucu hediye'}}
+  if(!G.daily&&fresh&&G.level%WD_WL===0){const ch=wdChest(wdWorld(G.level));credit('words',ch.c);stats.coins+=ch.c;addProg('coins',ch.c);addProg('c_words',ch.c);wdHints+=ch.h;sv('tv_wdh',wdHints);G.chest=ch;extra+='\n🎁 Dünya tamam: '+wdWName(G.level)+'! 🪙 +'+ch.c+' · 💡 +'+ch.h}
   try{sv('tv_wdp',null)}catch(e){}
   saveDaily();checkAch();refreshCoins();sfx.power();buzz([40,40,40,120]);
   const cx=G.W/2;for(let i=0;i<70;i++)G.parts.push({x:cx,y:G.gy+G.cell*G.g.rows/2,vx:(Math.random()-.5)*520,vy:-Math.random()*420-60,life:1.6,max:1.6,c:WD_PAL[i%WD_PAL.length],s:4+Math.random()*5,g:520,pet:i%2===0,rot:Math.random()*6});
@@ -4900,8 +4934,16 @@ function wdDraw(G){
   const c=G.ctx;if(!c)return;const W=G.W,H=G.H,t=G.t,T=G.g.tier,bg=WD_BG[T.id];c.setTransform(G.dpr,0,0,G.dpr,0,0);
   c.drawImage(G.bgc,0,0,W,H);
   // döngüye göre bahçe teması
-  const th=Math.floor((G.level-1)/7)%5;
-  c.save();c.globalAlpha=0.16;c.fillStyle='#fff';for(let i=0;i<14;i++){const x=((i*97.3+t*(8+i%4*3))%(W+60))-30,y=((i*151.7+(th===3?-1:1)*t*(14+i%3*6))%(H+60)+H+60)%(H+60)-30,r=6+i%4*4;c.save();c.translate(x,y);c.rotate(t*0.3+i);if(th===0){c.beginPath();c.ellipse(0,0,r,r*0.45,0,0,6.283);c.fill()}else if(th===1){c.beginPath();c.moveTo(0,-r);c.lineTo(r*0.6,0);c.lineTo(0,r);c.lineTo(-r*0.6,0);c.fill()}else if(th===2){c.beginPath();c.arc(0,0,r*0.7,0,6.283);c.stroke?c.fill():0}else if(th===3){c.fillRect(-r/2,-r/2,r,r)}else{c.beginPath();for(let q=0;q<5;q++){const a=q*1.2566-1.5708;c.lineTo(Math.cos(a)*r,Math.sin(a)*r);const b=a+0.628;c.lineTo(Math.cos(b)*r*0.4,Math.sin(b)*r*0.4)}c.fill()}c.restore()}c.restore();
+  const WW=wdWD(G.level),th=WW.sh;
+  c.save();c.globalAlpha=0.2;c.fillStyle=WW.c;c.strokeStyle=WW.c;for(let i=0;i<14;i++){const up=(th===2||th===1||th===7);const x=((i*97.3+t*(8+i%4*3)*(th===5?2:1))%(W+60))-30,y=((i*151.7+(up?-1:1)*t*(14+i%3*6)*(th===3?1.4:1))%(H+60)+H+60)%(H+60)-30,r=(th===3||th===4?3:6)+i%4*(th===3||th===4?1.5:4);c.save();c.translate(x,y);c.rotate(t*0.3+i);
+    if(th===0){c.beginPath();c.ellipse(0,0,r,r*0.45,0,0,6.283);c.fill()}
+    else if(th===1){c.lineWidth=1.5;c.beginPath();c.arc(0,0,r*0.8,0,6.283);c.stroke()}
+    else if(th===2){c.beginPath();c.moveTo(0,-r);c.lineTo(r*0.5,0);c.lineTo(0,r*0.6);c.lineTo(-r*0.5,0);c.fill()}
+    else if(th===3||th===4){c.beginPath();c.arc(0,0,r,0,6.283);c.fill()}
+    else if(th===5){c.beginPath();c.ellipse(0,0,r*2.2,r*0.8,0,0,6.283);c.fill()}
+    else if(th===6){c.beginPath();for(let q=0;q<5;q++){const a=q*1.2566-1.5708;c.lineTo(Math.cos(a)*r,Math.sin(a)*r);const b=a+0.628;c.lineTo(Math.cos(b)*r*0.4,Math.sin(b)*r*0.4)}c.fill()}
+    else{c.beginPath();c.moveTo(0,-r);c.lineTo(r*0.6,0);c.lineTo(0,r);c.lineTo(-r*0.6,0);c.fill()}
+    c.restore()}c.restore();
   // ışıldayan polenler
   for(const f of wdFly){const x=((f.x+Math.sin(t*f.v*8+f.p)*0.04)%1)*W,y=((f.y-t*f.v*0.6)%1+1)%1*H;c.globalAlpha=0.25+0.35*Math.sin(t*f.s+f.p)**2;c.fillStyle='#fef9c3';c.beginPath();c.arc(x,y,1.2+f.s*1.3,0,6.283);c.fill()}c.globalAlpha=1;
   // ızgara
@@ -4927,6 +4969,8 @@ function wdDraw(G){
     }
     c.restore();
   }
+  // dünya adı
+  {c.globalAlpha=0.85;c.fillStyle=wdWD(G.level).c;c.font='700 12px system-ui,sans-serif';c.textAlign='center';c.textBaseline='middle';const li=(G.level-1)%WD_WL+1;c.fillText(wdWD(G.level).e+' '+trStr(wdWD(G.level).n)+(Math.floor(wdWorld(G.level)/8)?' '+(Math.floor(wdWorld(G.level)/8)+1):'')+' · '+li+'/'+WD_WL,G.W/2,66);c.globalAlpha=1}
   // ilerleme çiçeği
   {const n=g.words.length,fx=W-28,fy=G.gy>80?G.gy-18:64,fr=15;for(let i=0;i<n;i++){const a=i/n*6.283-1.5708;c.fillStyle=G.found.has(i)?WD_PAL[i%WD_PAL.length]:'rgba(255,255,255,.18)';c.beginPath();c.ellipse(fx+Math.cos(a)*fr*0.62,fy+Math.sin(a)*fr*0.62,fr*Math.min(0.5,3.3/n+0.2),fr*0.2,a,0,6.283);c.fill()}c.fillStyle=G.found.size>=n?'#ffd34d':'rgba(255,255,255,.55)';c.beginPath();c.arc(fx,fy,fr*0.28,0,6.283);c.fill()}
   // yazılan kelime hapı
@@ -4962,7 +5006,8 @@ function wdDraw(G){
   // parçacıklar
   for(const p of G.parts){c.globalAlpha=Math.max(0,Math.min(1,p.life/0.5));c.fillStyle=p.c;if(p.pet){c.save();c.translate(p.x,p.y);c.rotate(p.rot);c.beginPath();c.ellipse(0,0,p.s*1.3,p.s*0.6,0,0,6.283);c.fill();c.restore()}else{c.beginPath();c.arc(p.x,p.y,p.s*0.6,0,6.283);c.fill()}}c.globalAlpha=1;
   for(const f of G.floats){c.globalAlpha=Math.min(1,f.life*1.5);c.fillStyle=f.c;c.font='800 18px system-ui,sans-serif';c.textAlign='center';c.textBaseline='middle';c.strokeStyle='rgba(0,0,0,.45)';c.lineWidth=3;c.strokeText(trStr(f.t),f.x,f.y);c.fillText(trStr(f.t),f.x,f.y);c.globalAlpha=1}
-  if(G.banner>0&&(G.g.boss||T.id==='vhd'||T.id==='hd'||G.level===1)){const a=Math.min(1,G.banner*1.2),k=Math.min(1,(2.2-G.banner)/0.35),sz=(G.g.boss?44:34)*(0.6+0.4*wdBack(k));c.globalAlpha=a;c.fillStyle=T.c;c.font='900 '+Math.round(sz)+'px system-ui,sans-serif';c.textAlign='center';c.textBaseline='middle';c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=6;c.lineJoin='round';const tx=G.g.boss?'🔥 BOSS 🔥':T.n;c.strokeText(trStr(tx),G.W/2,G.H*0.38);c.fillText(trStr(tx),G.W/2,G.H*0.38);c.globalAlpha=1}
+  const wStart=(G.level-1)%WD_WL===0&&!G.daily;
+  if(G.banner>0&&(G.g.boss||wStart||T.id==='vhd'||T.id==='hd'||G.level===1)){const a=Math.min(1,G.banner*1.2),k=Math.min(1,(2.2-G.banner)/0.35),sz=(G.g.boss?44:34)*(0.6+0.4*wdBack(k));c.globalAlpha=a;c.fillStyle=T.c;c.font='900 '+Math.round(sz)+'px system-ui,sans-serif';c.textAlign='center';c.textBaseline='middle';c.strokeStyle='rgba(0,0,0,.55)';c.lineWidth=6;c.lineJoin='round';const tx=wStart?wdWD(G.level).e+' '+wdWName(G.level)+' '+wdWD(G.level).e:G.g.boss?'🔥 BOSS 🔥':T.n;c.strokeText(trStr(tx),G.W/2,G.H*0.38);c.fillText(trStr(tx),G.W/2,G.H*0.38);c.globalAlpha=1}
 }
 function wdFrame(now){
   if(state!=='words'){wd.raf=false;return}
@@ -5661,7 +5706,7 @@ $('exitNo').onclick=()=>show('exitOv',false);
 $('exitYes').onclick=()=>{try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()){C.registerPlugin('App').exitApp();return}}catch(e){}show('exitOv',false);try{window.close()}catch(e){}};
 // Açılış animasyonu
 (function(){const s=$('splash');if(!s)return;let done=false;const end=()=>{if(done)return;done=true;s.classList.add('out');setTimeout(()=>s.remove(),500)};s.onclick=end;setTimeout(end,2300)})();
-const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','wd_bx','lk_back','sg_back','wd_back','lb_back'];
+const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','wd_mx','wd_bx','lk_back','sg_back','wd_back','lb_back'];
 function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
 function goBack(){
   if(state==='pause'){resumeRun();return true}
@@ -6716,6 +6761,19 @@ altın/bonus dahil +{}|incl. gold/bonus +{}|incl. oro/bonus +{}|incl. ouro/bônu
 📅 Günlük|📅 Daily|📅 Diario|📅 Diário|📅 Täglich|📅 Du jour|📅 День|📅 Harian
 Günlük bulmaca tamam! 🌸|Daily puzzle done! 🌸|¡Puzle diario completado! 🌸|Quebra-cabeça diário concluído! 🌸|Tägliches Rätsel geschafft! 🌸|Énigme du jour terminée ! 🌸|Задача дня решена! 🌸|Teka-teki harian selesai! 🌸
 Günlük bulmaca atlanamaz|The daily puzzle can't be skipped|El puzle diario no se puede saltar|O quebra-cabeça diário não pode ser pulado|Das tägliche Rätsel kann nicht übersprungen werden|L'énigme du jour ne peut pas être passée|Задачу дня нельзя пропустить|Teka-teki harian tidak bisa dilewati
+🗺️ Dünyalar|🗺️ Worlds|🗺️ Mundos|🗺️ Mundos|🗺️ Welten|🗺️ Mondes|🗺️ Миры|🗺️ Dunia
+Seviye {}'de açılır|Unlocks at level {}|Se abre en el nivel {}|Abre no nível {}|Ab Level {} freigeschaltet|Se débloque au niveau {}|Откроется на уровне {}|Terbuka di level {}
+Seviye {}–{}|Level {}–{}|Nivel {}–{}|Nível {}–{}|Level {}–{}|Niveau {}–{}|Уровень {}–{}|Level {}–{}
+Orman|Forest|Bosque|Floresta|Wald|Forêt|Лес|Hutan
+Okyanus|Ocean|Océano|Oceano|Ozean|Océan|Океан|Samudra
+Volkan|Volcano|Volcán|Vulcão|Vulkan|Volcan|Вулкан|Gunung Api
+Buz Diyarı|Ice Land|Tierra de Hielo|Terra de Gelo|Eisland|Terre de glace|Ледяной край|Negeri Es
+Çöl|Desert|Desierto|Deserto|Wüste|Désert|Пустыня|Gurun
+Gökyüzü|Sky|Cielo|Céu|Himmel|Ciel|Небо|Langit
+Uzay|Space|Espacio|Espaço|Weltall|Espace|Космос|Luar Angkasa
+Kristal Mağara|Crystal Cave|Cueva de Cristal|Caverna de Cristal|Kristallhöhle|Grotte de cristal|Кристальная пещера|Gua Kristal
+Her 21 seviyede yeni bir dünya açılır, dünyayı bitirince sandık verir.|A new world opens every 21 levels, and finishing a world gives a chest.|Cada 21 niveles se abre un mundo nuevo y al terminarlo recibes un cofre.|A cada 21 níveis abre um novo mundo, e ao terminá-lo você ganha um baú.|Alle 21 Level öffnet sich eine neue Welt, am Ende gibt es eine Truhe.|Tous les 21 niveaux, un nouveau monde s'ouvre et le terminer donne un coffre.|Каждые 21 уровень открывается новый мир, а за его прохождение дают сундук.|Setiap 21 level dunia baru terbuka, menyelesaikannya memberi peti.
+🎁 Dünya tamam:|🎁 World complete:|🎁 ¡Mundo completado:|🎁 Mundo concluído:|🎁 Welt geschafft:|🎁 Monde terminé :|🎁 Мир пройден:|🎁 Dunia selesai:
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];
