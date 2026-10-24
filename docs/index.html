@@ -635,8 +635,8 @@ const yestStr=()=>{const d=new Date(Date.now()-864e5);return d.getFullYear()+'-'
 const weekId=()=>{const d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5-4)/7)};
 const weekLeft=()=>{const d=new Date(),dow=(d.getDay()+6)%7;const end=new Date(d.getFullYear(),d.getMonth(),d.getDate()+(7-dow));return Math.max(0,end-d)};
 // Oyun tablosu: n=ad, e=simge, w=ödülün yatacağı cüzdan (parası olmayan oyunlar Sonsuz Koşu cüzdanına yazar)
-const QG={run:{n:'Sonsuz Koşu',e:'🏃',w:'run'},maze:{n:'Labirent',e:'🌀',w:'maze'},city:{n:'Tek Tuş Şehir',e:'🏙️',w:'run'},tiles:{n:'Melodi Karoları',e:'🎹',w:'tiles'},arrows:{n:'Ok Kaçışı',e:'🎯',w:'arrows'},sort:{n:'Su Sıralama',e:'🧪',w:'sort'},clean:{n:'Temizlik',e:'🧼',w:'clean'},ghost:{n:'Hayalet Takım',e:'👻',w:'ghost'},lock:{n:'Kasa Uzmanı',e:'🔐',w:'lock'},shadow:{n:'Gölge Bahçesi',e:'🌙',w:'shadow'},words:{n:'Kelime Çiçeği',e:'🌸',w:'words'},merge:{n:'Yuva Birleştir',e:'🥚',w:'merge'},garden:{n:'Zaman Bahçesi',e:'🌱',w:'garden'},sound:{n:'Ses Avcısı',e:'🎧',w:'sound'},mini:{n:'Mini Oyunlar',e:'🎮',w:'run'},any:{n:'Genel',e:'⭐',w:'run'}};
-const WNAME={words:'Kelime Çiçeği',run:'Sonsuz Koşu',maze:'Labirent',tiles:'Melodi Karoları',arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik',ghost:'Hayalet Takım',lock:'Kasa Uzmanı',shadow:'Gölge Bahçesi',merge:'Yuva Birleştir',garden:'Zaman Bahçesi',sound:'Ses Avcısı'};
+const QG={run:{n:'Sonsuz Koşu',e:'🏃',w:'run'},maze:{n:'Labirent',e:'🌀',w:'maze'},city:{n:'Tek Tuş Şehir',e:'🏙️',w:'run'},tiles:{n:'Melodi Karoları',e:'🎹',w:'tiles'},arrows:{n:'Ok Kaçışı',e:'🎯',w:'arrows'},sort:{n:'Su Sıralama',e:'🧪',w:'sort'},clean:{n:'Temizlik',e:'🧼',w:'clean'},ghost:{n:'Hayalet Takım',e:'👻',w:'ghost'},lock:{n:'Kasa Uzmanı',e:'🔐',w:'lock'},shadow:{n:'Gölge Bahçesi',e:'🌙',w:'shadow'},words:{n:'Kelime Çiçeği',e:'🌸',w:'words'},merge:{n:'Yuva Birleştir',e:'🥚',w:'merge'},garden:{n:'Zaman Bahçesi',e:'🌱',w:'garden'},sound:{n:'Ses Avcısı',e:'🎧',w:'sound'},hole:{n:'Obur Delik',e:'🕳️',w:'hole'},mini:{n:'Mini Oyunlar',e:'🎮',w:'run'},any:{n:'Genel',e:'⭐',w:'run'}};
+const WNAME={words:'Kelime Çiçeği',run:'Sonsuz Koşu',maze:'Labirent',tiles:'Melodi Karoları',arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik',ghost:'Hayalet Takım',lock:'Kasa Uzmanı',shadow:'Gölge Bahçesi',merge:'Yuva Birleştir',garden:'Zaman Bahçesi',sound:'Ses Avcısı',hole:'Obur Delik'};
 // t: günlük [kolay,orta,zor], w: haftalık [kolay,orta,zor], x: metin ({n} sayı yerine geçer)
 const QT=[
  {k:'play',g:'run',m:'sum',x:'{n} kez koş',t:[2,4,8],w:[8,16,30]},
@@ -664,6 +664,7 @@ const QT=[
  {k:'merge',g:'merge',m:'sum',x:'{n} sipariş teslim et',t:[2,4,7],w:[8,16,28]},
  {k:'garden',g:'garden',m:'sum',x:'{n} hasat yap',t:[6,12,20],w:[30,60,100]},
  {k:'sound',g:'sound',m:'sum',x:'{n} ses seviyesi bitir',t:[2,4,7],w:[8,16,28]},
+ {k:'hole',g:'hole',m:'sum',x:'{n} delik seviyesi bitir',t:[2,4,7],w:[8,16,28]},
  {k:'mgplay',g:'mini',m:'sum',x:'{n} tur oyna',t:[3,6,12],w:[12,25,45]},
  {k:'diff',g:'any',m:'diff',x:'{n} farklı oyun oyna',t:[2,3,5],w:[4,7,10]}
 ];
@@ -671,7 +672,7 @@ const WORLD_TX=['','',"Buz Dünyası'na ulaş","Çöl Dünyası'na ulaş","Lav D
 const QRW={d:[40,90,180],w:[120,280,550]},QRF={run:1.5};
 const DIFFN=['Kolay','Orta','Zor'],DIFFC=['#52e08a','#ffd34d','#ff6b7a'];
 const GIFTS=[30,40,50,60,80,100,150];
-const GOF={play:'run',score:'run',runcoins:'run',c_run:'run',jump:'run',slide:'run',power:'run',world:'run',boss:'run',maze:'maze',c_maze:'maze',city:'city',cjump:'city',tile:'tiles',song:'tiles',c_tiles:'tiles',arrows:'arrows',c_arrows:'arrows',sort:'sort',c_sort:'sort',clean:'clean',c_clean:'clean',ghost:'ghost',c_ghost:'ghost',lock:'lock',c_lock:'lock',shadow:'shadow',c_shadow:'shadow',words:'words',c_words:'words',merge:'merge',c_merge:'merge',garden:'garden',c_garden:'garden',sound:'sound',c_sound:'sound'};
+const GOF={play:'run',score:'run',runcoins:'run',c_run:'run',jump:'run',slide:'run',power:'run',world:'run',boss:'run',maze:'maze',c_maze:'maze',city:'city',cjump:'city',tile:'tiles',song:'tiles',c_tiles:'tiles',arrows:'arrows',c_arrows:'arrows',sort:'sort',c_sort:'sort',clean:'clean',c_clean:'clean',ghost:'ghost',c_ghost:'ghost',lock:'lock',c_lock:'lock',shadow:'shadow',c_shadow:'shadow',words:'words',c_words:'words',merge:'merge',c_merge:'merge',garden:'garden',c_garden:'garden',sound:'sound',c_sound:'sound',hole:'hole',c_hole:'hole'};
 function gameOf(t){return GOF[t]||(t.indexOf('g_')===0?t.slice(2):t.indexOf('gp_')===0?t.slice(3):null)}
 let daily=ld('tv_daily',null),weekly=ld('tv_weekly',null),streak=ld('tv_streak',{last:'',count:0});
 let gs=ld('tv_gs',{});if(!gs.pl)gs.pl={};
@@ -4301,6 +4302,7 @@ function freeBig(){
   if(state!=='sort'){so.G=null;const c=$('c_so');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='clean'){cl.G=null;const c=$('c_cl');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='shadow'){sg.G=null;const c=$('c_sg');if(c&&c.width>1){c.width=1;c.height=1}}
+  if(state!=='hole'){ho.G=null;ho.stick=null;const c=$('c_ho');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='hunt'){av.G=null;av.p=null;const c=$('c_av');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='garden'){gd.G=null;const c=$('c_gd');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='merge'){yv.G=null;const c=$('c_yv');if(c&&c.width>1){c.width=1;c.height=1}}
@@ -5649,9 +5651,9 @@ $('av_dbl').onclick=()=>{const G=av.G;if(!G)return;
 $('cardAv').onclick=()=>openLobby('av');
 
 // ---- Para Çevir (swap) ----
-const SW_V={run:1,maze:1.2,tiles:1.2,arrows:1.2,sort:1,clean:1.3,ghost:1.5,lock:1.8,shadow:1.5,words:1.4,merge:1,garden:2,sound:1.8};
-const SW_E={run:'🏃',maze:'🌀',tiles:'🎹',arrows:'🎯',sort:'🧪',clean:'🧼',ghost:'👻',lock:'🔐',shadow:'🌙',words:'🌸',merge:'🥚',garden:'🌱',sound:'🎧'};
-const SW_G={run:['#f59e0b','#ef4444'],maze:['#06b6d4','#6366f1'],tiles:['#ec4899','#8b5cf6'],arrows:['#22c55e','#0ea5e9'],sort:['#38bdf8','#2563eb'],clean:['#2dd4bf','#0891b2'],ghost:['#a78bfa','#4c1d95'],lock:['#fbbf24','#b45309'],shadow:['#6366f1','#1e1b4b'],words:['#f472b6','#14b8a6'],merge:['#fb7185','#a855f7'],garden:['#84cc16','#15803d'],sound:['#818cf8','#0e7490']};
+const SW_V={run:1,maze:1.2,tiles:1.2,arrows:1.2,sort:1,clean:1.3,ghost:1.5,lock:1.8,shadow:1.5,words:1.4,merge:1,garden:2,sound:1.8,hole:1.6};
+const SW_E={run:'🏃',maze:'🌀',tiles:'🎹',arrows:'🎯',sort:'🧪',clean:'🧼',ghost:'👻',lock:'🔐',shadow:'🌙',words:'🌸',merge:'🥚',garden:'🌱',sound:'🎧',hole:'🕳️'};
+const SW_G={run:['#f59e0b','#ef4444'],maze:['#06b6d4','#6366f1'],tiles:['#ec4899','#8b5cf6'],arrows:['#22c55e','#0ea5e9'],sort:['#38bdf8','#2563eb'],clean:['#2dd4bf','#0891b2'],ghost:['#a78bfa','#4c1d95'],lock:['#fbbf24','#b45309'],shadow:['#6366f1','#1e1b4b'],words:['#f472b6','#14b8a6'],merge:['#fb7185','#a855f7'],garden:['#84cc16','#15803d'],sound:['#818cf8','#0e7490'],hole:['#7c3aed','#111827']};
 const SW_BASE=0.1,SW_FEE=0.03,SW_LIM=300;
 let swD=ld('tv_swd',{d:0,n:0,x:0});
 const swDay=()=>Math.floor(Date.now()/864e5);
@@ -5740,6 +5742,255 @@ $('sw_go').onclick=()=>{
 $('sw_okb').onclick=()=>{show('sw_ok',false);swSetAmt(0)};
 $('sw_ad').onclick=()=>Ads.rewarded(()=>{swLeft();swD.x+=200;sv('tv_swd',swD);toast('📺 +200');swRender()});
 $('hubSw').onclick=swOpen;
+
+// ---- Obur Delik (delikle her şeyi yut, en büyük ol) ----
+WN.hole='Obur Delik';WKEYS.push('hole');
+let hoLevel=ld('tv_holevel',1),hoUp=ld('tv_houp',{sp:0,st:0,mg:0,tm:0});
+const ho={G:null,raf:false,last:0,stick:null};
+const HO_WW=1100,HO_WH=1500;
+const HO_IT=[ // e: emoji, s: yarıçap, v: büyüme
+ {e:'🍬',s:8,v:30,w:20},{e:'🍎',s:9,v:36,w:20},{e:'🍪',s:9,v:34,w:15},{e:'🥕',s:8,v:30,w:10},
+ {e:'📦',s:15,v:110,w:14},{e:'🪑',s:15,v:105,w:10},{e:'🛵',s:18,v:160,w:8},{e:'🪴',s:14,v:95,w:8},
+ {e:'🚗',s:26,v:330,w:8},{e:'🌳',s:30,v:430,w:7},{e:'🚌',s:36,v:620,w:4},{e:'⛺',s:28,v:380,w:3},
+ {e:'🏠',s:46,v:1000,w:4},{e:'⛲',s:44,v:900,w:2},{e:'🗼',s:52,v:1300,w:1},
+ {e:'🏢',s:70,v:2300,w:2},{e:'🏰',s:84,v:3400,w:1}];
+const HO_NM=['Boncuk','Çukurcu','Obur','Karanlık','Yutkun','Mıknatıs','Gürbüz','Çılgın'];
+const HO_RC=['#f43f5e','#f59e0b','#22c55e','#38bdf8','#a855f7','#fb7185'];
+const HO_TH=[['#3f7d3a','#356c31'],['#d6b46a','#c4a257'],['#cfe8f3','#b9d8e8'],['#6b5b95','#5a4b82']];
+document.body.insertAdjacentHTML('beforeend','<div id="hole" class="hidden mgscr"><canvas id="c_ho" style="touch-action:none"></canvas>'
+ +'<div class="mtop"><button id="ho_back" class="ibtn alt">‹</button><div class="pill" id="ho_lv">Seviye 1</div><div class="pill sm" id="ho_tm">⏱ 60</div><div class="pill sm" id="ho_rk">🏆 1/1</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
+ +'<div class="sobar"><button id="ho_up"><i>⬆️</i><span>Geliştir</span></button><button id="ho_rs"><i>🔄</i><span>Yeniden</span></button></div>'
+ +'<div id="ho_win" class="overlay hidden"><div class="card"><div class="ttl" id="ho_t" style="color:var(--gold)">Birinci oldun! 🏆</div><div id="ho_wi" style="color:var(--mute);margin:8px 0;white-space:pre-line"></div><button id="ho_next" class="gold">▶ Sonraki Seviye</button><button id="ho_dbl" class="alt">📺 Altını 2 kat yap</button><button id="ho_wh" class="alt">🎮 Oyunlar</button></div></div></div>');
+document.head.insertAdjacentHTML('beforeend','<style>#hole .mtop{gap:4px;left:54px;right:8px}#hole .mtop .pill{padding:5px 8px;font-size:12px;white-space:nowrap}#ho_lv{font-size:12px!important}</style>');
+SCR.push('hole');
+document.body.insertAdjacentHTML('beforeend','<div id="ho_sh" class="overlay hidden" style="z-index:30"><div class="card" style="width:min(94vw,400px);max-height:84vh;display:flex;flex-direction:column"><div class="ttl">⬆️ Geliştir</div><div id="ho_shl" style="overflow:auto;margin:10px 0"></div><button id="ho_shx" class="alt">Kapat</button></div></div>');
+$('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardHo" style="background:linear-gradient(135deg,#111827,#7c3aed 55%,#db2777)"><div class="gicon">🕳️</div><div class="gtx"><b>Obur Delik</b><small>Delikle her şeyi yut, büyü, rakipleri geç!</small><span class="gtag" id="hsHo">Seviye 1</span></div><div class="gplay" style="color:#7c3aed">▶</div></div>');
+ACH3('t_ho','hole','{n} seviye bitir',()=>hoLevel-1,[5,25,60],RS);
+const _lbCfgHo=lbCfg;
+lbCfg=function(id){
+  if(id==='ho'){const wl=k=>'🪙 '+(k===curW?totalCoins:(WALLET[k]||0));return{emo:'🕳️',t:'Obur Delik',d:'Parmağınla deliği yönlendir: kendinden küçük her şeyi yut ve büyü. Süre bitince en büyük sen ol! Rakip delikler seni yutabilir, küçük rakipleri sen yut. Kazandığın parayla deliğini geliştir. Her 10. seviye BOSS!',i:'Seviye '+hoLevel,w:wl('hole'),wk:'hole',play:()=>openHo(hoLevel),x:[['⬆️ Geliştir',hoShop]],levels:true,cur:()=>hoLevel,open:openHo}}
+  return _lbCfgHo(id);
+};
+const HO_UP=[
+ {k:'st',e:'🕳️',n:'Başlangıç Boyu',d:'Delik daha büyük başlar',max:8,b:150,m:2},
+ {k:'sp',e:'💨',n:'Hız',d:'Delik daha hızlı hareket eder',max:8,b:120,m:1.9},
+ {k:'mg',e:'🧲',n:'Mıknatıs',d:'Yakındaki eşyaları çeker',max:6,b:200,m:2.1},
+ {k:'tm',e:'⏱️',n:'Ekstra Süre',d:'Her tura +5 saniye',max:5,b:250,m:2.2}];
+const hoUpC=k=>{const u=HO_UP.find(x=>x.k===k);return Math.round(u.b*Math.pow(u.m,hoUp[k]))};
+function hoShop(){
+  const L=$('ho_shl');L.innerHTML='';
+  HO_UP.forEach(u=>{const lv=hoUp[u.k],mx=lv>=u.max,c=hoUpC(u.k),b=document.createElement('button');b.className='gdr'+(!mx&&totalCoins<c?' no':'');
+    b.innerHTML='<i>'+u.e+'</i><div style="flex:1"><b>'+u.n+' · Sv.'+lv+'/'+u.max+'</b><small>'+u.d+'</small></div><span>'+(mx?'✅':'🪙 '+c)+'</span>';
+    b.onclick=()=>{if(mx){toast('En üst seviye');return}if(totalCoins<c){toast('Yeterli paran yok');buzz(40);return}credit('hole',-c);hoUp[u.k]++;sv('tv_houp',hoUp);refreshCoins();sfx.power();hoShop()};
+    L.appendChild(b)});
+  show('ho_sh',true);
+}
+$('ho_shx').onclick=()=>show('ho_sh',false);$('ho_up').onclick=hoShop;
+function hoGen(level){
+  const df=dfx(level),boss=isBoss(level),rest=isRest(level);
+  const nr=level<2?0:Math.min(5,1+Math.floor(df/7))-(rest?1:0);
+  return{df,boss,rest,nr:Math.max(level<2?0:1,nr),time:Math.max(55,80-df*0.6)+(boss?25:0)+5*hoUp.tm,
+    goal:Math.round(48+Math.min(70,df*2.2)+(boss?14:0)),pw:Math.min(1.4,0.75+df*0.03)*(rest?0.8:1)*(boss?1.15:1)};
+}
+const hoR=h=>Math.sqrt(h.m);
+function hoPick(rnd,boss){let t=0;const w=HO_IT.map(i=>i.w*(boss&&i.s>=44?2:1));w.forEach(x=>t+=x);let r=rnd()*t;for(let i=0;i<HO_IT.length;i++){r-=w[i];if(r<=0)return HO_IT[i]}return HO_IT[0]}
+function hoSpawnItem(G,rnd,small){
+  let it=hoPick(rnd,G.boss);if(small){let n=0;while(it.s>20&&n++<9)it=hoPick(rnd,0)}
+  const x=60+rnd()*(HO_WW-120),y=60+rnd()*(HO_WH-120);
+  return{it,x,y,rot:(rnd()-.5)*.6,eat:null};
+}
+function hoStart(lv){
+  const L=lv||hoLevel,g=hoGen(L),rnd=mzRng(L*6091+17);
+  const r0=24+2*hoUp.st;
+  const G=Object.assign({level:L,t:0,left:g.time,over:false,won:false,parts:[],fl:[],items:[],holes:[],rnd,kills:0,banner:2,spT:0,revived:false,msg:'',msgT:0},g);
+  G.me={me:1,x:HO_WW/2,y:HO_WH/2,vx:0,vy:0,m:r0*r0,c:'#22d3ee',n:'Sen',dead:0,sc:0};
+  G.holes.push(G.me);
+  for(let i=0;i<G.nr;i++){
+    const a=i/G.nr*6.283+rnd(),d=380+rnd()*150;
+    G.holes.push({x:HO_WW/2+Math.cos(a)*d,y:HO_WH/2+Math.sin(a)*d,vx:0,vy:0,m:Math.pow(24+rnd()*5,2),c:HO_RC[i%HO_RC.length],n:HO_NM[(L+i*3)%HO_NM.length],dead:0,tx:0,ty:0,ait:0,respawn:0,pw:G.pw*(0.9+rnd()*0.2)});
+  }
+  const cnt=Math.round(120+(G.boss?20:0));
+  for(let i=0;i<cnt;i++){const o=hoSpawnItem(G,rnd,0);if(Math.hypot(o.x-G.me.x,o.y-G.me.y)<90&&o.it.s>12){i--;continue}G.items.push(o)}
+  G.th=HO_TH[Math.floor((L-1)/10)%HO_TH.length];
+  ho.G=G;ho.stick=null;hoLayout(G);hoHud();show('ho_win',false);show('ho_sh',false);
+  if(!ho.raf){ho.raf=true;ho.last=performance.now();requestAnimationFrame(hoFrame)}
+}
+function openHo(lv){state='hole';useW('hole');stopMusic();hideAll();show('hole',true);hoStart(lv)}
+function hoLayout(G){
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,1.6),cv=$('c_ho');
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
+  G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;
+}
+function hoRank(G){const a=G.holes.filter(h=>!h.dead||h.me).sort((x,y)=>y.m-x.m);return{a,i:a.indexOf(G.me)+1}}
+function hoHud(){
+  const G=ho.G;if(!G)return;
+  $('ho_lv').textContent=G.boss?'🔥 BOSS '+G.level:G.rest?'😌 Kolay '+G.level:'Seviye '+G.level;
+  $('ho_tm').textContent='⏱ '+Math.ceil(Math.max(0,G.left));
+  const r=hoRank(G);$('ho_rk').textContent='🏆 '+r.i+'/'+G.holes.length;
+  try{$('hsHo').textContent='Seviye '+hoLevel}catch(e){}
+}
+const hoScale=G=>Math.max(0.42,Math.min(1.05,44/(hoR(G.me)+14)));
+function hoSpeed(h){return Math.max(95,185-hoR(h)*0.55)*(h.me?1+0.06*hoUp.sp:(h.pw||1)*0.93)}
+function hoFx(G,x,y,t,c){G.fl.push({x,y,t,l:1,c:c||'#fff'})}
+function hoEat(G,h,o){
+  const gain=o.it.v*(h.me?1:0.85);
+  h.m+=gain;o.eat={t:0,x:h.x,y:h.y,h};
+  if(h.me){G.me.sc++;tone(300+Math.min(500,o.it.s*8),500+Math.min(700,o.it.s*10),0.08,'sine',0.05);if(o.it.s>=26){buzz(15);hoFx(G,o.x,o.y,'+'+Math.round(gain/10),'#fde047')}}
+}
+function hoAI(G,h,dt){
+  h.ait-=dt;
+  if(h.ait<=0){
+    h.ait=0.25+Math.random()*0.2;const r=hoR(h);
+    let tx=null,ty=null,best=1e9;
+    for(const o of G.holes){if(o===h||o.dead)continue;const d=Math.hypot(o.x-h.x,o.y-h.y),ro=hoR(o);
+      if(ro>=r*1.15&&d<300){tx=h.x-(o.x-h.x);ty=h.y-(o.y-h.y);best=-1;break}}
+    if(best>=0){
+      for(const o of G.holes){if(o===h||o.dead)continue;const d=Math.hypot(o.x-h.x,o.y-h.y);if(r>=hoR(o)*1.2&&d<340){tx=o.x;ty=o.y;best=-2;break}}
+    }
+    if(best>=0){
+      for(const o of G.items){if(o.eat||o.it.s>r/0.85)continue;const d=Math.hypot(o.x-h.x,o.y-h.y),sc=d-o.it.s*3;if(sc<best){best=sc;tx=o.x;ty=o.y}}
+    }
+    if(tx==null){tx=HO_WW/2+(Math.random()-.5)*800;ty=HO_WH/2+(Math.random()-.5)*1000}
+    h.tx=Math.max(40,Math.min(HO_WW-40,tx));h.ty=Math.max(40,Math.min(HO_WH-40,ty));
+  }
+  const dx=h.tx-h.x,dy=h.ty-h.y,d=Math.hypot(dx,dy)||1,sp=hoSpeed(h);
+  h.vx=dx/d*sp;h.vy=dy/d*sp;
+}
+function hoUpdate(G,dt){
+  G.t+=dt;G.banner=Math.max(0,G.banner-dt);G.msgT=Math.max(0,G.msgT-dt);
+  for(const p of G.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.l-=dt}G.parts=G.parts.filter(p=>p.l>0);
+  for(const f of G.fl){f.y-=30*dt;f.l-=dt}G.fl=G.fl.filter(f=>f.l>0);
+  for(const o of G.items)if(o.eat){o.eat.t+=dt/0.28}
+  G.items=G.items.filter(o=>!o.eat||o.eat.t<1);
+  if(G.over)return;
+  G.left-=dt;
+  // oyuncu hareketi
+  const me=G.me;
+  if(ho.stick&&ho.stick.mag>0.08){const sp=hoSpeed(me)*Math.min(1,ho.stick.mag);me.vx=ho.stick.dx*sp;me.vy=ho.stick.dy*sp}else{me.vx*=0.8;me.vy*=0.8}
+  for(const h of G.holes){
+    if(h.dead){if(!h.me){h.respawn-=dt;if(h.respawn<=0){h.dead=0;h.m=Math.pow(26,2);h.x=60+Math.random()*(HO_WW-120);h.y=60+Math.random()*(HO_WH-120)}}continue}
+    if(!h.me)hoAI(G,h,dt);
+    h.x=Math.max(10,Math.min(HO_WW-10,h.x+h.vx*dt));h.y=Math.max(10,Math.min(HO_WH-10,h.y+h.vy*dt));
+    const r=hoR(h),mg=h.me?(hoUp.mg?r*0.35*hoUp.mg*0.5:0):0;
+    for(const o of G.items){
+      if(o.eat||o.it.s>r/0.85)continue;
+      const d=Math.hypot(o.x-h.x,o.y-h.y);
+      if(mg&&d<r+mg+o.it.s&&d>r*0.6){const k=Math.min(1,60*dt/Math.max(d,1));o.x+=(h.x-o.x)*k*0.6;o.y+=(h.y-o.y)*k*0.6}
+      if(d<r*0.62)hoEat(G,h,o);
+    }
+  }
+  // delik-delik yutma
+  for(const a of G.holes){if(a.dead)continue;for(const b of G.holes){if(b===a||b.dead)continue;
+    const ra=hoR(a),rb=hoR(b);
+    if(ra>=rb*1.2&&Math.hypot(a.x-b.x,a.y-b.y)<ra*0.6){
+      a.m+=b.m*0.55;b.dead=1;
+      for(let k=0;k<18;k++){const an=Math.random()*6.283,v=60+Math.random()*160;G.parts.push({x:b.x,y:b.y,vx:Math.cos(an)*v,vy:Math.sin(an)*v,l:.7,m:.7,c:b.c,r:3})}
+      if(b.me){hoOver(G,false,'Yutuldun!')}else{b.respawn=4;if(a.me){G.kills++;hoFx(G,b.x,b.y,'💥 +'+Math.round(b.m*0.55/10),'#fb7185');sfx.power();buzz(40)}}
+    }}}
+  // yeni eşya
+  G.spT-=dt;if(G.spT<=0){G.spT=1.2;if(G.items.length<130){const o=hoSpawnItem(G,G.rnd,1);if(Math.hypot(o.x-G.me.x,o.y-G.me.y)>200)G.items.push(o)}}
+  if(Math.floor(G.t*4)%4===0)hoHud();
+  if(G.left<=0){G.left=0;const rk=hoRank(G),ok=rk.i===1&&hoR(G.me)>=G.goal;if(ok)hoWin(G);else hoOver(G,false,rk.i===1?'Daha büyük olmalıydın!':'Süre bitti · '+rk.i+'. oldun')}
+}
+function hoWin(G){
+  G.over=true;G.won=true;hoHud();
+  const r=hoR(G.me),base=(10+G.df*0.8)*(G.boss?1.6:1);
+  G.reward=Math.max(6,Math.round(base+G.kills*3+r/10));
+  credit('hole',G.reward);stats.coins+=G.reward;addProg('coins',G.reward);addProg('c_hole',G.reward);addProg('hole',1);
+  if(G.level>=hoLevel){hoLevel=G.level+1;sv('tv_holevel',hoLevel)}
+  saveDaily();checkAch();refreshCoins();sfx.power();
+  $('ho_t').textContent=G.boss?'BOSS yenildi! 🔥':'Birinci oldun! 🏆';
+  $('ho_wi').textContent='🪙 +'+G.reward+(G.kills?' · 💥 '+G.kills:'');
+  $('ho_next').textContent='▶ Sonraki Seviye';$('ho_dbl').textContent='📺 Altını 2 kat yap';$('ho_dbl').classList.remove('hidden');
+  setTimeout(()=>{if(state==='hole'&&ho.G===G)show('ho_win',true)},900);
+}
+function hoOver(G,won,why){
+  if(G.over)return;G.over=true;
+  $('ho_t').textContent=why;
+  $('ho_wi').textContent='En az 1. olmalı ve hedef boyuta ulaşmalısın 🎯';
+  $('ho_next').textContent='🔄 Tekrar Dene';
+  $('ho_dbl').textContent=G.me.dead&&!G.revived?'📺 Küçülerek devam et':'📺 +20 sn ile devam et';$('ho_dbl').classList.remove('hidden');
+  setTimeout(()=>{if(state==='hole'&&ho.G===G)show('ho_win',true)},700);
+}
+function hoDraw(G){
+  const c=G.ctx;if(!c)return;const d=G.dpr,W=G.W,H=G.H;
+  const sc=hoScale(G),me=G.me,camx=me.x-W/2/sc,camy=me.y-H/2/sc;
+  c.setTransform(d,0,0,d,0,0);
+  c.fillStyle=G.th[1];c.fillRect(0,0,W,H);
+  c.save();c.scale(sc,sc);c.translate(-camx,-camy);
+  // zemin
+  c.fillStyle=G.th[0];c.fillRect(0,0,HO_WW,HO_WH);
+  c.strokeStyle='rgba(0,0,0,.09)';c.lineWidth=2;
+  const x0=Math.max(0,Math.floor(camx/100)*100),x1=Math.min(HO_WW,camx+W/sc),y0=Math.max(0,Math.floor(camy/100)*100),y1=Math.min(HO_WH,camy+H/sc);
+  c.beginPath();for(let x=x0;x<=x1;x+=100){c.moveTo(x,y0);c.lineTo(x,y1)}for(let y=y0;y<=y1;y+=100){c.moveTo(x0,y);c.lineTo(x1,y)}c.stroke();
+  c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=8;c.strokeRect(0,0,HO_WW,HO_WH);
+  // eşyalar
+  c.textAlign='center';c.textBaseline='middle';
+  const vr=Math.hypot(W,H)/sc/2+100;
+  const myR=hoR(me);
+  for(const o of G.items){
+    if(Math.abs(o.x-me.x)>vr||Math.abs(o.y-me.y)>vr)continue;
+    let k=1,x=o.x,y=o.y;
+    if(o.eat){const t=o.eat.t;k=Math.max(0,1-t);x=o.x+(o.eat.h.x-o.x)*t;y=o.y+(o.eat.h.y-o.y)*t}
+    const s=o.it.s;
+    c.fillStyle='rgba(0,0,0,.2)';c.beginPath();c.ellipse(x+s*.12,y+s*.5,s*.8*k,s*.3*k,0,0,6.283);c.fill();
+    if(!o.eat&&s<=myR/0.85){c.strokeStyle='rgba(255,255,255,.45)';c.lineWidth=2;c.beginPath();c.arc(x,y,s*.85,0,6.283);c.stroke()}
+    c.save();c.translate(x,y);c.rotate(o.rot*(o.eat?1+o.eat.t*6:1));c.fillStyle='#fff';c.font=(s*1.7*k)+'px sans-serif';c.fillText(o.it.e,0,0);c.restore();
+  }
+  // delikler
+  for(const h of G.holes){
+    if(h.dead)continue;const r=hoR(h);
+    if(Math.abs(h.x-me.x)>vr+r||Math.abs(h.y-me.y)>vr+r)continue;
+    const g=c.createRadialGradient(h.x,h.y,r*0.2,h.x,h.y,r*1.12);g.addColorStop(0,'#000');g.addColorStop(.78,'#05020f');g.addColorStop(.9,'#05020f');g.addColorStop(1,'rgba(0,0,0,0)');
+    c.fillStyle=g;c.beginPath();c.arc(h.x,h.y,r*1.12,0,6.283);c.fill();
+    c.strokeStyle=h.c;c.lineWidth=Math.max(3,r*0.09);c.globalAlpha=.9;c.beginPath();c.arc(h.x,h.y,r,0,6.283);c.stroke();c.globalAlpha=1;
+    if(!h.me||true){c.font='bold '+Math.max(12,r*0.34)+'px sans-serif';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.65)';const nm=h.me?trStr('Sen'):h.n;c.strokeText(nm,h.x,h.y-r-12);c.fillStyle=h.me?'#a5f3fc':'#fff';c.fillText(nm,h.x,h.y-r-12)}
+  }
+  for(const p of G.parts){c.globalAlpha=Math.max(0,p.l/(p.m||.7));c.fillStyle=p.c;c.beginPath();c.arc(p.x,p.y,p.r||3,0,6.283);c.fill()}
+  c.globalAlpha=1;c.font='bold 16px sans-serif';
+  for(const f of G.fl){c.globalAlpha=Math.min(1,f.l*1.5);c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.6)';c.strokeText(f.t,f.x,f.y);c.fillStyle=f.c;c.fillText(f.t,f.x,f.y)}
+  c.globalAlpha=1;c.restore();
+  // joystick
+  const st=ho.stick;
+  if(st){c.strokeStyle='rgba(255,255,255,.35)';c.lineWidth=3;c.beginPath();c.arc(st.ox,st.oy,56,0,6.283);c.stroke();c.fillStyle='rgba(255,255,255,.4)';c.beginPath();c.arc(st.ox+st.dx*st.mag*56,st.oy+st.dy*st.mag*56,22,0,6.283);c.fill()}
+  // skor tablosu
+  const rk=hoRank(G).a.slice(0,4);
+  c.textAlign='left';c.font='bold 12px sans-serif';
+  rk.forEach((h,i)=>{const y=H-120-(rk.length-1-i)*0;});
+  const ty=64;
+  rk.forEach((h,i)=>{c.fillStyle='rgba(0,0,0,.35)';rr(c,8,ty+i*20,112,18,9);c.fill();c.fillStyle=h.c;c.beginPath();c.arc(18,ty+9+i*20,5,0,6.283);c.fill();c.fillStyle=h.me?'#a5f3fc':'#fff';c.fillText(i+1+'. '+(h.me?trStr('Sen'):h.n),28,ty+10+i*20);c.textAlign='right';c.fillText(Math.round(h.m/10),114,ty+10+i*20);c.textAlign='left'});
+  // hedef çubuğu
+  const gp=Math.min(1,hoR(me)/G.goal),bw=W*0.5,bx=(W-bw)/2,by=H-92;
+  c.fillStyle='rgba(0,0,0,.4)';rr(c,bx,by,bw,12,6);c.fill();
+  c.fillStyle=gp>=1?'#52e08a':'#a78bfa';rr(c,bx,by,Math.max(8,bw*gp),12,6);c.fill();
+  c.textAlign='center';c.font='bold 11px sans-serif';c.fillStyle='#fff';c.fillText('🎯 '+trStr('Hedef boyut'),W/2,by-8);
+  if(G.banner>0){c.globalAlpha=Math.min(1,G.banner);c.font='bold 26px sans-serif';c.lineWidth=5;c.strokeStyle='rgba(0,0,0,.6)';const tx=G.boss?trStr('🔥 BOSS! Dev rakipler'):G.level===1?trStr('Parmağını sürükle, her şeyi yut!'):trStr('Rakiplerden büyük ol!');c.strokeText(tx,W/2,H*0.3);c.fillStyle='#fff';c.fillText(tx,W/2,H*0.3);c.globalAlpha=1}
+}
+function hoFrame(now){
+  if(state!=='hole'||!ho.G){ho.raf=false;return}
+  requestAnimationFrame(hoFrame);
+  const dt=Math.max(0,Math.min((now-ho.last)/1000||0,0.05));ho.last=now;
+  hoUpdate(ho.G,dt);hoDraw(ho.G);
+}
+(function(){
+  const cv=$('c_ho');
+  const pt=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}};
+  const upd=(st,p)=>{const dx=p.x-st.ox,dy=p.y-st.oy,d=Math.hypot(dx,dy)||1;st.dx=dx/d;st.dy=dy/d;st.mag=Math.min(1,d/56);if(d>56){st.ox+=(dx/d)*(d-56);st.oy+=(dy/d)*(d-56)}};
+  cv.addEventListener('pointerdown',e=>{if(state!=='hole'||!ho.G||ho.G.over)return;ac();const p=pt(e);ho.stick={ox:p.x,oy:p.y,dx:0,dy:0,mag:0,id:e.pointerId};try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+  cv.addEventListener('pointermove',e=>{const st=ho.stick;if(!st||e.pointerId!==st.id)return;upd(st,pt(e))});
+  const up=e=>{if(ho.stick&&e.pointerId===ho.stick.id)ho.stick=null};
+  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+})();
+$('ho_back').onclick=()=>{ho.stick=null;openLobby('ho')};$('ho_wh').onclick=()=>openHub();
+$('ho_rs').onclick=()=>{if(ho.G)hoStart(ho.G.level)};
+$('ho_next').onclick=()=>{const G=ho.G;if(G&&!G.won)hoStart(G.level);else hoStart(hoLevel)};
+$('ho_dbl').onclick=()=>{const G=ho.G;if(!G)return;
+  if(!G.won){Ads.rewarded(()=>{
+    if(G.me.dead){G.me.dead=0;G.revived=true;G.me.m=Math.max(G.me.m*0.6,Math.pow(24,2));G.me.x=HO_WW/2;G.me.y=HO_WH/2;G.holes.forEach(h=>{if(!h.me&&Math.hypot(h.x-G.me.x,h.y-G.me.y)<250){h.x=60;h.y=60}})}
+    else G.left=20;
+    G.over=false;show('ho_win',false);hoHud()});return}
+  Ads.rewarded(()=>{credit('hole',G.reward);refreshCoins();$('ho_dbl').classList.add('hidden');$('ho_wi').textContent+=' · 2 kat yapıldı!'})};
+$('cardHo').onclick=()=>openLobby('ho');
 
 // ---- Kelime Çiçeği (harf çarkı kelime bulmaca) ----
 WN.words='Kelime Çiçeği';WKEYS.push('words');
@@ -6310,7 +6561,7 @@ const cP=new THREE.Vector3(0,1.7,4.4),cL=new THREE.Vector3(0,0.8,0),dP=new THREE
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min(Math.max((now-last)/1000||0,0),0.05);last=now;
-  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||state==='gh'||state==='lock'||state==='shadow'||state==='words'||state==='merge'||state==='garden'||state==='hunt'||state==='pause'||MG[state])return;
+  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||state==='gh'||state==='lock'||state==='shadow'||state==='words'||state==='merge'||state==='garden'||state==='hunt'||state==='hole'||state==='pause'||MG[state])return;
   if(state==='run'){
     speedMul+=(1-speedMul)*Math.min(1,dt*0.45);
     speed=Math.min(14+score*0.02,40)*speedMul;   // zamanla hızlanır
@@ -6619,8 +6870,8 @@ addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')
 addEventListener('pagehide',pauseRun);
 setInterval(()=>{const on=state==='run';const b=$('pauseBtn');if(b)b.style.display=on?'':'none'},150);
 // ---- Skor tablosu: oyuncu kaydı, haftalık sıralama, benzersiz isim ----
-const LVG={maze:()=>mz.best,ar:()=>arLevel,so:()=>soLevel,cl:()=>clLevel,gh:()=>ghLevel,lk:()=>lkLevel,sg:()=>sgLevel,wd:()=>wdLevel,yv:()=>yvS.pl,gd:()=>gdS.lv,av:()=>avLevel};
-const LVL_G=[{id:'maze',e:'🌀',n:'Tek Parmak Labirent'},{id:'ar',e:'🎯',n:'Ok Kaçışı'},{id:'so',e:'🧪',n:'Su Sıralama'},{id:'cl',e:'🧼',n:'Temizlik Simülatörü'},{id:'gh',e:'👻',n:'Hayalet Takım'},{id:'lk',e:'🔐',n:'Kasa Uzmanı'},{id:'sg',e:'🌙',n:'Gölge Bahçesi'},{id:'wd',e:'🌸',n:'Kelime Çiçeği'},{id:'yv',e:'🥚',n:'Yuva Birleştir'},{id:'gd',e:'🌱',n:'Zaman Bahçesi'},{id:'av',e:'🎧',n:'Ses Avcısı'}];
+const LVG={maze:()=>mz.best,ar:()=>arLevel,so:()=>soLevel,cl:()=>clLevel,gh:()=>ghLevel,lk:()=>lkLevel,sg:()=>sgLevel,wd:()=>wdLevel,yv:()=>yvS.pl,gd:()=>gdS.lv,av:()=>avLevel,ho:()=>hoLevel};
+const LVL_G=[{id:'maze',e:'🌀',n:'Tek Parmak Labirent'},{id:'ar',e:'🎯',n:'Ok Kaçışı'},{id:'so',e:'🧪',n:'Su Sıralama'},{id:'cl',e:'🧼',n:'Temizlik Simülatörü'},{id:'gh',e:'👻',n:'Hayalet Takım'},{id:'lk',e:'🔐',n:'Kasa Uzmanı'},{id:'sg',e:'🌙',n:'Gölge Bahçesi'},{id:'wd',e:'🌸',n:'Kelime Çiçeği'},{id:'yv',e:'🥚',n:'Yuva Birleştir'},{id:'gd',e:'🌱',n:'Zaman Bahçesi'},{id:'av',e:'🎧',n:'Ses Avcısı'},{id:'ho',e:'🕳️',n:'Obur Delik'}];
 function lbGames(){const a=[{id:'run',e:'🏃',n:'Sonsuz Koşu'},{id:'city',e:'🏙️',n:'Tek Tuş Şehir'}];for(const k in MG)a.push({id:k,e:MG[k].emo,n:MG[k].title});return a.concat(LVL_G)}
 function lbIds(){return lbGames().map(x=>x.id)}
 function lbAll(g){let v=g==='run'?best:g==='city'?cityBest:LVG[g]?LVG[g]():(mgBest[g]||0);return Math.max(0,Math.floor(v)||0)}
@@ -6735,7 +6986,7 @@ $('exitNo').onclick=()=>show('exitOv',false);
 $('exitYes').onclick=()=>{try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()){C.registerPlugin('App').exitApp();return}}catch(e){}show('exitOv',false);try{window.close()}catch(e){}};
 // Açılış animasyonu
 (function(){const s=$('splash');if(!s)return;let done=false;const end=()=>{if(done)return;done=true;s.classList.add('out');setTimeout(()=>s.remove(),500)};s.onclick=end;setTimeout(end,2300)})();
-const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','aq_x','gd_ugx','gd_sdx','gd_unx','gd_luok','sw_okb','sw_pkx','sw_x','yv_shx','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','gd_back','av_back','lb_back'];
+const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','aq_x','gd_ugx','gd_sdx','gd_unx','gd_luok','ho_shx','sw_okb','sw_pkx','sw_x','yv_shx','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','gd_back','av_back','ho_back','lb_back'];
 function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
 function goBack(){
   if(state==='pause'){resumeRun();return true}
@@ -6772,7 +7023,7 @@ const KB_G={
 };
 const KB_MOUSE=['arrows','sort','clean','job','sky','balloon','blocks'];
 const KB_NM={arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik Simülatörü',job:'Günlük İş',sky:'Gök Adaları',balloon:'Balon Patlat',blocks:'Blok Bulmaca'};
-const KB_L2G={maze:'maze',city:'city',gh:'gh',lk:'lock',sg:'shadow',wd:'-',yv:'-',gd:'-',av:'-',stack:'stack',snake:'snake',color:'color',flap:'flap',ar:'-',so:'-',cl:'-',sky:'-',balloon:'-',blocks:'-'};
+const KB_L2G={maze:'maze',city:'city',gh:'gh',lk:'lock',sg:'shadow',wd:'-',yv:'-',gd:'-',av:'-',ho:'-',stack:'stack',snake:'snake',color:'color',flap:'flap',ar:'-',so:'-',cl:'-',sky:'-',balloon:'-',blocks:'-'};
 let KBS=ld('tv_keys',{});if(!KBS||typeof KBS!=='object')KBS={};
 let kbOn=false;try{kbOn=matchMedia('(hover:hover) and (pointer:fine)').matches}catch(e){}
 function kbCodes(g,a){return(KBS[g]&&KBS[g][a[0]])||a[3]}
@@ -7989,6 +8240,34 @@ Oyun parası seç|Select game coin|Elige moneda de juego|Escolha a moeda do jogo
 Değer: x{}|Value: x{}|Valor: x{}|Valor: x{}|Wert: x{}|Valeur : x{}|Ценность: x{}|Nilai: x{}
 Çevrildi!|Swapped!|¡Cambiado!|Trocado!|Getauscht!|Échangé !|Обменено!|Ditukar!
 Tamam|OK|Aceptar|OK|OK|OK|ОК|OK
+Obur Delik|Hungry Hole|Agujero Glotón|Buraco Faminto|Gieriges Loch|Trou Glouton|Прожорливая дыра|Lubang Rakus
+Delikle her şeyi yut, büyü, rakipleri geç!|Swallow everything, grow, beat your rivals!|¡Traga todo, crece y supera a tus rivales!|Engula tudo, cresça e vença os rivais!|Verschlinge alles, wachse, schlage die Rivalen!|Avale tout, grandis, bats tes rivaux !|Глотай всё, расти, обгоняй соперников!|Telan semuanya, tumbuh, kalahkan rival!
+Parmağınla deliği yönlendir: kendinden küçük her şeyi yut ve büyü. Süre bitince en büyük sen ol! Rakip delikler seni yutabilir, küçük rakipleri sen yut. Kazandığın parayla deliğini geliştir. Her 10. seviye BOSS!|Steer the hole with your finger: swallow everything smaller than you and grow. Be the biggest when time runs out! Rival holes can swallow you, and you can swallow smaller ones. Upgrade your hole with the coins you earn. Every 10th level is a BOSS!|Dirige el agujero con el dedo: traga todo lo más pequeño que tú y crece. ¡Sé el más grande al acabar el tiempo! Los rivales pueden tragarte y tú a los pequeños. Mejora tu agujero con las monedas. ¡Cada nivel 10 es un JEFE!|Guie o buraco com o dedo: engula tudo menor que você e cresça. Seja o maior quando o tempo acabar! Rivais podem engolir você, e você os menores. Melhore seu buraco com as moedas. Todo 10º nível é um CHEFE!|Steuere das Loch mit dem Finger: Verschlinge alles Kleinere und wachse. Sei am Ende der Größte! Rivalen können dich verschlucken, du die Kleineren. Verbessere dein Loch mit Münzen. Jedes 10. Level ist ein BOSS!|Dirige le trou avec ton doigt : avale tout ce qui est plus petit et grandis. Sois le plus grand à la fin ! Les rivaux peuvent t'avaler, et toi les plus petits. Améliore ton trou avec tes pièces. Chaque 10e niveau est un BOSS !|Води дыру пальцем: глотай всё меньше себя и расти. Будь самым большим к концу времени! Соперники могут проглотить тебя, а ты — меньших. Улучшай дыру за монеты. Каждый 10-й уровень — БОСС!|Arahkan lubang dengan jari: telan semua yang lebih kecil dan tumbuh. Jadi yang terbesar saat waktu habis! Rival bisa menelanmu, kamu bisa menelan yang lebih kecil. Tingkatkan lubangmu dengan koin. Setiap level ke-10 adalah BOSS!
+Başlangıç Boyu|Starting Size|Tamaño Inicial|Tamanho Inicial|Startgröße|Taille de départ|Начальный размер|Ukuran Awal
+Delik daha büyük başlar|The hole starts bigger|El agujero empieza más grande|O buraco começa maior|Das Loch startet größer|Le trou démarre plus gros|Дыра начинает больше|Lubang mulai lebih besar
+Hız|Speed|Velocidad|Velocidade|Tempo|Vitesse|Скорость|Kecepatan
+Delik daha hızlı hareket eder|The hole moves faster|El agujero se mueve más rápido|O buraco se move mais rápido|Das Loch bewegt sich schneller|Le trou bouge plus vite|Дыра движется быстрее|Lubang bergerak lebih cepat
+Mıknatıs|Magnet|Imán|Ímã|Magnet|Aimant|Магнит|Magnet
+Yakındaki eşyaları çeker|Pulls nearby objects|Atrae objetos cercanos|Atrai objetos próximos|Zieht Objekte in der Nähe an|Attire les objets proches|Притягивает предметы рядом|Menarik benda di dekat
+Ekstra Süre|Extra Time|Tiempo Extra|Tempo Extra|Extrazeit|Temps Bonus|Доп. время|Waktu Ekstra
+Her tura +5 saniye|+5 seconds per round|+5 segundos por ronda|+5 segundos por rodada|+5 Sekunden pro Runde|+5 secondes par manche|+5 секунд за раунд|+5 detik per ronde
+Birinci oldun! 🏆|You came first! 🏆|¡Quedaste primero! 🏆|Você ficou em 1º! 🏆|Du bist Erster! 🏆|Tu es premier ! 🏆|Ты первый! 🏆|Kamu juara 1! 🏆
+Yutuldun!|You got swallowed!|¡Te tragaron!|Você foi engolido!|Du wurdest verschluckt!|Tu as été avalé !|Тебя проглотили!|Kamu tertelan!
+Daha büyük olmalıydın!|You needed to be bigger!|¡Debías ser más grande!|Você precisava ser maior!|Du hättest größer sein müssen!|Tu devais être plus gros !|Нужно было быть больше!|Kamu harus lebih besar!
+Süre bitti · {}. oldun|Time's up · you placed {}|Se acabó el tiempo · quedaste {}.º|O tempo acabou · você ficou em {}º|Zeit abgelaufen · Platz {}|Temps écoulé · tu es {}e|Время вышло · ты {}-й|Waktu habis · kamu peringkat {}
+En az 1. olmalı ve hedef boyuta ulaşmalısın 🎯|You must be 1st and reach the target size 🎯|Debes ser 1.º y alcanzar el tamaño objetivo 🎯|Você deve ser o 1º e atingir o tamanho alvo 🎯|Du musst Erster sein und die Zielgröße erreichen 🎯|Tu dois être 1er et atteindre la taille cible 🎯|Нужно быть первым и достичь целевого размера 🎯|Kamu harus peringkat 1 dan mencapai ukuran target 🎯
+📺 Küçülerek devam et|📺 Continue smaller|📺 Continúa más pequeño|📺 Continue menor|📺 Kleiner weitermachen|📺 Continue en plus petit|📺 Продолжить меньшим|📺 Lanjut lebih kecil
+📺 +20 sn ile devam et|📺 Continue with +20 s|📺 Continúa con +20 s|📺 Continue com +20 s|📺 Weiter mit +20 Sek.|📺 Continue avec +20 s|📺 Продолжить с +20 с|📺 Lanjut dengan +20 dtk
+Hedef boyut|Target size|Tamaño objetivo|Tamanho alvo|Zielgröße|Taille cible|Целевой размер|Ukuran target
+Sen|You|Tú|Você|Du|Toi|Ты|Kamu
+Parmağını sürükle, her şeyi yut!|Drag your finger, swallow everything!|¡Arrastra el dedo y traga todo!|Arraste o dedo e engula tudo!|Ziehe den Finger, verschlinge alles!|Glisse ton doigt, avale tout !|Води пальцем, глотай всё!|Seret jarimu, telan semuanya!
+Rakiplerden büyük ol!|Be bigger than your rivals!|¡Sé más grande que tus rivales!|Seja maior que seus rivais!|Sei größer als deine Rivalen!|Sois plus gros que tes rivaux !|Будь больше соперников!|Jadilah lebih besar dari rival!
+🔥 BOSS! Dev rakipler|🔥 BOSS! Giant rivals|🔥 ¡JEFE! Rivales gigantes|🔥 CHEFE! Rivais gigantes|🔥 BOSS! Riesige Rivalen|🔥 BOSS ! Rivaux géants|🔥 БОСС! Гигантские соперники|🔥 BOSS! Rival raksasa
+{} delik seviyesi bitir|finish {} hole levels|termina {} niveles del agujero|conclua {} níveis do buraco|schließe {} Loch-Level ab|termine {} niveaux du trou|пройди {} уровней дыры|selesaikan {} level lubang
+Obur Delik Çırağı|Hungry Hole Apprentice|Aprendiz del Agujero Glotón|Aprendiz do Buraco Faminto|Lehrling des gierigen Lochs|Apprenti du Trou Glouton|Ученик прожорливой дыры|Murid Lubang Rakus
+Obur Delik Ustası|Hungry Hole Master|Maestro del Agujero Glotón|Mestre do Buraco Faminto|Meister des gierigen Lochs|Maître du Trou Glouton|Мастер прожорливой дыры|Master Lubang Rakus
+Obur Delik Efsanesi|Hungry Hole Legend|Leyenda del Agujero Glotón|Lenda do Buraco Faminto|Legende des gierigen Lochs|Légende du Trou Glouton|Легенда прожорливой дыры|Legenda Lubang Rakus
+Obur Delik: {} seviye bitir|Hungry Hole: finish {} levels|Agujero Glotón: supera {} niveles|Buraco Faminto: conclua {} níveis|Gieriges Loch: schließe {} Level ab|Trou Glouton : termine {} niveaux|Прожорливая дыра: пройди {} уровней|Lubang Rakus: selesaikan {} level
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];
