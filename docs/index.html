@@ -214,6 +214,7 @@ button:disabled{filter:grayscale(.75) brightness(.7);box-shadow:0 2px 0 #0006;tr
   <div class="topbar">
     <div class="tb-left"><div class="pill" style="color:var(--gold)">🎮 TapVerse</div></div>
     <div class="tb-right">
+      <button id="hubSw" class="ibtn alt" title="Para Çevir">💱</button>
       <button id="hubQuest" class="ibtn alt" title="Görevler">📅<span class="dot" id="hqdot"></span></button>
       <button id="hubLb" class="ibtn alt" title="Skor Tablosu">🏅</button>
     </div>
@@ -5647,6 +5648,99 @@ $('av_dbl').onclick=()=>{const G=av.G;if(!G)return;
   Ads.rewarded(()=>{credit('sound',G.reward);refreshCoins();$('av_dbl').classList.add('hidden');$('av_wi').textContent+=' · 2 kat yapıldı!'})};
 $('cardAv').onclick=()=>openLobby('av');
 
+// ---- Para Çevir (swap) ----
+const SW_V={run:1,maze:1.2,tiles:1.2,arrows:1.2,sort:1,clean:1.3,ghost:1.5,lock:1.8,shadow:1.5,words:1.4,merge:1,garden:2,sound:1.8};
+const SW_E={run:'🏃',maze:'🌀',tiles:'🎹',arrows:'🎯',sort:'🧪',clean:'🧼',ghost:'👻',lock:'🔐',shadow:'🌙',words:'🌸',merge:'🥚',garden:'🌱',sound:'🎧'};
+const SW_G={run:['#f59e0b','#ef4444'],maze:['#06b6d4','#6366f1'],tiles:['#ec4899','#8b5cf6'],arrows:['#22c55e','#0ea5e9'],sort:['#38bdf8','#2563eb'],clean:['#2dd4bf','#0891b2'],ghost:['#a78bfa','#4c1d95'],lock:['#fbbf24','#b45309'],shadow:['#6366f1','#1e1b4b'],words:['#f472b6','#14b8a6'],merge:['#fb7185','#a855f7'],garden:['#84cc16','#15803d'],sound:['#818cf8','#0e7490']};
+const SW_BASE=0.1,SW_FEE=0.03,SW_LIM=300;
+let swD=ld('tv_swd',{d:0,n:0,x:0});
+const swDay=()=>Math.floor(Date.now()/864e5);
+const swS={from:'run',to:'lock',amt:0};
+const swBal=k=>k===curW?totalCoins:(WALLET[k]||0);
+const swKeys=()=>WKEYS.filter(k=>SW_V[k]);
+function swLeft(){if(swD.d!==swDay()){swD={d:swDay(),n:0,x:0};sv('tv_swd',swD)}return Math.max(0,SW_LIM+swD.x-swD.n)}
+function swQuote(a){
+  const f=swS.from,t=swS.to,gross=a*SW_V[f]/SW_V[t]*SW_BASE,imp=Math.min(0.15,a/8000);
+  return{gross,imp,out:Math.floor(gross*(1-SW_FEE-imp)),rate:SW_V[f]/SW_V[t]*SW_BASE*(1-SW_FEE)};
+}
+document.body.insertAdjacentHTML('beforeend','<div id="sw" class="hidden"><div class="swo o1"></div><div class="swo o2"></div>'
+ +'<div class="swh"><button id="sw_x" class="ibtn alt">‹</button><div class="swt">💱 Para Çevir</div><div style="width:42px"></div></div>'
+ +'<div class="swc">'
+ +'<div class="swp"><div class="swl"><span>Verdiğin</span><span id="sw_fb">Bakiye: 0</span></div><div class="swr"><input id="sw_in" inputmode="numeric" placeholder="0" autocomplete="off"><button class="swk" id="sw_fk"></button></div><div class="swq"><button data-p="25">25%</button><button data-p="50">50%</button><button data-p="75">75%</button><button data-p="100">MAX</button></div></div>'
+ +'<button id="sw_flip" class="swf">⇅</button>'
+ +'<div class="swp"><div class="swl"><span>Alacağın</span><span id="sw_tb">Bakiye: 0</span></div><div class="swr"><div id="sw_out" class="swa">0</div><button class="swk" id="sw_tk"></button></div></div>'
+ +'<div class="swi"><div><span>Kur</span><b id="sw_rt"></b></div><div><span>Komisyon</span><b>%3</b></div><div><span>Fiyat etkisi</span><b id="sw_im"></b></div><div><span>Günlük limit</span><b id="sw_lm"></b></div><div class="swbar"><u id="sw_lb"></u></div></div>'
+ +'<button id="sw_go" class="swgo">Takas Et</button><button id="sw_ad" class="swad hidden">📺 Limit +200</button>'
+ +'<div class="swn">Oranlar bilerek düşüktür. Zor kazanılan oyunun parası daha değerlidir.</div></div>'
+ +'<div id="sw_pk" class="hidden"><div class="swpc"><div class="swpt">Oyun parası seç</div><div id="sw_pl"></div><button id="sw_pkx" class="alt">Kapat</button></div></div>'
+ +'<div id="sw_ok" class="hidden"><div class="swoc"><div class="swck">✓</div><div class="swtt">Çevrildi!</div><div id="sw_oi" class="swoi"></div><button id="sw_okb" class="gold">Tamam</button></div></div></div>');
+document.head.insertAdjacentHTML('beforeend','<style>'
+ +'#sw{position:fixed;inset:0;z-index:40;background:#0a0720;overflow:hidden auto;color:#fff}'
+ +'.swo{position:absolute;width:300px;height:300px;border-radius:50%;filter:blur(70px);opacity:.45;pointer-events:none;animation:swfl 9s ease-in-out infinite alternate}.o1{background:#7c3aed;top:-80px;left:-80px}.o2{background:#ec4899;bottom:-60px;right:-90px;animation-delay:-4s}@keyframes swfl{to{transform:translate(40px,30px) scale(1.15)}}'
+ +'.swh{position:relative;display:flex;align-items:center;justify-content:space-between;padding:calc(12px + env(safe-area-inset-top)) 14px 8px 62px}.swt{font-size:20px;font-weight:700}'
+ +'.swc{position:relative;padding:8px 14px 28px;max-width:440px;margin:0 auto}'
+ +'.swp{background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.14);border-radius:24px;padding:14px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}'
+ +'.swl{display:flex;justify-content:space-between;font-size:13px;color:#b9b0e6;margin-bottom:8px}'
+ +'.swr{display:flex;align-items:center;gap:10px}.swr input,.swa{flex:1;min-width:0;background:none;border:0;outline:0;color:#fff;font-weight:700;font-size:34px;line-height:1.1;font-family:inherit;padding:0;width:100%}.swa{opacity:.95}.swr input::placeholder{color:rgba(255,255,255,.3)}'
+ +'.swk{flex:none;display:flex;align-items:center;gap:8px;padding:6px 12px 6px 6px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);box-shadow:none;font-size:15px;font-weight:700}.swk i{font-style:normal;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 8px rgba(0,0,0,.4)}.swk em{font-style:normal;font-size:11px;opacity:.7}'
+ +'.swq{display:flex;gap:6px;margin-top:10px}.swq button{flex:1;padding:5px 0;font-size:12px;border-radius:10px;background:rgba(255,255,255,.1);box-shadow:none;color:#d9d3ff}'
+ +'.swf{display:block;margin:-14px auto;position:relative;z-index:2;width:44px;height:44px;padding:0;border-radius:50%;font-size:20px;background:linear-gradient(135deg,#8b5cf6,#ec4899);border:4px solid #0a0720;box-shadow:0 4px 14px rgba(139,92,246,.6);transition:transform .3s}.swf.rot{transform:rotate(180deg)}'
+ +'.swp+.swf+.swp{margin-top:0}.swf+.swp{padding-top:22px}.swp:first-child{padding-bottom:18px}'
+ +'.swi{margin-top:14px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:12px 14px;font-size:13px}.swi>div{display:flex;justify-content:space-between;padding:3px 0}.swi span{color:#b9b0e6}.swi b.bad{color:#fb7185}.swi b.good{color:#52e08a}'
+ +'.swbar{height:6px!important;border-radius:4px;background:rgba(255,255,255,.12);margin-top:6px;overflow:hidden;display:block!important;padding:0!important}.swbar u{display:block;height:100%;background:linear-gradient(90deg,#38bdf8,#a855f7);border-radius:4px;width:0;transition:width .3s}'
+ +'.swgo{width:100%;margin-top:14px;padding:16px;font-size:18px;border-radius:18px;background:linear-gradient(90deg,#8b5cf6,#ec4899);box-shadow:0 6px 22px rgba(236,72,153,.45)}.swgo:disabled{background:rgba(255,255,255,.12);box-shadow:none;color:#9d95c9;filter:none}'
+ +'.swad{width:100%;margin-top:8px;padding:12px;font-size:15px;border-radius:16px;background:rgba(255,255,255,.1);box-shadow:none}.swn{margin-top:12px;font-size:12px;color:#8e86bd;text-align:center}'
+ +'#sw_pk,#sw_ok{position:absolute;inset:0;z-index:5;background:rgba(5,3,20,.7);display:flex;align-items:flex-end;justify-content:center}#sw_ok{align-items:center}'
+ +'.swpc{width:min(100%,440px);max-height:78vh;display:flex;flex-direction:column;background:linear-gradient(#251c5a,#150f38);border:1px solid rgba(255,255,255,.15);border-radius:26px 26px 0 0;padding:16px}.swpt{font-weight:700;font-size:17px;margin-bottom:10px;text-align:center}#sw_pl{overflow:auto;margin-bottom:10px}'
+ +'.swpi{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;margin-bottom:6px;border-radius:16px;background:rgba(255,255,255,.07);box-shadow:none;text-align:left}.swpi.on{border:1px solid #a78bfa;background:rgba(139,92,246,.2)}.swpi i{font-style:normal;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:21px}.swpi div{flex:1;font-size:15px}.swpi small{display:block;color:#b9b0e6;font-size:12px}.swpi b{color:#ffd34d}'
+ +'.swoc{width:min(88vw,340px);text-align:center;background:linear-gradient(160deg,#2b2163,#1a1340);border:1px solid rgba(255,255,255,.18);border-radius:28px;padding:26px 20px;animation:swpop .35s cubic-bezier(.2,1.5,.4,1)}@keyframes swpop{from{transform:scale(.7);opacity:0}}'
+ +'.swck{width:72px;height:72px;margin:0 auto 10px;border-radius:50%;background:linear-gradient(135deg,#34d399,#059669);display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 0 30px rgba(52,211,153,.6)}.swtt{font-size:24px;font-weight:700;margin-bottom:6px}.swoi{font-size:22px;font-weight:700;margin:10px 0 16px;color:#ffd34d}'
+ +'</style>');
+function swChip(btn,k){const g=SW_G[k];btn.innerHTML='<i style="background:linear-gradient(135deg,'+g[0]+','+g[1]+')">'+SW_E[k]+'</i><span>'+WN[k]+'</span> ▾'}
+function swRender(){
+  swChip($('sw_fk'),swS.from);swChip($('sw_tk'),swS.to);
+  $('sw_fb').textContent='Bakiye: '+swBal(swS.from);$('sw_tb').textContent='Bakiye: '+swBal(swS.to);
+  const a=swS.amt,q=swQuote(a),left=swLeft();
+  $('sw_out').textContent=a?String(q.out):'0';
+  $('sw_rt').textContent='1 '+SW_E[swS.from]+' ≈ '+(q.rate<0.01?q.rate.toFixed(4):q.rate.toFixed(3))+' '+SW_E[swS.to];
+  const im=$('sw_im');im.textContent='%'+(q.imp*100).toFixed(1);im.className=q.imp>0.05?'bad':'good';
+  $('sw_lm').textContent=(swD.n)+' / '+(SW_LIM+swD.x);$('sw_lb').style.width=Math.min(100,swD.n/(SW_LIM+swD.x)*100)+'%';
+  const go=$('sw_go');let msg='Takas Et',ok=false;
+  const minA=Math.ceil(1/(SW_V[swS.from]/SW_V[swS.to]*SW_BASE*(1-SW_FEE)))+1;
+  if(!a){msg='Miktar gir'}
+  else if(a>swBal(swS.from)){msg='Yetersiz bakiye'}
+  else if(q.out<1){msg='En az '+minA+' çevirmelisin'}
+  else if(q.out>left){msg=left?'Günlük limit aşılıyor':'Günlük limit doldu'}
+  else ok=true;
+  go.disabled=!ok;go.textContent=msg;
+  $('sw_ad').classList.toggle('hidden',!(a&&q.out>left||!left));
+}
+function swSetAmt(v){v=Math.max(0,Math.floor(v)||0);swS.amt=v;$('sw_in').value=v?String(v):'';swRender()}
+function swOpen(){swS.amt=0;$('sw_in').value='';show('sw',true);show('sw_pk',false);show('sw_ok',false);swRender()}
+$('sw_x').onclick=()=>show('sw',false);
+$('sw_in').oninput=e=>{const v=e.target.value.replace(/\D/g,'').slice(0,7);swS.amt=+v||0;e.target.value=v;swRender()};
+document.querySelectorAll('.swq button').forEach(b=>b.onclick=()=>swSetAmt(swBal(swS.from)*(+b.dataset.p)/100));
+$('sw_flip').onclick=()=>{const t=swS.from;swS.from=swS.to;swS.to=t;const f=$('sw_flip');f.classList.toggle('rot');swS.amt=Math.min(swS.amt,swBal(swS.from));$('sw_in').value=swS.amt?String(swS.amt):'';swRender();tone(500,700,.08,'sine',.06)};
+let swPick='from';
+function swPicker(which){
+  swPick=which;const L=$('sw_pl');L.innerHTML='';
+  swKeys().forEach(k=>{const g=SW_G[k],b=document.createElement('button');b.className='swpi'+((which==='from'?swS.from:swS.to)===k?' on':'');
+    b.innerHTML='<i style="background:linear-gradient(135deg,'+g[0]+','+g[1]+')">'+SW_E[k]+'</i><div>'+WN[k]+'<small>Değer: x'+SW_V[k]+'</small></div><b>🪙 '+swBal(k)+'</b>';
+    b.onclick=()=>{const o=which==='from'?'to':'from';if(swS[o]===k)swS[o]=swS[which];swS[which]=k;swS.amt=Math.min(swS.amt,swBal(swS.from));$('sw_in').value=swS.amt?String(swS.amt):'';show('sw_pk',false);swRender()};
+    L.appendChild(b)});
+  show('sw_pk',true);
+}
+$('sw_fk').onclick=()=>swPicker('from');$('sw_tk').onclick=()=>swPicker('to');$('sw_pkx').onclick=()=>show('sw_pk',false);
+$('sw_go').onclick=()=>{
+  const a=swS.amt,q=swQuote(a);if(!a||a>swBal(swS.from)||q.out<1||q.out>swLeft())return;
+  credit(swS.from,-a);credit(swS.to,q.out);swD.n+=q.out;sv('tv_swd',swD);refreshCoins();
+  $('sw_oi').textContent=a+' '+SW_E[swS.from]+' → '+q.out+' '+SW_E[swS.to];
+  show('sw_ok',true);sfx.power();buzz(40);tone(600,1200,.2,'triangle',.1,.1);
+};
+$('sw_okb').onclick=()=>{show('sw_ok',false);swSetAmt(0)};
+$('sw_ad').onclick=()=>Ads.rewarded(()=>{swLeft();swD.x+=200;sv('tv_swd',swD);toast('📺 +200');swRender()});
+$('hubSw').onclick=swOpen;
+
 // ---- Kelime Çiçeği (harf çarkı kelime bulmaca) ----
 WN.words='Kelime Çiçeği';WKEYS.push('words');
 let wdLevel=ld('tv_wdlevel',1),wdHints=ld('tv_wdh',3),wdSt=ld('tv_wdst',{b:0,g:0,w:0});
@@ -6641,7 +6735,7 @@ $('exitNo').onclick=()=>show('exitOv',false);
 $('exitYes').onclick=()=>{try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()){C.registerPlugin('App').exitApp();return}}catch(e){}show('exitOv',false);try{window.close()}catch(e){}};
 // Açılış animasyonu
 (function(){const s=$('splash');if(!s)return;let done=false;const end=()=>{if(done)return;done=true;s.classList.add('out');setTimeout(()=>s.remove(),500)};s.onclick=end;setTimeout(end,2300)})();
-const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','aq_x','gd_ugx','gd_sdx','gd_unx','gd_luok','yv_shx','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','gd_back','av_back','lb_back'];
+const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','aq_x','gd_ugx','gd_sdx','gd_unx','gd_luok','sw_okb','sw_pkx','sw_x','yv_shx','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','gd_back','av_back','lb_back'];
 function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
 function goBack(){
   if(state==='pause'){resumeRun();return true}
@@ -7874,6 +7968,27 @@ Hızlı Dolum|Fast Refill|Recarga Rápida|Recarga Rápida|Schnelles Aufladen|Rec
 Enerji 3 sn daha hızlı dolar|Energy refills 3 s faster|La energía se recarga 3 s más rápido|A energia recarrega 3 s mais rápido|Energie lädt 3 Sek. schneller|L'énergie se recharge 3 s plus vite|Энергия восстанавливается на 3 с быстрее|Energi terisi 3 dtk lebih cepat
 Şanslı Yuva|Lucky Nest|Nido de la Suerte|Ninho da Sorte|Glücksnest|Nid Chanceux|Гнездо удачи|Sarang Beruntung
 Üretilen ürün daha büyük çıkma şansı +3%|Chance of a bigger item +3%|Más probabilidad de objeto grande +3%|Mais chance de item maior +3%|Chance auf größeres Item +3%|Chance d'un plus gros objet +3 %|Шанс крупнее предмета +3%|Peluang benda lebih besar +3%
+💱 Para Çevir|💱 Currency Swap|💱 Cambio de Monedas|💱 Troca de Moedas|💱 Münztausch|💱 Échange de Pièces|💱 Обмен монет|💱 Tukar Koin
+Para Çevir|Currency Swap|Cambio de Monedas|Troca de Moedas|Münztausch|Échange de Pièces|Обмен монет|Tukar Koin
+Verdiğin|You pay|Pagas|Você paga|Du zahlst|Tu paies|Ты отдаёшь|Kamu bayar
+Alacağın|You get|Recibes|Você recebe|Du erhältst|Tu reçois|Ты получаешь|Kamu dapat
+Bakiye: {}|Balance: {}|Saldo: {}|Saldo: {}|Guthaben: {}|Solde : {}|Баланс: {}|Saldo: {}
+Kur|Rate|Tasa|Taxa|Kurs|Taux|Курс|Kurs
+Komisyon|Fee|Comisión|Taxa de serviço|Gebühr|Frais|Комиссия|Biaya
+Fiyat etkisi|Price impact|Impacto en el precio|Impacto no preço|Preisauswirkung|Impact sur le prix|Влияние на цену|Dampak harga
+Günlük limit|Daily limit|Límite diario|Limite diário|Tageslimit|Limite quotidienne|Дневной лимит|Batas harian
+Takas Et|Swap|Intercambiar|Trocar|Tauschen|Échanger|Обменять|Tukar
+Miktar gir|Enter amount|Introduce cantidad|Digite o valor|Betrag eingeben|Saisis un montant|Введи сумму|Masukkan jumlah
+Yetersiz bakiye|Insufficient balance|Saldo insuficiente|Saldo insuficiente|Guthaben reicht nicht|Solde insuffisant|Недостаточно средств|Saldo tidak cukup
+En az {} çevirmelisin|You must swap at least {}|Debes cambiar al menos {}|Você deve trocar pelo menos {}|Du musst mindestens {} tauschen|Tu dois échanger au moins {}|Нужно обменять минимум {}|Kamu harus menukar minimal {}
+Günlük limit aşılıyor|Daily limit exceeded|Se supera el límite diario|Limite diário excedido|Tageslimit überschritten|Limite quotidienne dépassée|Дневной лимит превышен|Batas harian terlampaui
+Günlük limit doldu|Daily limit reached|Límite diario alcanzado|Limite diário atingido|Tageslimit erreicht|Limite quotidienne atteinte|Дневной лимит исчерпан|Batas harian tercapai
+📺 Limit +200|📺 Limit +200|📺 Límite +200|📺 Limite +200|📺 Limit +200|📺 Limite +200|📺 Лимит +200|📺 Batas +200
+Oranlar bilerek düşüktür. Zor kazanılan oyunun parası daha değerlidir.|Rates are intentionally low. Coins from harder games are worth more.|Las tasas son bajas a propósito. Las monedas de juegos difíciles valen más.|As taxas são baixas de propósito. Moedas de jogos difíceis valem mais.|Die Kurse sind absichtlich niedrig. Münzen aus schwereren Spielen sind mehr wert.|Les taux sont volontairement bas. Les pièces des jeux difficiles valent plus.|Курсы намеренно низкие. Монеты из сложных игр ценнее.|Rasio sengaja dibuat rendah. Koin dari game sulit lebih bernilai.
+Oyun parası seç|Select game coin|Elige moneda de juego|Escolha a moeda do jogo|Spielmünze wählen|Choisis la pièce du jeu|Выбери монету игры|Pilih koin game
+Değer: x{}|Value: x{}|Valor: x{}|Valor: x{}|Wert: x{}|Valeur : x{}|Ценность: x{}|Nilai: x{}
+Çevrildi!|Swapped!|¡Cambiado!|Trocado!|Getauscht!|Échangé !|Обменено!|Ditukar!
+Tamam|OK|Aceptar|OK|OK|OK|ОК|OK
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];
