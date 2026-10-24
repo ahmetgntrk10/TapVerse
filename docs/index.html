@@ -5370,6 +5370,19 @@ const GD_RK=[[0,'Çaylak'],[30,'Tarım İşçisi'],[120,'Çiftçi'],[350,'Usta �
 let gdS=ld('tv_gd',null);
 if(!gdS||!Array.isArray(gdS.pl)||gdS.pl.length!==GD_N)gdS={lv:1,xp:0,pl:Array(GD_N).fill(0),un:4,tot:0};
 if(!gdS.up)gdS.up={wc:0,fz:0,sc:0,gl:0};if(gdS.rk==null)gdS.rk=0;
+if(!gdS.an)gdS.an={};if(!gdS.od)gdS.od=[];if(gdS.odn==null)gdS.odn=0;
+const GD_AN=[
+ {k:'hen',e:'🐔',n:'Tavuk',c:800,inc:3,r:2},
+ {k:'cow',e:'🐄',n:'İnek',c:6000,inc:20,r:6},
+ {k:'bee',e:'🐝',n:'Arı Kovanı',c:40000,inc:110,r:10},
+ {k:'sheep',e:'🐑',n:'Koyun',c:250000,inc:600,r:15}];
+const gdAnC=(a,lv)=>Math.round(a.c*Math.pow(1.7,lv));
+const gdAnAcc=a=>{const o=gdS.an[a.k];if(!o||!o.lv)return 0;return Math.floor(Math.min(60,(Date.now()-o.t0)/60000)*a.inc*o.lv)};
+function gdMkOrder(){const L=Math.max(1,gdS.lv),ok=GD_S.map((x,i)=>i).filter(i=>GD_S[i].r<=L);const pi=ok[Math.floor(Math.random()*ok.length)],sd=GD_S[pi];
+  const n=Math.max(2,Math.round((4+Math.random()*4)*Math.min(1,Math.pow(180/sd.t,0.25))));
+  return{p:pi,n,g:0,rw:Math.round(n*sd.v*2.2),xp:Math.round(n*sd.x*0.6)}}
+function gdOrders(){while(gdS.od.length<3)gdS.od.push(gdMkOrder());}
+gdOrders();
 const gdUpC=k=>{const u=GD_UP.find(x=>x.k===k);return Math.round(u.b*Math.pow(u.m,gdS.up[k]))};
 const gdRank=()=>{let r=0;GD_RK.forEach((x,i)=>{if(gdS.tot>=x[0])r=i});return r};
 const gd={G:null,raf:false,last:0};
@@ -5379,13 +5392,14 @@ const gdRem=p=>Math.max(0,p.t0+p.d-Date.now());
 const gdFmt=ms=>{const s=Math.ceil(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),c=s%60;return h?h+':'+String(m).padStart(2,'0')+':'+String(c).padStart(2,'0'):m+':'+String(c).padStart(2,'0')};
 const gdRdy=p=>p&&gdRem(p)<=0;
 document.body.insertAdjacentHTML('beforeend','<div id="garden" class="hidden mgscr"><canvas id="c_gd"></canvas>'
- +'<div class="mtop"><button id="gd_back" class="ibtn alt">‹</button><div class="pill" id="gd_lv">Bahçe Seviye 1</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
+ +'<div class="mtop"><button id="gd_back" class="ibtn alt">‹</button><div class="pill" id="gd_lv">Bahçe Seviye 1</div><div class="sp"></div><button id="gd_fm_b" class="ibtn alt" style="font-size:20px">🏡</button><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
  +'<div class="sobar"><button id="gd_hv"><i>🧺</i><span>Hepsini Topla</span></button><button id="gd_pa"><i>🌱</i><span>Hepsine Ek</span></button><button id="gd_sp"><i>📺</i><span>Hızlandır</span></button><button id="gd_up"><i>⬆️</i><span>Geliştir</span></button></div>'
  +'<div id="gd_lu" class="overlay hidden"><div class="card"><div class="ttl" id="gd_lut" style="color:var(--gold)">Bahçe Seviye 2! 🎉</div><div id="gd_lui" style="color:var(--mute);margin:8px 0;white-space:pre-line"></div><button id="gd_luok" class="gold">▶ Devam</button></div></div></div>');
 document.head.insertAdjacentHTML('beforeend','<style>#gd_lv{font-size:14px;padding:6px 11px;white-space:nowrap}.gdr{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px 10px;border-radius:14px;background:linear-gradient(#3b3173,#241a5a);box-shadow:0 3px 0 #170f3a;margin-bottom:8px;font-size:13px}.gdr i{font-style:normal;font-size:32px;width:40px;text-align:center}.gdr b{display:block;font-size:15px}.gdr small{color:#bfb5ff}.gdr.no{opacity:.5}</style>');
 SCR.push('garden');
 document.body.insertAdjacentHTML('beforeend','<div id="gd_ug" class="overlay hidden" style="z-index:30"><div class="card" style="width:min(94vw,400px);max-height:84vh;display:flex;flex-direction:column"><div class="ttl">⬆️ Geliştir</div><div id="gd_ugr" style="color:var(--mute);margin:6px 0;font-size:13px"></div><div id="gd_ugl" style="overflow:auto;margin:6px 0"></div><button id="gd_ugx" class="alt">Kapat</button></div></div>'
  +'<div id="gd_sd" class="overlay hidden" style="z-index:30"><div class="card" style="width:min(94vw,400px);max-height:84vh;display:flex;flex-direction:column"><div class="ttl" id="gd_sdt">🌱 Tohum seç</div><div id="gd_sdl" style="overflow:auto;margin:10px 0"></div><button id="gd_sdx" class="alt">Kapat</button></div></div>'
+ +'<div id="gd_fm" class="overlay hidden" style="z-index:30"><div class="card" style="width:min(94vw,400px);max-height:84vh;display:flex;flex-direction:column"><div class="ttl">🏡 Çiftlik</div><div id="gd_fml" style="overflow:auto;margin:6px 0"></div><button id="gd_fmx" class="alt">Kapat</button></div></div>'
  +'<div id="gd_un" class="overlay hidden" style="z-index:30"><div class="card"><div class="ttl">🌾 Yeni tarla</div><div id="gd_uni" style="color:var(--mute);margin:8px 0"></div><button id="gd_unok" class="gold">Aç</button><button id="gd_unx" class="alt">Vazgeç</button></div></div>');
 $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardGd" style="background:linear-gradient(135deg,#65a30d,#15803d 55%,#0e7490)"><div class="gicon">🌱</div><div class="gtx"><b>Zaman Bahçesi</b><small>Ek, bekle, hasat et. Kapalıyken de büyür!</small><span class="gtag" id="hsGd">Bahçe Sv.1</span></div><div class="gplay" style="color:#15803d">▶</div></div>');
 ACH3('t_gd','garden','{n} bahçe seviyesine ulaş',()=>gdS.lv-1,[4,12,30],RS);
@@ -5412,6 +5426,7 @@ function gdHud(){
   lv.style.background='linear-gradient(90deg,rgba(132,204,22,.65) '+p+'%,rgba(255,255,255,.1) '+p+'%)';
   try{$('hsGd').textContent='Bahçe Sv.'+gdS.lv}catch(e){}
   const rd=gdS.pl.filter(q=>gdRdy(q)).length;
+  try{const any=GD_AN.some(a=>gdAnAcc(a)>=a.inc*5)||gdS.od.some(o=>o.g>=o.n);$('gd_fm_b').textContent=any?'🏡❗':'🏡'}catch(e){}
   $('gd_hv').querySelector('span').textContent=rd?'Hepsini Topla '+rd:'Hepsini Topla';
 }
 function gdLayout(G){
@@ -5426,7 +5441,7 @@ function gdLayout(G){
 const gdRect=(G,i)=>({x:G.ox+(i%3)*G.cw+G.gap/2,y:G.oy+Math.floor(i/3)*G.ch+G.gap/2,w:G.cw-G.gap,h:G.ch-G.gap});
 function gdStart(){
   const G={t:0,parts:[],fl:[],cl:[{x:30,y:90,s:1,v:8},{x:220,y:140,s:.7,v:5},{x:120,y:60,s:.5,v:11}],hudT:0,sel:-1};
-  gd.G=G;gdLayout(G);gdHud();show('gd_lu',false);show('gd_sd',false);show('gd_un',false);show('gd_ug',false);
+  gd.G=G;gdLayout(G);gdHud();show('gd_lu',false);show('gd_sd',false);show('gd_un',false);show('gd_ug',false);show('gd_fm',false);
   if(!gd.raf){gd.raf=true;gd.last=performance.now();requestAnimationFrame(gdFrame)}
 }
 function openGd(){state='garden';useW('garden');stopMusic();hideAll();show('garden',true);gdNotify(false);gdStart();if(!gdS.gift){gdS.gift=1;credit('garden',30);gdSave();refreshCoins();toast('🎁 Başlangıç hediyesi: 🪙 30')}}
@@ -5461,7 +5476,7 @@ function gdXp(x){
 function gdHarvest(i,quiet){
   const G=gd.G,p=gdS.pl[i];if(!p||!gdRdy(p))return null;
   const s=GD_S[p.p],gold=Math.random()<.08+.02*gdS.up.gl,v=Math.round(s.v*(1+0.06*gdS.up.sc))*(gold?2:1);
-  gdS.pl[i]=0;gdS.tot++;gdCoin(v);addProg('garden',1);
+  gdS.pl[i]=0;gdS.tot++;gdCoin(v);addProg('garden',1);gdOrderProg(p.p);
   const r=gdRect(G,i);
   G.fl.push({x:r.x+r.w/2,y:r.y+r.h*.3,t:'+'+v+'🪙'+(gold?' ✨':''),l:1.2,c:gold?'#fde047':'#fff'});
   for(let k=0;k<(gold?16:9);k++){const a=Math.random()*6.283,sp=60+Math.random()*120;G.parts.push({x:r.x+r.w/2,y:r.y+r.h/2,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-60,l:.7,m:.7,c:gold?'#fde047':'#fbbf24',r:2+Math.random()*3,g:260})}
@@ -5476,6 +5491,32 @@ function gdHarvestAll(list){
   const lu=gdXp(xp);gdRankCheck();gdSave();gdHud();gdNotify(false);
   if(lu)setTimeout(()=>{if(state==='garden'&&gd.G===G)gdLuShow(lu)},700);
 }
+function gdOrderProg(pi){
+  let done=null;
+  gdS.od.forEach((o,k)=>{if(!done&&o.p===pi&&o.g<o.n){o.g++;if(o.g>=o.n)done=k}});
+  if(done!=null){const o=gdS.od[done];gdCoin(o.rw);gdS.odn++;const lu=gdXp(o.xp);gdS.od[done]=gdMkOrder();
+    setTimeout(()=>toast('📋 '+trStr('Sipariş tamam')+'! +'+fmt(o.rw)+' 🪙'),400);
+    if(lu)setTimeout(()=>{if(state==='garden')gdLuShow(lu)},1100)}
+}
+function gdFarmOpen(){
+  const L=$('gd_fml');L.innerHTML='';
+  const hd=t=>{const d=document.createElement('div');d.style.cssText='font-weight:800;margin:10px 2px 6px';d.textContent=t;L.appendChild(d)};
+  hd('📋 '+trStr('Siparişler'));
+  gdS.od.forEach(o=>{const sd=GD_S[o.p],d=document.createElement('div');d.className='gdr';
+    d.innerHTML='<i>'+sd.e+'</i><div style="flex:1"><b>'+o.g+' / '+o.n+'</b><div style="height:6px;border-radius:4px;background:rgba(255,255,255,.15);margin:4px 0"><div style="height:6px;border-radius:4px;background:#84cc16;width:'+(100*o.g/o.n)+'%"></div></div><small>'+trStr('Ödül')+': 🪙 '+fmt(o.rw)+' · ✨ '+o.xp+'</small></div>';L.appendChild(d)});
+  hd('🐾 '+trStr('Hayvanlar'));
+  GD_AN.forEach(a=>{const o=gdS.an[a.k],lv=o?o.lv:0,ok=gdS.lv>=a.r,acc=gdAnAcc(a),b=document.createElement('div');b.className='gdr'+(!ok?' no':'');
+    b.innerHTML='<i>'+a.e+'</i><div style="flex:1"><b>'+trStr(a.n)+(lv?' · Sv.'+lv:'')+'</b><small>'+(ok?(lv?'🪙 '+fmt(a.inc*lv)+' / '+trStr('dk')+' · '+trStr('Biriken')+': 🪙 '+fmt(acc):trStr('Yavaş yavaş para üretir')):trStr('Bahçe seviyesi')+' '+a.r)+'</small></div>';
+    const bt=document.createElement('button');bt.style.cssText='padding:6px 9px;border-radius:10px;font-size:12px;margin-left:4px;width:auto;flex:none;min-width:0;white-space:nowrap';bt.className='gold';
+    bt.textContent=!ok?'🔒':lv?'⬆️ '+fmt(gdAnC(a,lv)):'🪙 '+fmt(a.c);
+    bt.onclick=ev=>{ev.stopPropagation();if(!ok){toast('Bahçe seviyesi '+a.r+' gerekli');return}const c=lv?gdAnC(a,lv):a.c;if(totalCoins<c){toast('Yeterli paran yok');buzz(40);return}
+      credit('garden',-c);if(lv){gdAnCollect(a,true);o.lv++}else gdS.an[a.k]={lv:1,t0:Date.now()};gdSave();refreshCoins();sfx.power();gdFarmOpen()};
+    b.appendChild(bt);
+    b.onclick=()=>{if(acc>0){gdAnCollect(a);gdFarmOpen()}else if(lv)toast(trStr('Henüz para birikmedi'))};
+    L.appendChild(b)});
+  show('gd_fm',true);
+}
+function gdAnCollect(a,q){const acc=gdAnAcc(a);if(acc>0){gdCoin(acc);if(!q){toast('+'+fmt(acc)+' 🪙 '+a.e);sfx.coin()}}gdS.an[a.k].t0=Date.now();gdSave()}
 function gdRankCheck(){
   const r=gdRank();
   while(gdS.rk<r){gdS.rk++;const c=200*gdS.rk*gdS.rk;gdCoin(c);setTimeout(()=>toast('🏅 Yeni rütbe: '+GD_RK[gdS.rk][1]+' · 🪙 +'+c),900)}
@@ -5497,6 +5538,7 @@ function gdLuShow(lu){
   show('gd_lu',true);sfx.power();
 }
 $('gd_luok').onclick=()=>show('gd_lu',false);
+$('gd_fm_b').onclick=gdFarmOpen;$('gd_fmx').onclick=()=>show('gd_fm',false);
 $('gd_sdx').onclick=()=>show('gd_sd',false);$('gd_ugx').onclick=()=>show('gd_ug',false);$('gd_up').onclick=gdUgOpen;
 let gdUnI=-1;
 function gdTapPlot(i){
@@ -9645,6 +9687,19 @@ Joystick ile gez, ürünleri raflara taşı!|Walk with the joystick, carry goods
 GİRİŞ|ENTRANCE|ENTRADA|ENTRADA|EINGANG|ENTRÉE|ВХОД|MASUK
 Kasa|Register|Caja|Caixa|Kasse|Caisse|Касса|Kasir
 Kasiyer|Cashier|Cajero|Caixa|Kassierer|Caissier|Кассир|Kasir
+Çiftlik|Farm|Granja|Fazenda|Bauernhof|Ferme|Ферма|Peternakan
+Siparişler|Orders|Pedidos|Pedidos|Aufträge|Commandes|Заказы|Pesanan
+Sipariş tamam|Order complete|Pedido completo|Pedido concluído|Auftrag erledigt|Commande terminée|Заказ выполнен|Pesanan selesai
+Ödül|Reward|Premio|Prêmio|Belohnung|Récompense|Награда|Hadiah
+Hayvanlar|Animals|Animales|Animais|Tiere|Animaux|Животные|Hewan
+Tavuk|Hen|Gallina|Galinha|Huhn|Poule|Курица|Ayam
+İnek|Cow|Vaca|Vaca|Kuh|Vache|Корова|Sapi
+Arı Kovanı|Beehive|Colmena|Colmeia|Bienenstock|Ruche|Улей|Sarang Lebah
+Koyun|Sheep|Oveja|Ovelha|Schaf|Mouton|Овца|Domba
+Biriken|Stored|Acumulado|Acumulado|Gesammelt|Accumulé|Накоплено|Terkumpul
+Yavaş yavaş para üretir|Slowly makes coins|Produce monedas poco a poco|Produz moedas aos poucos|Bringt langsam Münzen|Produit des pièces peu à peu|Понемногу приносит монеты|Menghasilkan koin perlahan
+Henüz para birikmedi|No coins stored yet|Aún no hay monedas|Ainda não há moedas|Noch keine Münzen gesammelt|Pas encore de pièces|Монет пока нет|Belum ada koin
+Bahçe seviyesi|Garden level|Nivel del jardín|Nível do jardim|Gartenlevel|Niveau du jardin|Уровень сада|Level kebun
 Koleksiyon|Collection|Colección|Coleção|Sammlung|Collection|Коллекция|Koleksi
 Yeni nesne|New item|Nuevo objeto|Novo item|Neues Objekt|Nouvel objet|Новый предмет|Item baru
 Her nesne: 10, 100 ve 500 yutunca ödül|Reward at 10, 100 and 500 eaten per item|Premio al tragar 10, 100 y 500 de cada objeto|Prêmio ao engolir 10, 100 e 500 de cada item|Belohnung bei 10, 100 und 500 pro Objekt|Récompense à 10, 100 et 500 par objet|Награда за 10, 100 и 500 каждого предмета|Hadiah saat 10, 100, dan 500 per item
