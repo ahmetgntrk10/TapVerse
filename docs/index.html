@@ -4638,6 +4638,8 @@ function wdPlace(words,rnd,maxN){
 }
 let wdLists={};
 const WD_NAMES=new Set('sam ted tom bob joe jim tim ben dan ray eli ann amy kim roy john mary paul mike david peter james george henry harry kate anna emma emily lucy sarah jane lisa nick alex adam eric jake jason kevin brian chris steve frank carl bart bert hank walt ryan tony fred gary paris london texas klaus hans franz uwe jens lars jörg ali ahmet mehmet ayşe fatma hasan emre pierre jean marie paul luc juan pedro jose maria carlos joao manuel ivan olga anna петр иван олег анна мария ольга николай сергей андрей дмитрий алексей'.split(' '));
+const WD_TH={"tr":["orman ağaç yaprak dal kök çam meşe mantar kuş geyik tilki kurt ayı çiçek çimen böcek arı patika dere nehir gölge kulübe","deniz dalga balık yengeç midye mercan gemi yelken liman kıyı kum kabuk fırtına rüzgar tuz körfez dalgıç martı yunus balina","ateş alev kor kül lav duman volkan kızgın sıcak yanık köz kıvılcım magma kömür demir ejderha yanardağ","buz kar soğuk don kış kristal fırtına penguen kutup kızak şapka eldiven çığ donmuş buzul sis rüzgar","çöl kum deve vaha güneş sıcak kaktüs akrep yılan susuz kervan piramit serap toz çadır","gök bulut yağmur güneş ay yıldız rüzgar kuş kanat uçak balon şimşek fırtına sis kartal uçurtma","uzay yıldız ay gezegen roket güneş kuyruklu galaksi evren uydu astronot meteor yörünge dünya mars satürn jüpiter ışık zaman","kristal mağara taş maden elmas altın gümüş demir yakut zümrüt mücevher kaya yeraltı karanlık fener hazine"],"en":["forest tree leaf branch root pine oak moss bird deer fox wolf bear flower grass insect bee trail river shadow cabin","ocean sea wave fish crab shell coral ship sail port shore sand storm wind salt bay diver gull dolphin whale","fire flame ember ash lava smoke volcano hot burn spark magma coal iron dragon blaze heat crater","ice snow cold frost winter crystal storm penguin polar sled hat glove avalanche frozen glacier fog wind","desert sand camel oasis sun hot cactus scorpion snake dry caravan pyramid mirage dust tent dune","sky cloud rain sun moon star wind bird wing plane balloon rainbow lightning storm fog eagle kite","space star moon planet rocket sun comet galaxy universe satellite astronaut orbit earth mars saturn jupiter light time meteor alien","crystal cave stone mine diamond gold silver iron ruby emerald jewel rock dark lantern treasure gem echo bat"],"es":["bosque arbol hoja rama raiz pino roble musgo ave ciervo zorro lobo oso flor hierba abeja camino rio sombra","mar ola pez cangrejo concha coral barco vela puerto costa arena tormenta viento sal bahia buzo gaviota delfin ballena","fuego llama brasa ceniza lava humo volcan calor quemar chispa magma carbon hierro dragon crater","hielo nieve frio escarcha invierno cristal tormenta pinguino polar trineo gorro guante alud helado glaciar niebla viento","desierto arena camello oasis sol calor cactus escorpion serpiente seco caravana piramide espejismo polvo tienda duna","cielo nube lluvia sol luna estrella viento ave ala avion globo arcoiris rayo tormenta niebla aguila cometa","espacio estrella luna planeta cohete sol cometa galaxia universo satelite astronauta orbita tierra marte saturno jupiter luz tiempo meteoro","cristal cueva piedra mina diamante oro plata hierro rubi esmeralda joya roca oscuro linterna tesoro gema eco murcielago"],"pt":["floresta arvore folha galho raiz pinho carvalho musgo ave veado raposa lobo urso flor grama abelha trilha rio sombra","mar onda peixe caranguejo concha coral navio vela porto costa areia tempestade vento sal baia mergulho gaivota golfinho baleia","fogo chama brasa cinza lava fumaca vulcao calor queimar faisca magma carvao ferro dragao cratera","gelo neve frio geada inverno cristal tempestade pinguim polar gorro luva avalanche glacial nevoa vento","deserto areia camelo oasis sol calor cacto escorpiao cobra seco caravana piramide miragem poeira tenda duna","ceu nuvem chuva sol lua estrela vento ave asa aviao balao arcoiris raio tempestade nevoa aguia pipa","espaco estrela lua planeta foguete sol cometa galaxia universo satelite astronauta orbita terra marte saturno jupiter luz tempo meteoro","cristal caverna pedra mina diamante ouro prata ferro rubi esmeralda joia rocha escuro lanterna tesouro gema eco morcego"],"de":["wald baum blatt ast wurzel kiefer eiche moos vogel hirsch fuchs wolf bär blume gras biene pfad fluss schatten","meer welle fisch krabbe muschel koralle schiff segel hafen küste sand sturm wind salz bucht taucher möwe delfin wal","feuer flamme glut asche lava rauch vulkan heiß brand funke magma kohle eisen drache krater","eis schnee kalt frost winter kristall sturm pinguin polar schlitten mütze handschuh lawine gefroren gletscher nebel wind","wüste sand kamel oase sonne heiß kaktus skorpion schlange trocken karawane pyramide dune zelt staub","himmel wolke regen sonne mond stern wind vogel flügel flugzeug ballon regenbogen blitz sturm nebel adler drachen","weltall stern mond planet rakete sonne komet galaxie universum satellit astronaut erde mars saturn jupiter licht zeit meteor","kristall höhle stein mine diamant gold silber eisen rubin smaragd juwel fels dunkel laterne schatz edelstein echo"],"fr":["foret arbre feuille branche racine pin chene mousse oiseau cerf renard loup ours fleur herbe abeille sentier riviere ombre","mer vague poisson crabe coquille corail navire voile port cote sable tempete vent sel baie plongeur mouette dauphin baleine","feu flamme braise cendre lave fumee volcan chaud bruler etincelle magma charbon fer dragon cratere","glace neige froid givre hiver cristal tempete pingouin polaire traineau bonnet gant avalanche gele glacier brouillard vent","desert sable chameau oasis soleil chaud cactus scorpion serpent sec caravane pyramide mirage poussiere tente dune","ciel nuage pluie soleil lune etoile vent oiseau aile avion ballon eclair tempete brouillard aigle","espace etoile lune planete fusee soleil comete galaxie univers satellite astronaute orbite terre mars saturne jupiter lumiere temps meteore","cristal grotte pierre mine diamant argent fer rubis emeraude bijou roche sombre lanterne tresor gemme echo"],"ru":["лес дерево лист ветка корень сосна дуб мох птица олень лиса волк медведь цветок трава пчела тропа река тень","море волна рыба краб ракушка коралл корабль парус порт берег песок шторм ветер соль бухта дельфин кит чайка","огонь пламя жар пепел лава дым вулкан горячо искра магма уголь железо дракон кратер","лед снег холод иней зима кристалл буря пингвин полюс санки шапка варежка лавина ледник туман ветер","пустыня песок верблюд оазис солнце жара кактус скорпион змея сухо караван пирамида мираж пыль шатер дюна","небо облако дождь солнце луна звезда ветер птица крыло самолет шар радуга молния буря туман орел змей","космос звезда луна планета ракета солнце комета галактика вселенная спутник космонавт орбита земля марс сатурн юпитер свет время метеор","кристалл пещера камень шахта алмаз золото серебро железо рубин изумруд скала темно фонарь сокровище эхо"]};
+function wdThemeOf(L,code,w){L.th=L.th||{};const key=code+w;if(L.th[key])return L.th[key];const src=(WD_TH[code]||WD_TH.en)[w%8].split(' ');const o=[...new Set(src.filter(x=>x.length>=3&&x.length<=7))];for(const x of o)if(!L.set.has(x)){L.set.add(x);L.all.push(x)}L.th[key]=o;return o}
 function wdMk(lj){
   const a=(lj.a||[]).filter(w=>!WD_NAMES.has(w)),v=(lj.v||[]).filter(w=>!WD_NAMES.has(w)),set=new Set(a);for(const w of v)set.add(w);
   const byLen={};for(const w of a)(byLen[w.length]=byLen[w.length]||[]).push(w);
@@ -4662,9 +4664,11 @@ function wdGen(level,code,L,rx){rx=rx||0;
   const maxN=n>=6?8:7;
   const cap=rx?1e9:t.id==='vez'?1800:t.id==='ez'||t.id==='ez2'?3200:t.id==='md'?4800:1e9;
   const bases=(L.byLen[n]||[]).filter(w=>L.rank.get(w)<(boss||t.id==='vhd'||t.id==='hd'?1e9:cap));
+  const tr2=mzRng(level*31+wdHash(code)+7),thW=wdThemeOf(L,code,wdWorld(level)),thB=thW.filter(w=>w.length===n);
   let bestRes=null,bestScore=-1;
   for(let at=0;at<(rx?250:30)&&bases.length;at++){
-    const base=rx||wdSalt?bases[Math.floor(rnd()*bases.length)]:bases[(wdSeqIdx(level,code,bases.length)+at)%bases.length];
+    let base=rx||wdSalt?bases[Math.floor(rnd()*bases.length)]:bases[(wdSeqIdx(level,code,bases.length)+at)%bases.length];
+    if(at===0&&!rx&&!wdSalt&&tr2()<0.3&&thB.length)base=thB[Math.floor(tr2()*thB.length)];
     const cnt={};for(const ch of base)cnt[ch]=(cnt[ch]||0)+1;
     const cand=[];for(let ln=t.min;ln<=n;ln++){const arr=L.byLen[ln];if(arr)for(const w of arr)if(w!==base&&L.rank.get(w)<cap&&wdCan(w,cnt))cand.push(w)}
     const need=Math.max(3,target-1);
@@ -4673,6 +4677,7 @@ function wdGen(level,code,L,rx){rx=rx||0;
     const pool=cand.slice();for(let i=pool.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
     pool.sort((a,b)=>(b.length-a.length)*(rnd()<.35?0:1));
     const pick=[base];
+    if(!rx&&!wdSalt&&tr2()<0.4){let k=0;for(const w of thW){if(k>=2)break;if(w!==base&&w.length>=t.min&&w.length<=n&&wdCan(w,cnt)&&pick.indexOf(w)<0){pick.push(w);k++}}}
     for(const w of pool){if(pick.length>=target+1)break;if(pick.every(x=>x!==w))pick.push(w)}
     let bestP=null;
     for(let tr=0;tr<8;tr++){
@@ -4753,13 +4758,13 @@ const wdCode=()=>WD_LANGS.includes(lang)?lang:'en';
 const wdUp=(ch)=>ch.toLocaleUpperCase(wdCode()==='tr'?'tr':undefined);
 async function wdLoad(code){
   if(wd.lists[code])return wd.lists[code];
-  const r=await fetch('words/'+code+'.json');if(!r.ok)throw new Error('wl');
-  const L=wdMk(await r.json());wd.lists[code]=L;return L;
+  let err;for(let k=0;k<3;k++){try{const r=await fetch('words/'+code+'.json'+(k?'?r='+k+Date.now():''),{cache:k?'reload':'default'});if(!r.ok)throw new Error('http '+r.status);const L=wdMk(await r.json());wd.lists[code]=L;return L}catch(e){err=e;await new Promise(q=>setTimeout(q,600))}}
+  throw err;
 }
 function wdSaveP(G){try{sv('tv_wdp',{d:G.daily||0,l:G.level,c:G.code,f:[...G.found],r:[...G.rev],b:G.bonusF,h:G.hu,bc:G.bcoin,bh:G.bhint})}catch(e){}}
 function wdMapOpen(){
   const cur=wdLevel,cw=wdWorld(cur),l=$('wd_ml');l.innerHTML='';
-  for(let w=0;w<=cw+3;w++){
+  for(let w=0;w<=Math.max(WD_WORLDS.length-1,cw+3);w++){
     const st=w*WD_WL+1,en=st+WD_WL-1,W=WD_WORLDS[w%WD_WORLDS.length],r=Math.floor(w/WD_WORLDS.length),nm=W.n+(r?' '+(r+1):'');
     const done=cur>en,open=cur>=st,prog=Math.max(0,Math.min(WD_WL,cur-st)),ch=wdChest(w);
     const b=document.createElement('button');b.className='wdw'+(open?'':' lk');b.style.background='linear-gradient(135deg,'+W.bg[0]+','+W.bg[1]+')';
@@ -4776,7 +4781,7 @@ async function openWd(lv,daily){
   state='words';useW('words');stopMusic();hideAll();show('words',true);show('wd_win',false);show('wd_bs',false);
   wd.G=null;wd.loading=true;wd.sel=null;wd.pick=false;
   const code=wdCode();let L;
-  try{L=await wdLoad(code)}catch(e){wd.loading=false;toast('Kelime listesi yüklenemedi');openLobby('wd');return}
+  try{L=await wdLoad(code)}catch(e){wd.loading=false;toast('Kelime listesi yüklenemedi · '+((e&&e.message)||'?'));openLobby('wd');return}
   wd.loading=false;if(state!=='words')return;
   wdStart(daily?10+wdDay()%5:(lv||wdLevel),code,L,daily?wdDay():0);
 }
