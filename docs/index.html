@@ -7009,24 +7009,40 @@ $('cardHo').onclick=()=>openLobby('ho');
 
 // ---- Market Ustası (marketi yönet, rafları doldur, müşterilere hizmet et) ----
 WN.mart='Market Ustası';WKEYS.push('mart');
-const MKT_P=[
- {e:'🍎',pr:5,t:2.4,c:0,src:'🌳',col:'#2f9e44'},
- {e:'🍞',pr:9,t:3.2,c:120,src:'🥖',col:'#d9822b'},
- {e:'🥛',pr:15,t:4,c:600,src:'🐄',col:'#2b8fd9'},
- {e:'🥚',pr:26,t:5,c:2600,src:'🐔',col:'#e0a800'}];
+const MKT_BASE=[{pr:5,t:2.4,c:0},{pr:9,t:3.2,c:120},{pr:15,t:4,c:600},{pr:26,t:5,c:2600}];
+const MKT_R=[
+ {n:'Bakkal',e:'🏪',lv:1,cost:0,mul:1,fl:['#e8cfa0','#dfc38f'],wl:['#a8744a','#8b5e3c'],dc:['🪴','🖼️','💡'],
+  P:[['🍎','🌳','#2f9e44'],['🍞','🥖','#d9822b'],['🥛','🐄','#2b8fd9'],['🥚','🐔','#e0a800']]},
+ {n:'Süpermarket',e:'🛒',lv:8,cost:6000,mul:6,fl:['#d9e2ec','#c5d1de'],wl:['#4b7bb5','#36608f'],dc:['🛒','🏷️','🪴'],
+  P:[['🥩','🐖','#b91c1c'],['🧀','🐐','#d4a017'],['🍫','🌰','#7c4a21'],['🍦','🧊','#e879a9']]},
+ {n:'Pazar',e:'🧺',lv:15,cost:60000,mul:30,fl:['#cfe3b0','#bfd89d'],wl:['#2f855a','#276749'],dc:['⛱️','🧺','🌻'],
+  P:[['🍅','🌱','#dc2626'],['🍯','🐝','#d69e2e'],['🐟','🎣','#2b6cb0'],['🌶️','🏺','#c53030']]},
+ {n:'AVM',e:'🛍️',lv:24,cost:600000,mul:150,fl:['#f1e4f3','#e6d3ea'],wl:['#805ad5','#6b46c1'],dc:['⛲','🪩','🛍️'],
+  P:[['👕','🧵','#3182ce'],['👟','🏭','#e53e3e'],['📱','🔌','#4a5568'],['💍','💎','#d53f8c']]},
+ {n:'Havaalanı Dükkânı',e:'✈️',lv:35,cost:6000000,mul:800,fl:['#e2e8f0','#cbd5e0'],wl:['#2d3748','#1a202c'],dc:['✈️','🌍','🕰️'],
+  P:[['☕','🫘','#78350f'],['🥐','🧑‍🍳','#c05621'],['🧴','🧪','#0e7490'],['🧳','🛄','#7c3aed']]}];
+const MKT_DK=[1500,4000,9000];
+let MKT_P=[];
 const MKT_UP=[
  {k:'cap',e:'🎒',n:'Taşıma Kapasitesi',d:'Daha çok ürün taşırsın',max:10,b:80,m:1.55},
  {k:'spd',e:'👟',n:'Dükkâncı Hızı',d:'Dükkâncı daha hızlı koşar',max:8,b:100,m:1.6},
  {k:'prod',e:'🏭',n:'Üretim Hızı',d:'Ürünler daha çabuk yetişir',max:10,b:120,m:1.6},
  {k:'cust',e:'🚶',n:'Müşteri Akışı',d:'Dükkâna daha çok müşteri gelir',max:10,b:150,m:1.65},
  {k:'price',e:'🏷️',n:'Satış Fiyatı',d:'Ürünler daha pahalı satılır',max:10,b:200,m:1.7},
- {k:'stk',e:'🗄️',n:'Raf Kapasitesi',d:'Raflara daha çok ürün sığar',max:8,b:90,m:1.6}];
+ {k:'stk',e:'🗄️',n:'Raf Kapasitesi',d:'Raflara daha çok ürün sığar',max:8,b:90,m:1.6},
+ {k:'brand',e:'👑',n:'Marka Değeri',d:'Satış ve şube gelirini artırır (sınırsız)',max:99999,b:4000,m:1.3}];
 const MKT_PD=[{k:'cash',e:'🧑‍💼',n:'Kasiyer',c:500,x:44,y:432},{k:'help',e:'🧒',n:'Çırak',c:1400,x:44,y:498}];
-const MKT_DEF={up:{cap:0,spd:0,prod:0,cust:0,price:0,stk:0},un:[1,0,0,0],hp:{cash:0,help:0},pad:{},served:0,lv:1,xp:0,pile:0};
+const mktMul=()=>MKT_R[mktS.reg].mul;
+const MKT_DEF={up:{cap:0,spd:0,prod:0,cust:0,price:0,stk:0,brand:0},un:[1,0,0,0],hp:{cash:0,help:0},pad:{},served:0,lv:1,xp:0,pile:0,reg:0,dec:{},lt:0};
 let mktS=Object.assign({},MKT_DEF,ld('tv_mkt',{}));
-mktS.up=Object.assign({},MKT_DEF.up,mktS.up);mktS.hp=Object.assign({},MKT_DEF.hp,mktS.hp);mktS.pad=mktS.pad||{};
+mktS.up=Object.assign({},MKT_DEF.up,mktS.up);mktS.hp=Object.assign({},MKT_DEF.hp,mktS.hp);mktS.pad=mktS.pad||{};mktS.dec=mktS.dec||{};mktS.reg=Math.min(mktS.reg||0,MKT_R.length-1);
+function mktSetReg(){const R=MKT_R[mktS.reg];MKT_P=R.P.map((q,i)=>({e:q[0],src:q[1],col:q[2],t:MKT_BASE[i].t,pr:Math.round(MKT_BASE[i].pr*R.mul),c:Math.round(MKT_BASE[i].c*R.mul)}))}
+mktSetReg();
+const mktDecN=r=>MKT_R[r].dc.reduce((a,_,i)=>a+(mktS.dec[r+'_'+i]?1:0),0);
+const mktDecMul=()=>1+0.08*mktDecN(mktS.reg);
+const mktPassive=()=>{let t=0;for(let r=0;r<mktS.reg;r++)t+=0.8*MKT_R[r].mul*(1+0.15*mktDecN(r));return t*(1+0.05*mktS.up.brand)};
 const mkt={G:null,raf:false,last:0,stick:null,sv:0};
-const mktSave=()=>sv('tv_mkt',mktS);
+const mktSave=()=>{mktS.lt=Date.now();sv('tv_mkt',mktS)};
 const MK_W=360,MK_H=640,MK_SY=120,MK_HY=300,MK_CX=282,MK_CY=552,MK_PX=334,MK_PY=548,MK_DX=180,MK_DY=640;
 const mkSx=i=>60+80*i;
 const mktCap=()=>4+2*mktS.up.cap,mktScap=()=>6+2*mktS.up.stk,mktNeed=()=>6+4*mktS.lv;
@@ -7034,7 +7050,7 @@ const mktUpC=k=>{const u=MKT_UP.find(x=>x.k===k);return Math.round(u.b*Math.pow(
 document.body.insertAdjacentHTML('beforeend','<div id="mart" class="hidden mgscr"><canvas id="c_mkt" style="touch-action:none"></canvas>'
  +'<div class="mtop"><button id="mkt_back" class="ibtn alt">‹</button><div class="pill" id="mkt_lv">Seviye 1</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
  +'<div class="sobar"><button id="mkt_up"><i>⬆️</i><span>Geliştir</span></button><button id="mkt_rush"><i>📺</i><span>Kalabalık</span></button></div></div>');
-document.head.insertAdjacentHTML('beforeend','<style>#mart .mtop{gap:6px;left:54px;right:8px}#mkt_lv{white-space:nowrap}</style>');
+document.head.insertAdjacentHTML('beforeend','<style>#mart .mtop{gap:6px;left:54px;right:8px}#mkt_lv{white-space:nowrap}.mkh{font-weight:800;margin:10px 2px 6px;opacity:.9}.mkn{font-size:13px;opacity:.85;margin:4px 2px 8px}</style>');
 SCR.push('mart');
 document.body.insertAdjacentHTML('beforeend','<div id="mkt_sh" class="overlay hidden" style="z-index:30"><div class="card" style="width:min(94vw,400px);max-height:84vh;display:flex;flex-direction:column"><div class="ttl">⬆️ Geliştir</div><div id="mkt_shl" style="overflow:auto;margin:10px 0"></div><button id="mkt_shx" class="alt">Kapat</button></div></div>');
 $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardMkt" style="background:linear-gradient(135deg,#065f46,#16a34a 55%,#f59e0b)"><div class="gicon">🏪</div><div class="gtx"><b>Market Ustası</b><small>Marketi yönet, rafları doldur, müşterilere hizmet et!</small><span class="gtag" id="hsMkt">Seviye 1</span></div><div class="gplay" style="color:#16a34a">▶</div></div>');
@@ -7046,10 +7062,23 @@ lbCfg=function(id){
 };
 function mktShop(){
   const L=$('mkt_shl');L.innerHTML='';
-  MKT_UP.forEach(u=>{const lv=mktS.up[u.k],mx=lv>=u.max,c=mktUpC(u.k),b=document.createElement('button');b.className='gdr'+(!mx&&totalCoins<c?' no':'');
-    b.innerHTML='<i>'+u.e+'</i><div style="flex:1"><b>'+u.n+' · Sv.'+lv+'/'+u.max+'</b><small>'+u.d+'</small></div><span>'+(mx?'✅':'🪙 '+c)+'</span>';
-    b.onclick=()=>{if(mx){toast('En üst seviye');return}if(totalCoins<c){toast('Yeterli paran yok');buzz(40);return}credit('mart',-c);mktS.up[u.k]++;mktSave();refreshCoins();sfx.power();mktShop()};
-    L.appendChild(b)});
+  const hd=t=>{const d=document.createElement('div');d.className='mkh';d.textContent=t;L.appendChild(d)};
+  const row=(e,n,d,cost,done,fn)=>{const b=document.createElement('button');b.className='gdr'+(!done&&totalCoins<cost?' no':'');
+    b.innerHTML='<i>'+e+'</i><div style="flex:1"><b>'+n+'</b><small>'+d+'</small></div><span>'+(done?'✅':'🪙 '+fmt(cost))+'</span>';
+    b.onclick=()=>{if(done){toast('En üst seviye');return}if(totalCoins<cost){toast('Yeterli paran yok');buzz(40);return}credit('mart',-cost);fn();mktSave();refreshCoins();sfx.power();mktShop()};L.appendChild(b)};
+  MKT_UP.forEach(u=>{const lv=mktS.up[u.k],mx=lv>=u.max;row(u.e,trStr(u.n)+' · Sv.'+lv+(u.max<999?'/'+u.max:''),trStr(u.d),mktUpC(u.k),mx,()=>{mktS.up[u.k]++})});
+  const R=MKT_R[mktS.reg];
+  hd('🖼️ Dekor · '+trStr(R.n)+' (+%8 satış)');
+  R.dc.forEach((e,i)=>{const k=mktS.reg+'_'+i;row(e,trStr('Dekor')+' '+(i+1),trStr('Marketin görünümü güzelleşir, satışlar artar'),Math.round(MKT_DK[i]*R.mul),!!mktS.dec[k],()=>{mktS.dec[k]=1;if(mkt.G)mkt.G.banner=1.6,mkt.G.bmsg='Dekor eklendi!'})});
+  hd('🏬 Şubeler');
+  if(mktS.reg>0){const d=document.createElement('div');d.className='mkn';d.textContent=trStr('Eski şubelerin pasif geliri')+': 🪙 '+fmt(mktPassive()*60)+' / '+trStr('dk');L.appendChild(d)}
+  const N=MKT_R[mktS.reg+1];
+  if(N){const ok=mktS.lv>=N.lv,b=document.createElement('button');b.className='gdr'+(!ok||totalCoins<N.cost?' no':'');
+    b.innerHTML='<i>'+N.e+'</i><div style="flex:1"><b>'+trStr('Yeni Şube')+': '+trStr(N.n)+'</b><small>'+(ok?trStr('Yeni ürünler, çok daha yüksek kazanç. Şuanki şube pasif gelir getirir.'):trStr('Gerekli seviye')+': '+N.lv)+'</small></div><span>'+(ok?'🪙 '+fmt(N.cost):'🔒')+'</span>';
+    b.onclick=()=>{if(!ok){toast(trStr('Gerekli seviye')+': '+N.lv);return}if(totalCoins<N.cost){toast('Yeterli paran yok');buzz(40);return}
+      credit('mart',-N.cost);mktS.reg++;mktS.un=[1,0,0,0];mktS.hp={cash:0,help:0};mktS.pad={};mktSetReg();mktSave();refreshCoins();sfx.power();buzz(80);show('mkt_sh',false);mktStart();const G=mkt.G;G.banner=3;G.bmsg='Yeni Şube: '+N.n;mktBurst(G,180,300,30,'#fde047')};
+    L.appendChild(b)}
+  else{const d=document.createElement('div');d.className='mkn';d.textContent=trStr('Tüm şubeler açık! Marka Değeri sınırsız gelişir.');L.appendChild(d)}
   show('mkt_sh',true);
 }
 $('mkt_shx').onclick=()=>show('mkt_sh',false);$('mkt_up').onclick=mktShop;
@@ -7065,12 +7094,13 @@ function mktStart(){
   G.me={x:180,y:420,vx:0,vy:0,cr:[],bob:0,dir:1};
   G.hp={x:70,y:215,cr:[],tg:null,tm:0};
   mkt.G=G;mkt.stick=null;mktLayout(G);mktHud();show('mkt_sh',false);
+  {const now=Date.now();if(mktS.reg>0&&mktS.lt){const el=Math.min(10800,Math.max(0,(now-mktS.lt)/1000)),g=Math.floor(mktPassive()*el);if(g>=1){mktS.pile+=g;G.banner=3;G.bmsg='Şube geliri: +'+fmt(g);}}mktS.lt=now;if(!G.banner||G.banner<3)G.bmsg=mktS.reg?MKT_R[mktS.reg].n:'Joystick ile gez, ürünleri raflara taşı!'}
   if(!mkt.raf){mkt.raf=true;mkt.last=performance.now();requestAnimationFrame(mktFrame)}
 }
-function openMkt(){state='mart';useW('mart');stopMusic();hideAll();show('mart',true);mktStart()}
+function openMkt(){state='mart';useW('mart');mktSetReg();stopMusic();hideAll();show('mart',true);mktStart()}
 function mktHud(){
   $('mkt_lv').textContent='Seviye '+mktS.lv+' · '+mktS.xp+'/'+mktNeed();
-  try{$('hsMkt').textContent='Seviye '+mktS.lv}catch(e){}
+  try{$('hsMkt').textContent=MKT_R[mktS.reg].e+' Seviye '+mktS.lv}catch(e){}
 }
 function mktFx(G,x,y,t,c){G.fl.push({x,y,t,l:1,c:c||'#fff'})}
 function mktBurst(G,x,y,n,col){for(let i=0;i<n;i++){const a=Math.random()*6.283,v=30+Math.random()*60;G.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-30,l:.6,m:.6,c:col,r:2+Math.random()*2})}}
@@ -7083,7 +7113,7 @@ function mktLevelUp(G){
   if(mktS.lv%5===0){G.rush=45;G.bmsg='Kalabalık Saati!'}
 }
 function mktPay(G,c){
-  const v=Math.max(1,Math.round(c.val*(1+0.1*mktS.up.price)*(G.rush>0?1.5:1)));
+  const v=Math.max(1,Math.round(c.val*(1+0.1*mktS.up.price)*(1+0.05*mktS.up.brand)*mktDecMul()*(G.rush>0?1.5:1)));
   mktS.pile+=v;mktS.served++;mktS.xp++;addProg('mart',1);
   mktFx(G,MK_PX,MK_PY-20,'+'+v,'#fde047');tone(700,1100,.08,'triangle',.06);
   c.st='out';c.mood='😊';
@@ -7126,10 +7156,11 @@ function mktUpdate(G,dt){
   if(mktS.pile>0&&Math.hypot(me.x-MK_PX,me.y-MK_PY)<30){
     const n=mktS.pile;mktS.pile=0;credit('mart',n);stats.coins+=n;addProg('coins',n);addProg('c_mart',n);refreshCoins();mktSave();
     mktFx(G,MK_PX,MK_PY-34,'🪙 +'+n,'#fde047');sfx.coin&&sfx.coin();buzz(25);mktBurst(G,MK_PX,MK_PY,10,'#fde047')}
+  if(mktS.reg>0){G.pa=(G.pa||0)+mktPassive()*dt;if(G.pa>=1){const n=Math.floor(G.pa);G.pa-=n;mktS.pile+=n}}
   // pad (kilit aç)
   const pads=[];
   for(let i=1;i<4;i++)if(!mktS.un[i]&&mktS.un[i-1])pads.push({key:'p'+i,x:mkSx(i),y:MK_SY,c:MKT_P[i].c,done:()=>{mktS.un[i]=1;G.st[i].n=2;G.sh[i].n=0}});
-  MKT_PD.forEach(p=>{if(!mktS.hp[p.k])pads.push({key:p.k,x:p.x,y:p.y,c:p.c,done:()=>{mktS.hp[p.k]=1}})});
+  MKT_PD.forEach(p=>{if(!mktS.hp[p.k])pads.push({key:p.k,x:p.x,y:p.y,c:p.c*mktMul(),done:()=>{mktS.hp[p.k]=1}})});
   G.pads=pads;
   for(const p of pads){
     if(Math.hypot(me.x-p.x,me.y-p.y)<32){
@@ -7176,9 +7207,10 @@ function mktDraw(G){
   c.save();c.scale(sc,sc);c.translate(G.ox,G.oy);
   const y0=-G.oy-4,y1=MK_H+G.oy+4;
   // zemin (tahta)
-  for(let y=Math.floor(y0/40)*40;y<y1;y+=40)for(let x=-40;x<MK_W+40;x+=40){c.fillStyle=((x/40+y/40)&1)?'#e8cfa0':'#dfc38f';c.fillRect(x,y,40,40)}
+  for(let y=Math.floor(y0/40)*40;y<y1;y+=40)for(let x=-40;x<MK_W+40;x+=40){c.fillStyle=((x/40+y/40)&1)?MKT_R[mktS.reg].fl[0]:MKT_R[mktS.reg].fl[1];c.fillRect(x,y,40,40)}
   // duvar
-  c.fillStyle='#8b5e3c';c.fillRect(-60,y0,MK_W+120,70-y0);c.fillStyle='#a8744a';c.fillRect(-60,y0,MK_W+120,64-y0);c.fillStyle='rgba(0,0,0,.25)';c.fillRect(-60,64,MK_W+120,6);
+  c.fillStyle=MKT_R[mktS.reg].wl[1];c.fillRect(-60,y0,MK_W+120,70-y0);c.fillStyle=MKT_R[mktS.reg].wl[0];c.fillRect(-60,y0,MK_W+120,64-y0);
+  {c.font='26px sans-serif';c.textAlign='center';c.textBaseline='middle';MKT_R[mktS.reg].dc.forEach((e,i)=>{if(mktS.dec[mktS.reg+'_'+i])c.fillText(e,[100,180,260][i],34)})}c.fillStyle='rgba(0,0,0,.25)';c.fillRect(-60,64,MK_W+120,6);
   // dışarısı
   c.fillStyle='#3b3350';c.fillRect(-60,618,MK_W+120,y1-618);c.fillStyle='#a8744a';c.fillRect(-60,614,MK_W+120,6);
   c.fillStyle='#c0392b';rr(c,MK_DX-34,606,68,16,6);c.fill();c.fillStyle='#fff';c.font='bold 10px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(trStr('GİRİŞ'),MK_DX,614);
@@ -7222,7 +7254,7 @@ function mktDraw(G){
     c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=3;c.setLineDash([6,5]);c.beginPath();c.arc(p.x,p.y,27,0,6.283);c.stroke();c.setLineDash([]);
     if(fr>0){c.strokeStyle='#fde047';c.lineWidth=5;c.beginPath();c.arc(p.x,p.y,27,-1.5708,-1.5708+6.283*fr);c.stroke()}
     c.fillStyle='#fff';c.font='24px sans-serif';c.fillText(isP?MKT_P[+p.key[1]].src:MKT_PD.find(q=>q.k===p.key).e,p.x,p.y-2);
-    const t='🪙 '+(p.c-paid);c.font='bold 11px sans-serif';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.6)';c.strokeText(t,p.x,p.y+40);c.fillStyle='#fde047';c.fillText(t,p.x,p.y+40);
+    const t='🪙 '+fmt(p.c-paid);c.font='bold 11px sans-serif';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.6)';c.strokeText(t,p.x,p.y+40);c.fillStyle='#fde047';c.fillText(t,p.x,p.y+40);
     if(!isP){const nm=trStr(MKT_PD.find(q=>q.k===p.key).n);c.fillStyle='#fff';c.strokeText(nm,p.x,p.y-38);c.fillText(nm,p.x,p.y-38)}
   }
   // kişiler: y'ye göre sırala
@@ -9610,6 +9642,23 @@ Joystick ile gez, ürünleri raflara taşı!|Walk with the joystick, carry goods
 GİRİŞ|ENTRANCE|ENTRADA|ENTRADA|EINGANG|ENTRÉE|ВХОД|MASUK
 Kasa|Register|Caja|Caixa|Kasse|Caisse|Касса|Kasir
 Kasiyer|Cashier|Cajero|Caixa|Kassierer|Caissier|Кассир|Kasir
+Bakkal|Grocery|Tienda|Mercearia|Kiosk|Épicerie|Бакалея|Warung
+Süpermarket|Supermarket|Supermercado|Supermercado|Supermarkt|Supermarché|Супермаркет|Supermarket
+Pazar|Bazaar|Mercado|Feira|Basar|Bazar|Базар|Pasar
+AVM|Mall|Centro comercial|Shopping|Einkaufszentrum|Centre commercial|ТЦ|Mal
+Havaalanı Dükkânı|Airport Shop|Tienda del aeropuerto|Loja do aeroporto|Flughafenshop|Boutique d'aéroport|Магазин в аэропорту|Toko Bandara
+Yeni Şube|New Branch|Nueva sucursal|Nova filial|Neue Filiale|Nouvelle succursale|Новый филиал|Cabang Baru
+Gerekli seviye|Required level|Nivel requerido|Nível necessário|Benötigtes Level|Niveau requis|Нужен уровень|Level dibutuhkan
+Dekor|Decor|Decoración|Decoração|Deko|Déco|Декор|Dekorasi
+Marka Değeri|Brand Value|Valor de marca|Valor da marca|Markenwert|Valeur de marque|Ценность бренда|Nilai Merek
+Satış ve şube gelirini artırır (sınırsız)|Boosts sales and branch income (unlimited)|Aumenta ventas e ingresos de sucursales (ilimitado)|Aumenta vendas e renda das filiais (ilimitado)|Steigert Verkauf und Filialeinnahmen (unbegrenzt)|Augmente ventes et revenus des succursales (illimité)|Увеличивает продажи и доход филиалов (без предела)|Naikkan penjualan dan pendapatan cabang (tanpa batas)
+Marketin görünümü güzelleşir, satışlar artar|The shop looks nicer and sells more|La tienda se ve mejor y vende más|A loja fica mais bonita e vende mais|Der Laden sieht schöner aus und verkauft mehr|La boutique est plus belle et vend plus|Магазин выглядит лучше и продаёт больше|Toko lebih cantik dan lebih laku
+Yeni ürünler, çok daha yüksek kazanç. Şuanki şube pasif gelir getirir.|New products, much higher income. Your current branch earns passive income.|Nuevos productos, ganancias mucho mayores. La sucursal actual da ingresos pasivos.|Novos produtos, ganhos bem maiores. A filial atual gera renda passiva.|Neue Produkte, viel mehr Gewinn. Die jetzige Filiale bringt passives Einkommen.|Nouveaux produits, gains bien plus élevés. La succursale actuelle rapporte un revenu passif.|Новые товары, намного больше дохода. Текущий филиал приносит пассивный доход.|Produk baru, untung jauh lebih besar. Cabang saat ini memberi pendapatan pasif.
+Eski şubelerin pasif geliri|Passive income of old branches|Ingreso pasivo de sucursales antiguas|Renda passiva das filiais antigas|Passives Einkommen alter Filialen|Revenu passif des anciennes succursales|Пассивный доход старых филиалов|Pendapatan pasif cabang lama
+dk|min|min|min|Min.|min|мин|mnt
+Tüm şubeler açık! Marka Değeri sınırsız gelişir.|All branches open! Brand Value upgrades forever.|¡Todas las sucursales abiertas! El valor de marca mejora sin límite.|Todas as filiais abertas! O valor da marca evolui sem limite.|Alle Filialen offen! Der Markenwert wächst unbegrenzt.|Toutes les succursales sont ouvertes ! La valeur de marque progresse sans limite.|Все филиалы открыты! Ценность бренда растёт без предела.|Semua cabang terbuka! Nilai Merek bisa naik tanpa batas.
+Dekor eklendi!|Decor added!|¡Decoración añadida!|Decoração adicionada!|Deko hinzugefügt!|Déco ajoutée !|Декор добавлен!|Dekorasi ditambahkan!
+Şube geliri|Branch income|Ingreso de sucursales|Renda das filiais|Filialeinnahmen|Revenu des succursales|Доход филиалов|Pendapatan cabang
 Çırak|Apprentice|Aprendiz|Aprendiz|Lehrling|Apprenti|Помощник|Magang
 Market Ustası Çırağı|Market Master Apprentice|Aprendiz del Maestro del Mercado|Aprendiz do Mestre do Mercado|Lehrling des Marktmeisters|Apprenti Maître du Marché|Ученик мастера магазина|Magang Master Minimarket
 Market Ustası Ustası|Market Master Expert|Experto del Maestro del Mercado|Especialista do Mestre do Mercado|Meister des Marktmeisters|Expert Maître du Marché|Эксперт мастера магазина|Ahli Master Minimarket
