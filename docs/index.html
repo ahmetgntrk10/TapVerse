@@ -4569,6 +4569,8 @@ function lkFrame(now){
   cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
 })();
 $('cardLk').onclick=()=>openLobby('lk');
+document.head.insertAdjacentHTML('beforeend','<style>#cardLk{grid-column:1/-1;order:-1;flex-direction:row;text-align:left;min-height:150px;padding:18px;gap:16px;box-shadow:0 12px 30px rgba(0,0,0,.5),0 0 0 2px rgba(255,211,77,.55),inset 0 1px 0 rgba(255,255,255,.2)}#cardLk .gicon{width:92px;height:92px;font-size:54px}#cardLk .gtx{text-align:left;width:auto;flex:1}#cardLk .gtx b{font-size:23px}#cardLk .gtx small{display:block;font-size:13px;margin:6px 0 8px}#cardLk .gplay{display:flex}.gbadge{position:absolute;top:10px;right:12px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(255,211,77,.95);color:#4a2c00}</style>');
+$('cardLk').insertAdjacentHTML('beforeend','<span class="gbadge">✨ Bize özel</span>');
 $('lk_back').onclick=()=>{lk.drag=null;openLobby('lk')};$('lk_wh').onclick=()=>openHub();
 $('lk_rs').onclick=()=>{if(lk.G)lkStart(lk.G.level)};
 $('lk_next').onclick=()=>{const G=lk.G;if(G&&G.failed)lkStart(G.level);else lkStart(lkLevel)};
@@ -6779,6 +6781,7 @@ Uzay|Space|Espacio|Espaço|Weltall|Espace|Космос|Luar Angkasa
 Kristal Mağara|Crystal Cave|Cueva de Cristal|Caverna de Cristal|Kristallhöhle|Grotte de cristal|Кристальная пещера|Gua Kristal
 Her 21 seviyede yeni bir dünya açılır, dünyayı bitirince sandık verir.|A new world opens every 21 levels, and finishing a world gives a chest.|Cada 21 niveles se abre un mundo nuevo y al terminarlo recibes un cofre.|A cada 21 níveis abre um novo mundo, e ao terminá-lo você ganha um baú.|Alle 21 Level öffnet sich eine neue Welt, am Ende gibt es eine Truhe.|Tous les 21 niveaux, un nouveau monde s'ouvre et le terminer donne un coffre.|Каждые 21 уровень открывается новый мир, а за его прохождение дают сундук.|Setiap 21 level dunia baru terbuka, menyelesaikannya memberi peti.
 🎁 Dünya tamam:|🎁 World complete:|🎁 ¡Mundo completado:|🎁 Mundo concluído:|🎁 Welt geschafft:|🎁 Monde terminé :|🎁 Мир пройден:|🎁 Dunia selesai:
+✨ Bize özel|✨ Only here|✨ Solo aquí|✨ Só aqui|✨ Nur hier|✨ Exclusif|✨ Только у нас|✨ Hanya di sini
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];
