@@ -634,8 +634,8 @@ const yestStr=()=>{const d=new Date(Date.now()-864e5);return d.getFullYear()+'-'
 const weekId=()=>{const d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5-4)/7)};
 const weekLeft=()=>{const d=new Date(),dow=(d.getDay()+6)%7;const end=new Date(d.getFullYear(),d.getMonth(),d.getDate()+(7-dow));return Math.max(0,end-d)};
 // Oyun tablosu: n=ad, e=simge, w=ödülün yatacağı cüzdan (parası olmayan oyunlar Sonsuz Koşu cüzdanına yazar)
-const QG={run:{n:'Sonsuz Koşu',e:'🏃',w:'run'},maze:{n:'Labirent',e:'🌀',w:'maze'},city:{n:'Tek Tuş Şehir',e:'🏙️',w:'run'},tiles:{n:'Melodi Karoları',e:'🎹',w:'tiles'},arrows:{n:'Ok Kaçışı',e:'🎯',w:'arrows'},sort:{n:'Su Sıralama',e:'🧪',w:'sort'},clean:{n:'Temizlik',e:'🧼',w:'clean'},ghost:{n:'Hayalet Takım',e:'👻',w:'ghost'},lock:{n:'Kasa Uzmanı',e:'🔐',w:'lock'},shadow:{n:'Gölge Bahçesi',e:'🌙',w:'shadow'},words:{n:'Kelime Çiçeği',e:'🌸',w:'words'},merge:{n:'Yuva Birleştir',e:'🥚',w:'merge'},garden:{n:'Zaman Bahçesi',e:'🌱',w:'garden'},mini:{n:'Mini Oyunlar',e:'🎮',w:'run'},any:{n:'Genel',e:'⭐',w:'run'}};
-const WNAME={words:'Kelime Çiçeği',run:'Sonsuz Koşu',maze:'Labirent',tiles:'Melodi Karoları',arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik',ghost:'Hayalet Takım',lock:'Kasa Uzmanı',shadow:'Gölge Bahçesi',merge:'Yuva Birleştir',garden:'Zaman Bahçesi'};
+const QG={run:{n:'Sonsuz Koşu',e:'🏃',w:'run'},maze:{n:'Labirent',e:'🌀',w:'maze'},city:{n:'Tek Tuş Şehir',e:'🏙️',w:'run'},tiles:{n:'Melodi Karoları',e:'🎹',w:'tiles'},arrows:{n:'Ok Kaçışı',e:'🎯',w:'arrows'},sort:{n:'Su Sıralama',e:'🧪',w:'sort'},clean:{n:'Temizlik',e:'🧼',w:'clean'},ghost:{n:'Hayalet Takım',e:'👻',w:'ghost'},lock:{n:'Kasa Uzmanı',e:'🔐',w:'lock'},shadow:{n:'Gölge Bahçesi',e:'🌙',w:'shadow'},words:{n:'Kelime Çiçeği',e:'🌸',w:'words'},merge:{n:'Yuva Birleştir',e:'🥚',w:'merge'},garden:{n:'Zaman Bahçesi',e:'🌱',w:'garden'},sound:{n:'Ses Avcısı',e:'🎧',w:'sound'},mini:{n:'Mini Oyunlar',e:'🎮',w:'run'},any:{n:'Genel',e:'⭐',w:'run'}};
+const WNAME={words:'Kelime Çiçeği',run:'Sonsuz Koşu',maze:'Labirent',tiles:'Melodi Karoları',arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik',ghost:'Hayalet Takım',lock:'Kasa Uzmanı',shadow:'Gölge Bahçesi',merge:'Yuva Birleştir',garden:'Zaman Bahçesi',sound:'Ses Avcısı'};
 // t: günlük [kolay,orta,zor], w: haftalık [kolay,orta,zor], x: metin ({n} sayı yerine geçer)
 const QT=[
  {k:'play',g:'run',m:'sum',x:'{n} kez koş',t:[2,4,8],w:[8,16,30]},
@@ -662,6 +662,7 @@ const QT=[
  {k:'words',g:'words',m:'sum',x:'{n} kelime seviyesi bitir',t:[2,4,7],w:[8,16,28]},
  {k:'merge',g:'merge',m:'sum',x:'{n} sipariş teslim et',t:[2,4,7],w:[8,16,28]},
  {k:'garden',g:'garden',m:'sum',x:'{n} hasat yap',t:[6,12,20],w:[30,60,100]},
+ {k:'sound',g:'sound',m:'sum',x:'{n} ses seviyesi bitir',t:[2,4,7],w:[8,16,28]},
  {k:'mgplay',g:'mini',m:'sum',x:'{n} tur oyna',t:[3,6,12],w:[12,25,45]},
  {k:'diff',g:'any',m:'diff',x:'{n} farklı oyun oyna',t:[2,3,5],w:[4,7,10]}
 ];
@@ -669,7 +670,7 @@ const WORLD_TX=['','',"Buz Dünyası'na ulaş","Çöl Dünyası'na ulaş","Lav D
 const QRW={d:[40,90,180],w:[120,280,550]},QRF={run:1.5};
 const DIFFN=['Kolay','Orta','Zor'],DIFFC=['#52e08a','#ffd34d','#ff6b7a'];
 const GIFTS=[30,40,50,60,80,100,150];
-const GOF={play:'run',score:'run',runcoins:'run',c_run:'run',jump:'run',slide:'run',power:'run',world:'run',boss:'run',maze:'maze',c_maze:'maze',city:'city',cjump:'city',tile:'tiles',song:'tiles',c_tiles:'tiles',arrows:'arrows',c_arrows:'arrows',sort:'sort',c_sort:'sort',clean:'clean',c_clean:'clean',ghost:'ghost',c_ghost:'ghost',lock:'lock',c_lock:'lock',shadow:'shadow',c_shadow:'shadow',words:'words',c_words:'words',merge:'merge',c_merge:'merge',garden:'garden',c_garden:'garden'};
+const GOF={play:'run',score:'run',runcoins:'run',c_run:'run',jump:'run',slide:'run',power:'run',world:'run',boss:'run',maze:'maze',c_maze:'maze',city:'city',cjump:'city',tile:'tiles',song:'tiles',c_tiles:'tiles',arrows:'arrows',c_arrows:'arrows',sort:'sort',c_sort:'sort',clean:'clean',c_clean:'clean',ghost:'ghost',c_ghost:'ghost',lock:'lock',c_lock:'lock',shadow:'shadow',c_shadow:'shadow',words:'words',c_words:'words',merge:'merge',c_merge:'merge',garden:'garden',c_garden:'garden',sound:'sound',c_sound:'sound'};
 function gameOf(t){return GOF[t]||(t.indexOf('g_')===0?t.slice(2):t.indexOf('gp_')===0?t.slice(3):null)}
 let daily=ld('tv_daily',null),weekly=ld('tv_weekly',null),streak=ld('tv_streak',{last:'',count:0});
 let gs=ld('tv_gs',{});if(!gs.pl)gs.pl={};
@@ -4299,6 +4300,7 @@ function freeBig(){
   if(state!=='sort'){so.G=null;const c=$('c_so');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='clean'){cl.G=null;const c=$('c_cl');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='shadow'){sg.G=null;const c=$('c_sg');if(c&&c.width>1){c.width=1;c.height=1}}
+  if(state!=='hunt'){av.G=null;av.p=null;const c=$('c_av');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='garden'){gd.G=null;const c=$('c_gd');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='merge'){yv.G=null;const c=$('c_yv');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='words'){wd.G=null;const c=$('c_wd');if(c&&c.width>1){c.width=1;c.height=1}}
@@ -5367,6 +5369,234 @@ $('c_gd').addEventListener('pointerdown',e=>{
 });
 $('cardGd').onclick=()=>openLobby('gd');
 
+// ---- Ses Avcısı (sesi dinle, ateş böceğini bul) ----
+WN.sound='Ses Avcısı';WKEYS.push('sound');
+let avLevel=ld('tv_avlevel',1),avHard=ld('tv_avhard',false);
+const av={G:null,raf:false,last:0,p:null};
+document.body.insertAdjacentHTML('beforeend','<div id="hunt" class="hidden mgscr"><canvas id="c_av" style="touch-action:none"></canvas>'
+ +'<div class="mtop"><button id="av_back" class="ibtn alt">‹</button><div class="pill" id="av_lv">Seviye 1</div><div class="pill sm" id="av_tr">🎯 5</div><div class="pill sm" id="av_nd">✨ 0/1</div><div class="pill sm hidden" id="av_tm">⏱ 40</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
+ +'<div class="sobar"><button id="av_hard"><i>🎧</i><span>Zor Mod</span></button><button id="av_hint"><i>💡</i><span id="av_hn">İpucu</span></button><button id="av_rs"><i>🔄</i><span>Yeniden</span></button></div>'
+ +'<div id="av_win" class="overlay hidden"><div class="card"><div class="ttl" id="av_t" style="color:var(--gold)">Yakaladın! ✨</div><div id="av_wi" style="color:var(--mute);margin:8px 0;white-space:pre-line"></div><button id="av_next" class="gold">▶ Sonraki Seviye</button><button id="av_dbl" class="alt">📺 Altını 2 kat yap</button><button id="av_wh" class="alt">🎮 Oyunlar</button></div></div></div>');
+document.head.insertAdjacentHTML('beforeend','<style>#av_lv,#av_tr,#av_nd,#av_tm{white-space:nowrap}#av_lv{font-size:14px;padding:6px 10px}#hunt .mtop{gap:4px;left:54px;right:8px}#hunt .mtop .pill{padding:5px 8px;font-size:12px}#hunt .mtop .pill.sm{padding:5px 7px;font-size:12px}#av_lv{font-size:12px!important}</style>');
+SCR.push('hunt');
+$('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardAv" style="background:linear-gradient(135deg,#1e1b4b,#4338ca 55%,#0e7490)"><div class="gicon">🎧</div><div class="gtx"><b>Ses Avcısı</b><small>Kulaklığı tak, sesi dinle, ateş böceğini bul!</small><span class="gtag" id="hsAv">Seviye 1</span></div><div class="gplay" style="color:#4338ca">▶</div></div>');
+ACH3('t_av','sound','{n} seviye bitir',()=>avLevel-1,[5,25,60],RS);
+const _lbCfgAv=lbCfg;
+lbCfg=function(id){
+  if(id==='av'){const wl=k=>'🪙 '+(k===curW?totalCoins:(WALLET[k]||0));return{emo:'🎧',t:'Ses Avcısı',d:'Parmağını ekranda gezdir: ses hızlanır ve tizleşirse ateş böceğine yaklaşıyorsun. Sağ-sol kulaklıktan yönü söyler, parlak ses yukarı demektir. Doğru yerde parmağını kaldır! Sahte seslere dikkat. Kulaklıkla çok daha eğlenceli. Her 10. seviye BOSS!',i:'Seviye '+avLevel,w:wl('sound'),wk:'sound',play:()=>openAv(avLevel),x:[],levels:true,cur:()=>avLevel,open:openAv}}
+  return _lbCfgAv(id);
+};
+function avGen(level){
+  const df=dfx(level),boss=isBoss(level),rest=isRest(level),rnd=mzRng(level*7717+91);
+  const r=Math.max(0.065,0.14-df*0.0028)*(rest?1.25:1)*(boss?0.9:1);
+  const tries=(df<15?5:df<30?4:3)+(rest?1:0);
+  const need=boss?3:(df>=25?2:1);
+  const dec=df>=5?Math.min(4,1+Math.floor((df-5)/7)):0;
+  const spd=df>=10?Math.min(0.1,0.025+(df-10)*0.003)*(boss?1.5:1):(boss?0.04:0);
+  const timeL=df>=8?Math.max(22,60-df*0.7)*need:0;
+  return{df,boss,rest,r,tries,need,dec,spd,timeL,seed:rnd};
+}
+function avPlace(G,avoid){
+  const m=0.12;let x,y,n=0;
+  do{x=G.ax+G.aw*(m+G.rnd()*(1-2*m));y=G.ay+G.ah*(m+G.rnd()*(1-2*m));n++}
+  while(n<40&&avoid.some(p=>Math.hypot(p.x-x,p.y-y)>=0&&Math.hypot(p.x-x,p.y-y)<G.diag*0.2));
+  const a=G.rnd()*6.283;return{x,y,vx:Math.cos(a),vy:Math.sin(a)};
+}
+function avStart(lv){
+  const L=lv||avLevel,g=avGen(L);
+  const G=Object.assign({level:L,got:0,tries:g.tries,tl:g.timeL,won:false,failed:false,t:0,hint:0,fx:[],parts:[],stars:[],msg:'',msgT:0,rip:[],pingT:0,hit:0,shake:0,banner:2.2,revealT:0,rnd:g.seed},g);
+  av.G=G;av.p=null;avLayout(G);
+  G.tgt=avPlace(G,[]);G.decs=[];
+  for(let i=0;i<G.dec;i++)G.decs.push(avPlace(G,[G.tgt].concat(G.decs)));
+  for(let i=0;i<40;i++)G.stars.push({x:Math.random()*G.W,y:Math.random()*G.H,s:Math.random()*2+.5,p:Math.random()*6});
+  avHud();show('av_win',false);
+  if(!av.raf){av.raf=true;av.last=performance.now();requestAnimationFrame(avFrame)}
+}
+function openAv(lv){state='hunt';useW('sound');stopMusic();hideAll();show('hunt',true);avStart(lv)}
+function avLayout(G){
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,1.8),cv=$('c_av');
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
+  G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;
+  G.ax=10;G.ay=70;G.aw=W-20;G.ah=H-70-100;G.diag=Math.hypot(G.aw,G.ah);
+}
+function avHud(){
+  const G=av.G;if(!G)return;
+  $('av_lv').textContent=G.boss?'🔥 BOSS '+G.level:G.rest?'😌 Kolay '+G.level:'Seviye '+G.level;
+  $('av_tr').textContent='🎯 '+Math.max(0,G.tries);
+  $('av_nd').textContent='✨ '+G.got+'/'+G.need;
+  const tm=$('av_tm');tm.classList.toggle('hidden',!G.timeL);if(G.timeL)tm.textContent='⏱ '+Math.ceil(Math.max(0,G.tl));
+  $('av_hard').classList.toggle('off',!avHard);$('av_hard').querySelector('span').textContent=avHard?'Zor Mod ✓':'Zor Mod';
+  $('av_hn').textContent=totalCoins>=10?'İpucu 🪙10':'İpucu 📺';
+  try{$('hsAv').textContent='Seviye '+avLevel}catch(e){}
+}
+function avMsg(G,t,d){G.msg=t;G.msgT=d||1.2}
+function avPing(freq,pan,vol,type,dur,bright){
+  if(muted)return;const a=ac();if(!a)return;
+  try{
+    const t0=a.currentTime,g=a.createGain();
+    g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+0.008);g.gain.exponentialRampToValueAtTime(0.0005,t0+dur);
+    let out=a.destination;
+    if(a.createStereoPanner){const p=a.createStereoPanner();p.pan.value=Math.max(-1,Math.min(1,pan));p.connect(a.destination);out=p}
+    g.connect(out);
+    const o=a.createOscillator();o.type=type;o.frequency.setValueAtTime(freq,t0);o.connect(g);o.start(t0);o.stop(t0+dur+0.02);
+    if(bright>0.05){const g2=a.createGain();g2.gain.value=bright;const o2=a.createOscillator();o2.type='sine';o2.frequency.setValueAtTime(freq*2,t0);o2.connect(g2);g2.connect(g);o2.start(t0);o2.stop(t0+dur+0.02)}
+  }catch(e){}
+}
+function avSrc(G,p){ // en yakın kaynak
+  let best=G.tgt,bd=Math.hypot(G.tgt.x-p.x,G.tgt.y-p.y),dec=false;
+  for(const d of G.decs){const q=Math.hypot(d.x-p.x,d.y-p.y);if(q<bd){bd=q;best=d;dec=true}}
+  return{s:best,d:bd,dec};
+}
+function avHeat(G,p){const d=Math.hypot(G.tgt.x-p.x,G.tgt.y-p.y)/G.diag;return Math.max(0,Math.min(1,1-d/0.55))}
+function avUpdate(G,dt){
+  G.t+=dt;G.banner=Math.max(0,G.banner-dt);G.msgT=Math.max(0,G.msgT-dt);G.shake=Math.max(0,G.shake-dt);G.revealT=Math.max(0,G.revealT-dt);
+  for(const p of G.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=(p.g||0)*dt;p.l-=dt}G.parts=G.parts.filter(p=>p.l>0);
+  for(const r of G.rip)r.t+=dt;G.rip=G.rip.filter(r=>r.t<r.d);
+  if(G.won||G.failed)return;
+  if(G.spd>0){const mv=G.spd*G.diag*dt;
+    for(const o of [G.tgt].concat(G.decs.slice(0,1))){o.x+=o.vx*mv;o.y+=o.vy*mv;
+      if(o.x<G.ax+10){o.x=G.ax+10;o.vx=Math.abs(o.vx)}if(o.x>G.ax+G.aw-10){o.x=G.ax+G.aw-10;o.vx=-Math.abs(o.vx)}
+      if(o.y<G.ay+10){o.y=G.ay+10;o.vy=Math.abs(o.vy)}if(o.y>G.ay+G.ah-10){o.y=G.ay+G.ah-10;o.vy=-Math.abs(o.vy)}}}
+  if(G.timeL&&av.p){G.tl-=dt;if(G.tl<=0){G.tl=0;avFail(G,'Süre bitti!')}avHud()}
+  // ses
+  const p=av.p;
+  if(p){
+    G.pingT-=dt;
+    if(G.pingT<=0){
+      const s=avSrc(G,p),nd=Math.min(1,s.d/(G.diag*0.6));
+      G.pingT=0.1+0.75*nd;
+      const pan=(s.s.x-p.x)/(G.W*0.35),dy=s.s.y-p.y,br=Math.max(0,Math.min(1,0.5-dy/(G.H*0.7)))*0.6;
+      if(s.dec)avPing(170+120*(1-nd),pan,0.08,'square',0.12,0);
+      else avPing(380+760*(1-nd),pan,0.16,'sine',0.14,br);
+      if(!s.dec&&nd<0.35)buzz(8);
+      G.rip.push({x:p.x,y:p.y,t:0,d:0.55,c:s.dec?'#a78bfa':avHard?'#ffffff':avCol(1-nd)});
+    }
+  }
+}
+function avCol(h){ // 0 soğuk mavi → 1 sıcak kırmızı
+  const a=[[56,189,248],[34,211,238],[253,224,71],[251,146,60],[239,68,68]],x=h*4,i=Math.min(3,Math.floor(x)),f=x-i;
+  const c=a[i].map((v,k)=>Math.round(v+(a[i+1][k]-v)*f));return 'rgb('+c.join(',')+')';
+}
+function avAttempt(G,p){
+  if(G.won||G.failed)return;
+  const dT=Math.hypot(G.tgt.x-p.x,G.tgt.y-p.y),R=G.r*G.diag;
+  if(dT<=R){
+    G.got++;sfx.coin();buzz(40);
+    for(let k=0;k<26;k++){const a=Math.random()*6.283,v=60+Math.random()*200;G.parts.push({x:G.tgt.x,y:G.tgt.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:.9,m:.9,c:k%2?'#fde047':'#a7f3d0',r:2+Math.random()*3,g:60})}
+    tone(700,1500,0.25,'triangle',0.12);tone(1000,1800,0.25,'sine',0.08,0.12);
+    if(G.got>=G.need){avWin(G)}else{avMsg(G,'✨ '+G.got+'/'+G.need,1);const old=G.tgt;G.tgt=avPlace(G,[old]);G.fx=[]}
+    avHud();return;
+  }
+  G.tries--;G.shake=0.3;buzz(60);
+  let near=false;for(const d of G.decs)if(Math.hypot(d.x-p.x,d.y-p.y)<=R){near=true}
+  const nd=dT/G.diag;
+  const w=near?'Sahte ses! 🟣':nd<0.1?'Çok sıcak! 🔥':nd<0.2?'Sıcak':nd<0.35?'Ilık':'Soğuk ❄️';
+  avMsg(G,w,1.3);tone(300,150,0.25,'sawtooth',0.07);
+  if(G.tries<=0){G.revealT=2.5;avFail(G,'Haklar bitti!')}
+  avHud();
+}
+function avWin(G){
+  G.won=true;
+  const base=Math.round((8+G.df*0.8)*(G.boss?1.6:1)*(avHard?1.5:1)+G.tries);
+  G.reward=Math.max(4,base);
+  credit('sound',G.reward);stats.coins+=G.reward;addProg('coins',G.reward);addProg('c_sound',G.reward);addProg('sound',1);
+  if(G.level>=avLevel){avLevel=G.level+1;sv('tv_avlevel',avLevel)}
+  saveDaily();checkAch();refreshCoins();sfx.power();
+  $('av_t').textContent=G.boss?'BOSS yenildi! 🔥':'Yakaladın! ✨';
+  $('av_wi').textContent='🪙 +'+G.reward+(avHard?' · Zor mod x1.5':'');
+  $('av_next').textContent='▶ Sonraki Seviye';$('av_dbl').textContent='📺 Altını 2 kat yap';$('av_dbl').classList.remove('hidden');
+  setTimeout(()=>{if(state==='hunt'&&av.G===G)show('av_win',true)},900);
+}
+function avFail(G,why){
+  if(G.failed||G.won)return;G.failed=true;
+  $('av_t').textContent=why;$('av_wi').textContent='Ateş böceği burada saklanıyordu ✨';
+  $('av_next').textContent='🔄 Tekrar Dene';$('av_dbl').textContent='📺 +2 hak ile devam';$('av_dbl').classList.remove('hidden');
+  G.revealT=3;
+  setTimeout(()=>{if(state==='hunt'&&av.G===G)show('av_win',true)},1100);
+}
+function avDraw(G){
+  const c=G.ctx;if(!c)return;const d=G.dpr,W=G.W,H=G.H,t=G.t;
+  c.setTransform(d,0,0,d,0,0);
+  const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#0b1030');bg.addColorStop(.6,'#1a1448');bg.addColorStop(1,'#0a2a3a');
+  c.fillStyle=bg;c.fillRect(0,0,W,H);
+  for(const s of G.stars){c.globalAlpha=.25+.25*Math.sin(t*1.5+s.p);c.fillStyle='#fff';c.fillRect(s.x,s.y,s.s,s.s)}
+  c.globalAlpha=1;
+  // alan çerçevesi
+  c.strokeStyle='rgba(125,211,252,.25)';c.lineWidth=2;c.setLineDash([8,8]);rr(c,G.ax,G.ay,G.aw,G.ah,18);c.stroke();c.setLineDash([]);
+  const sx=G.shake>0?Math.sin(t*80)*4:0;
+  c.save();c.translate(sx,0);
+  for(const r of G.rip){const k=r.t/r.d;c.globalAlpha=(1-k)*.7;c.strokeStyle=r.c;c.lineWidth=3;c.beginPath();c.arc(r.x,r.y,14+k*70,0,6.283);c.stroke()}
+  c.globalAlpha=1;
+  const p=av.p;
+  if(p&&!G.won&&!G.failed){
+    const h=avHeat(G,p);
+    if(!avHard){
+      const col=avCol(h);const g=c.createRadialGradient(p.x,p.y,0,p.x,p.y,70);g.addColorStop(0,col);g.addColorStop(1,'rgba(0,0,0,0)');
+      c.globalAlpha=.55;c.fillStyle=g;c.fillRect(p.x-70,p.y-70,140,140);c.globalAlpha=1;
+    }
+    c.fillStyle='#fff';c.beginPath();c.arc(p.x,p.y,9,0,6.283);c.fill();
+    c.strokeStyle='rgba(255,255,255,.8)';c.lineWidth=2;c.beginPath();c.arc(p.x,p.y,G.r*G.diag,0,6.283);c.stroke();
+    if(p.down){const q=Math.min(1,(G.t-p.t0)/0.35);c.strokeStyle='rgba(253,224,71,'+(q>=1?.95:.4)+')';c.lineWidth=3;c.beginPath();c.arc(p.x,p.y,G.r*G.diag+7,-1.57,-1.57+6.283*q);c.stroke()}
+  }
+  // ipucu / açığa çıkarma
+  if(G.hint>0&&!G.won){const R=G.diag*0.22,fx=G.hx,fy=G.hy;c.globalAlpha=.35+.2*Math.sin(t*4);c.strokeStyle='#fde047';c.lineWidth=3;c.setLineDash([6,6]);c.beginPath();c.arc(fx,fy,R,0,6.283);c.stroke();c.setLineDash([]);c.globalAlpha=1}
+  if(G.revealT>0||G.won){const k=G.won?1:Math.min(1,G.revealT);c.globalAlpha=k;c.font='34px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillStyle='#fff';
+    c.shadowColor='#fde047';c.shadowBlur=24;c.fillText('✨',G.tgt.x,G.tgt.y+Math.sin(t*5)*3);c.shadowBlur=0;c.globalAlpha=1}
+  for(const q of G.parts){c.globalAlpha=Math.max(0,q.l/q.m);c.fillStyle=q.c;c.beginPath();c.arc(q.x,q.y,q.r,0,6.283);c.fill()}
+  c.globalAlpha=1;c.restore();
+  c.textAlign='center';c.textBaseline='middle';
+  // sıcaklık çubuğu
+  if(!avHard&&p&&!G.won&&!G.failed){const h=avHeat(G,p),bw=W*0.5,bx=(W-bw)/2,by=G.ay+G.ah+14;
+    c.fillStyle='rgba(255,255,255,.12)';rr(c,bx,by,bw,10,5);c.fill();
+    const gr=c.createLinearGradient(bx,0,bx+bw,0);gr.addColorStop(0,'#38bdf8');gr.addColorStop(.5,'#fde047');gr.addColorStop(1,'#ef4444');
+    c.fillStyle=gr;rr(c,bx,by,Math.max(8,bw*h),10,5);c.fill()}
+  if(G.msgT>0){c.globalAlpha=Math.min(1,G.msgT*2);c.font='bold 24px sans-serif';c.lineWidth=5;c.strokeStyle='rgba(0,0,0,.7)';const tx=trStr(G.msg);c.strokeText(tx,W/2,H*0.3);c.fillStyle='#fff';c.fillText(tx,W/2,H*0.3);c.globalAlpha=1}
+  if(G.banner>0&&G.boss){c.globalAlpha=Math.min(1,G.banner);c.font='bold 30px sans-serif';c.fillStyle='#f0abfc';c.lineWidth=5;c.strokeStyle='rgba(0,0,0,.6)';const tx=trStr('🔥 BOSS! 3 ateş böceği');c.strokeText(tx,W/2,H*0.4);c.fillText(tx,W/2,H*0.4);c.globalAlpha=1}
+  if(G.level<=2&&!p&&!G.won&&!G.failed){c.fillStyle='rgba(255,255,255,.85)';c.font='bold 16px sans-serif';
+    const l=[trStr('Parmağını ekranda gezdir ve dinle.'),trStr('Ses hızlanıp tizleşirse yaklaşıyorsun.'),trStr('Doğru yerde parmağını kaldır!')];
+    l.forEach((s,i)=>c.fillText(s,W/2,H*0.42+i*26));
+    if(G.level===1){c.font='bold 13px sans-serif';c.fillStyle='rgba(125,211,252,.9)';c.fillText(trStr('🎧 Kulaklık önerilir'),W/2,H*0.42+100)}}
+}
+function avFrame(now){
+  if(state!=='hunt'||!av.G){av.raf=false;return}
+  requestAnimationFrame(avFrame);
+  const dt=Math.max(0,Math.min((now-av.last)/1000||0,0.05));av.last=now;
+  avUpdate(av.G,dt);avDraw(av.G);
+}
+(function(){
+  const cv=$('c_av');
+  const pt=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}};
+  cv.addEventListener('pointerdown',e=>{
+    const G=av.G;if(state!=='hunt'||!G||G.won||G.failed)return;ac();
+    const q=pt(e);av.p={x:q.x,y:q.y,down:true,id:e.pointerId,t0:G.t,path:0};G.pingT=0;
+    try{cv.setPointerCapture(e.pointerId)}catch(_){}
+  });
+  cv.addEventListener('pointermove',e=>{
+    const G=av.G,p=av.p;if(!G||!p||e.pointerId!==p.id)return;const q=pt(e);
+    p.path+=Math.hypot(q.x-p.x,q.y-p.y);p.x=q.x;p.y=q.y;
+  });
+  const up=e=>{
+    const G=av.G,p=av.p;if(!G||!p||e.pointerId!==p.id)return;
+    const held=G.t-p.t0;av.p=null;
+    if(e.type==='pointercancel')return;
+    if(held>=0.35)avAttempt(G,p);
+  };
+  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+})();
+$('av_back').onclick=()=>{av.p=null;openLobby('av')};$('av_wh').onclick=()=>openHub();
+$('av_rs').onclick=()=>{if(av.G)avStart(av.G.level)};
+$('av_next').onclick=()=>{const G=av.G;if(G&&G.failed)avStart(G.level);else avStart(avLevel)};
+$('av_hard').onclick=()=>{avHard=!avHard;sv('tv_avhard',avHard);avHud();toast(avHard?'Zor mod: renk ve çubuk yok, ödül x1.5':'Zor mod kapalı')};
+$('av_hint').onclick=()=>{
+  const G=av.G;if(!G||G.won||G.failed)return;
+  const give=()=>{G.hint=1;const R=G.diag*0.22,a=Math.random()*6.283,r=Math.random()*R*0.6;G.hx=Math.max(G.ax,Math.min(G.ax+G.aw,G.tgt.x+Math.cos(a)*r));G.hy=Math.max(G.ay,Math.min(G.ay+G.ah,G.tgt.y+Math.sin(a)*r));avHud();toast('💡 Ateş böceği daire içinde')};
+  if(totalCoins>=10){credit('sound',-10);refreshCoins();give()}else Ads.rewarded(give);
+};
+$('av_dbl').onclick=()=>{const G=av.G;if(!G)return;
+  if(G.failed){Ads.rewarded(()=>{G.failed=false;G.tries=2;G.tl=G.timeL;G.revealT=0;show('av_win',false);avHud()});return}
+  Ads.rewarded(()=>{credit('sound',G.reward);refreshCoins();$('av_dbl').classList.add('hidden');$('av_wi').textContent+=' · 2 kat yapıldı!'})};
+$('cardAv').onclick=()=>openLobby('av');
+
 // ---- Kelime Çiçeği (harf çarkı kelime bulmaca) ----
 WN.words='Kelime Çiçeği';WKEYS.push('words');
 let wdLevel=ld('tv_wdlevel',1),wdHints=ld('tv_wdh',3),wdSt=ld('tv_wdst',{b:0,g:0,w:0});
@@ -5936,7 +6166,7 @@ const cP=new THREE.Vector3(0,1.7,4.4),cL=new THREE.Vector3(0,0.8,0),dP=new THREE
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min(Math.max((now-last)/1000||0,0),0.05);last=now;
-  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||state==='gh'||state==='lock'||state==='shadow'||state==='words'||state==='merge'||state==='garden'||state==='pause'||MG[state])return;
+  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||state==='gh'||state==='lock'||state==='shadow'||state==='words'||state==='merge'||state==='garden'||state==='hunt'||state==='pause'||MG[state])return;
   if(state==='run'){
     speedMul+=(1-speedMul)*Math.min(1,dt*0.45);
     speed=Math.min(14+score*0.02,40)*speedMul;   // zamanla hızlanır
@@ -6245,8 +6475,8 @@ addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')
 addEventListener('pagehide',pauseRun);
 setInterval(()=>{const on=state==='run';const b=$('pauseBtn');if(b)b.style.display=on?'':'none'},150);
 // ---- Skor tablosu: oyuncu kaydı, haftalık sıralama, benzersiz isim ----
-const LVG={maze:()=>mz.best,ar:()=>arLevel,so:()=>soLevel,cl:()=>clLevel,gh:()=>ghLevel,lk:()=>lkLevel,sg:()=>sgLevel,wd:()=>wdLevel,yv:()=>yvS.pl,gd:()=>gdS.lv};
-const LVL_G=[{id:'maze',e:'🌀',n:'Tek Parmak Labirent'},{id:'ar',e:'🎯',n:'Ok Kaçışı'},{id:'so',e:'🧪',n:'Su Sıralama'},{id:'cl',e:'🧼',n:'Temizlik Simülatörü'},{id:'gh',e:'👻',n:'Hayalet Takım'},{id:'lk',e:'🔐',n:'Kasa Uzmanı'},{id:'sg',e:'🌙',n:'Gölge Bahçesi'},{id:'wd',e:'🌸',n:'Kelime Çiçeği'},{id:'yv',e:'🥚',n:'Yuva Birleştir'},{id:'gd',e:'🌱',n:'Zaman Bahçesi'}];
+const LVG={maze:()=>mz.best,ar:()=>arLevel,so:()=>soLevel,cl:()=>clLevel,gh:()=>ghLevel,lk:()=>lkLevel,sg:()=>sgLevel,wd:()=>wdLevel,yv:()=>yvS.pl,gd:()=>gdS.lv,av:()=>avLevel};
+const LVL_G=[{id:'maze',e:'🌀',n:'Tek Parmak Labirent'},{id:'ar',e:'🎯',n:'Ok Kaçışı'},{id:'so',e:'🧪',n:'Su Sıralama'},{id:'cl',e:'🧼',n:'Temizlik Simülatörü'},{id:'gh',e:'👻',n:'Hayalet Takım'},{id:'lk',e:'🔐',n:'Kasa Uzmanı'},{id:'sg',e:'🌙',n:'Gölge Bahçesi'},{id:'wd',e:'🌸',n:'Kelime Çiçeği'},{id:'yv',e:'🥚',n:'Yuva Birleştir'},{id:'gd',e:'🌱',n:'Zaman Bahçesi'},{id:'av',e:'🎧',n:'Ses Avcısı'}];
 function lbGames(){const a=[{id:'run',e:'🏃',n:'Sonsuz Koşu'},{id:'city',e:'🏙️',n:'Tek Tuş Şehir'}];for(const k in MG)a.push({id:k,e:MG[k].emo,n:MG[k].title});return a.concat(LVL_G)}
 function lbIds(){return lbGames().map(x=>x.id)}
 function lbAll(g){let v=g==='run'?best:g==='city'?cityBest:LVG[g]?LVG[g]():(mgBest[g]||0);return Math.max(0,Math.floor(v)||0)}
@@ -6361,7 +6591,7 @@ $('exitNo').onclick=()=>show('exitOv',false);
 $('exitYes').onclick=()=>{try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()){C.registerPlugin('App').exitApp();return}}catch(e){}show('exitOv',false);try{window.close()}catch(e){}};
 // Açılış animasyonu
 (function(){const s=$('splash');if(!s)return;let done=false;const end=()=>{if(done)return;done=true;s.classList.add('out');setTimeout(()=>s.remove(),500)};s.onclick=end;setTimeout(end,2300)})();
-const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','aq_x','gd_sdx','gd_unx','gd_luok','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','gd_back','lb_back'];
+const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','aq_x','gd_sdx','gd_unx','gd_luok','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','gd_back','av_back','lb_back'];
 function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
 function goBack(){
   if(state==='pause'){resumeRun();return true}
@@ -6398,7 +6628,7 @@ const KB_G={
 };
 const KB_MOUSE=['arrows','sort','clean','job','sky','balloon','blocks'];
 const KB_NM={arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik Simülatörü',job:'Günlük İş',sky:'Gök Adaları',balloon:'Balon Patlat',blocks:'Blok Bulmaca'};
-const KB_L2G={maze:'maze',city:'city',gh:'gh',lk:'lock',sg:'shadow',wd:'-',yv:'-',gd:'-',stack:'stack',snake:'snake',color:'color',flap:'flap',ar:'-',so:'-',cl:'-',sky:'-',balloon:'-',blocks:'-'};
+const KB_L2G={maze:'maze',city:'city',gh:'gh',lk:'lock',sg:'shadow',wd:'-',yv:'-',gd:'-',av:'-',stack:'stack',snake:'snake',color:'color',flap:'flap',ar:'-',so:'-',cl:'-',sky:'-',balloon:'-',blocks:'-'};
 let KBS=ld('tv_keys',{});if(!KBS||typeof KBS!=='object')KBS={};
 let kbOn=false;try{kbOn=matchMedia('(hover:hover) and (pointer:fine)').matches}catch(e){}
 function kbCodes(g,a){return(KBS[g]&&KBS[g][a[0]])||a[3]}
@@ -7529,6 +7759,35 @@ Zaman Bahçesi: {} bahçe seviyesine ulaş|Time Garden: reach garden level {}|Ja
 Büyük Çiftlik|Big Farm|Gran Granja|Grande Fazenda|Großer Hof|Grande Ferme|Большая ферма|Peternakan Besar
 Zaman Bahçesi: {} hasat yap|Time Garden: harvest {} times|Jardín del Tiempo: cosecha {} veces|Jardim do Tempo: colha {} vezes|Zeitgarten: ernte {}-mal|Jardin du Temps : récolte {} fois|Сад времени: собери урожай {} раз|Kebun Waktu: panen {} kali
 {} hasat yap|harvest {} times|cosecha {} veces|colha {} vezes|ernte {}-mal|récolte {} fois|собери урожай {} раз|panen {} kali
+Ses Avcısı|Sound Hunter|Cazador de Sonido|Caçador de Som|Klangjäger|Chasseur de Sons|Охотник за звуком|Pemburu Suara
+Kulaklığı tak, sesi dinle, ateş böceğini bul!|Put on headphones, listen, find the firefly!|¡Ponte auriculares, escucha y encuentra la luciérnaga!|Coloque os fones, ouça e encontre o vaga-lume!|Kopfhörer auf, hören, Glühwürmchen finden!|Mets ton casque, écoute, trouve la luciole !|Надень наушники, слушай, найди светлячка!|Pakai headphone, dengarkan, temukan kunang-kunang!
+Parmağını ekranda gezdir: ses hızlanır ve tizleşirse ateş böceğine yaklaşıyorsun. Sağ-sol kulaklıktan yönü söyler, parlak ses yukarı demektir. Doğru yerde parmağını kaldır! Sahte seslere dikkat. Kulaklıkla çok daha eğlenceli. Her 10. seviye BOSS!|Move your finger around the screen: if the sound speeds up and gets higher, you're getting close to the firefly. Left/right headphone tells the direction, a bright sound means up. Lift your finger at the right spot! Beware of fake sounds. Much more fun with headphones. Every 10th level is a BOSS!|Mueve el dedo por la pantalla: si el sonido se acelera y se vuelve agudo, te acercas a la luciérnaga. El auricular izquierdo/derecho indica la dirección y un sonido brillante significa arriba. ¡Levanta el dedo en el lugar correcto! Cuidado con los sonidos falsos. Con auriculares es mucho más divertido. ¡Cada nivel 10 es un JEFE!|Passe o dedo pela tela: se o som acelerar e ficar agudo, você está perto do vaga-lume. O fone esquerdo/direito indica a direção e som brilhante significa para cima. Levante o dedo no lugar certo! Cuidado com sons falsos. Com fones é muito mais divertido. Todo 10º nível é um CHEFE!|Bewege den Finger über den Bildschirm: Wird der Ton schneller und höher, kommst du dem Glühwürmchen näher. Links/rechts im Kopfhörer zeigt die Richtung, heller Ton heißt oben. Hebe den Finger an der richtigen Stelle! Vorsicht vor falschen Tönen. Mit Kopfhörern macht es viel mehr Spaß. Jedes 10. Level ist ein BOSS!|Promène ton doigt sur l'écran : si le son s'accélère et devient aigu, tu te rapproches de la luciole. Gauche/droite dans le casque indique la direction, un son brillant veut dire en haut. Lève le doigt au bon endroit ! Attention aux faux sons. Bien plus fun avec un casque. Chaque 10e niveau est un BOSS !|Води пальцем по экрану: если звук ускоряется и становится выше — ты приближаешься к светлячку. Левый/правый наушник показывает направление, яркий звук — вверх. Подними палец в нужном месте! Остерегайся ложных звуков. В наушниках гораздо интереснее. Каждый 10-й уровень — БОСС!|Gerakkan jarimu di layar: jika suara makin cepat dan tinggi, kamu makin dekat dengan kunang-kunang. Headphone kiri/kanan menunjukkan arah, suara cerah berarti atas. Angkat jari di tempat yang tepat! Waspada suara palsu. Jauh lebih seru dengan headphone. Setiap level ke-10 adalah BOSS!
+Yakaladın! ✨|Caught it! ✨|¡Lo atrapaste! ✨|Pegou! ✨|Gefangen! ✨|Attrapé ! ✨|Поймал! ✨|Tertangkap! ✨
+BOSS yenildi! 🔥|BOSS defeated! 🔥|¡JEFE derrotado! 🔥|CHEFE derrotado! 🔥|BOSS besiegt! 🔥|BOSS vaincu ! 🔥|БОСС побеждён! 🔥|BOSS dikalahkan! 🔥
+Süre bitti!|Time's up!|¡Se acabó el tiempo!|O tempo acabou!|Zeit abgelaufen!|Temps écoulé !|Время вышло!|Waktu habis!
+Haklar bitti!|Out of tries!|¡Sin intentos!|Sem tentativas!|Keine Versuche mehr!|Plus d'essais !|Попытки кончились!|Percobaan habis!
+Ateş böceği burada saklanıyordu ✨|The firefly was hiding here ✨|La luciérnaga se escondía aquí ✨|O vaga-lume estava escondido aqui ✨|Das Glühwürmchen hat sich hier versteckt ✨|La luciole se cachait ici ✨|Светлячок прятался здесь ✨|Kunang-kunang bersembunyi di sini ✨
+📺 +2 hak ile devam|📺 Continue with +2 tries|📺 Continúa con +2 intentos|📺 Continue com +2 tentativas|📺 Weiter mit +2 Versuchen|📺 Continue avec +2 essais|📺 Продолжить с +2 попытками|📺 Lanjut dengan +2 percobaan
+Sahte ses! 🟣|Fake sound! 🟣|¡Sonido falso! 🟣|Som falso! 🟣|Falscher Ton! 🟣|Faux son ! 🟣|Ложный звук! 🟣|Suara palsu! 🟣
+Çok sıcak! 🔥|Very hot! 🔥|¡Muy caliente! 🔥|Muito quente! 🔥|Sehr heiß! 🔥|Très chaud ! 🔥|Очень горячо! 🔥|Sangat panas! 🔥
+Sıcak|Hot|Caliente|Quente|Heiß|Chaud|Горячо|Panas
+Ilık|Warm|Tibio|Morno|Lauwarm|Tiède|Тепло|Hangat
+Soğuk ❄️|Cold ❄️|Frío ❄️|Frio ❄️|Kalt ❄️|Froid ❄️|Холодно ❄️|Dingin ❄️
+🔥 BOSS! 3 ateş böceği|🔥 BOSS! 3 fireflies|🔥 ¡JEFE! 3 luciérnagas|🔥 CHEFE! 3 vaga-lumes|🔥 BOSS! 3 Glühwürmchen|🔥 BOSS ! 3 lucioles|🔥 БОСС! 3 светлячка|🔥 BOSS! 3 kunang-kunang
+Parmağını ekranda gezdir ve dinle.|Move your finger around and listen.|Mueve el dedo por la pantalla y escucha.|Passe o dedo pela tela e ouça.|Bewege den Finger und höre zu.|Promène ton doigt et écoute.|Води пальцем по экрану и слушай.|Gerakkan jarimu dan dengarkan.
+Ses hızlanıp tizleşirse yaklaşıyorsun.|If the sound speeds up and rises, you're close.|Si el sonido se acelera y sube, estás cerca.|Se o som acelerar e subir, você está perto.|Wird der Ton schneller und höher, bist du nah.|Si le son s'accélère et monte, tu es proche.|Если звук ускоряется и растёт — ты близко.|Jika suara makin cepat dan tinggi, kamu dekat.
+Doğru yerde parmağını kaldır!|Lift your finger at the right spot!|¡Levanta el dedo en el lugar correcto!|Levante o dedo no lugar certo!|Hebe den Finger an der richtigen Stelle!|Lève le doigt au bon endroit !|Подними палец в нужном месте!|Angkat jari di tempat yang tepat!
+🎧 Kulaklık önerilir|🎧 Headphones recommended|🎧 Se recomiendan auriculares|🎧 Recomendamos fones|🎧 Kopfhörer empfohlen|🎧 Casque recommandé|🎧 Рекомендуются наушники|🎧 Disarankan pakai headphone
+💡 Ateş böceği daire içinde|💡 The firefly is inside the circle|💡 La luciérnaga está dentro del círculo|💡 O vaga-lume está dentro do círculo|💡 Das Glühwürmchen ist im Kreis|💡 La luciole est dans le cercle|💡 Светлячок внутри круга|💡 Kunang-kunang ada di dalam lingkaran
+Zor mod: renk ve çubuk yok, ödül x1.5|Hard mode: no color or bar, reward x1.5|Modo difícil: sin color ni barra, premio x1,5|Modo difícil: sem cor nem barra, prêmio x1,5|Schwerer Modus: keine Farbe/Leiste, Belohnung x1,5|Mode difficile : sans couleur ni barre, récompense x1,5|Сложный режим: без цвета и шкалы, награда x1,5|Mode sulit: tanpa warna & bar, hadiah x1,5
+Zor mod kapalı|Hard mode off|Modo difícil desactivado|Modo difícil desligado|Schwerer Modus aus|Mode difficile désactivé|Сложный режим выключен|Mode sulit mati
+İpucu 🪙{}|Hint 🪙{}|Pista 🪙{}|Dica 🪙{}|Tipp 🪙{}|Indice 🪙{}|Подсказка 🪙{}|Petunjuk 🪙{}
+İpucu 📺|Hint 📺|Pista 📺|Dica 📺|Tipp 📺|Indice 📺|Подсказка 📺|Petunjuk 📺
+{} ses seviyesi bitir|finish {} sound levels|termina {} niveles de sonido|termine {} níveis de som|schließe {} Klang-Level ab|termine {} niveaux de son|пройди {} звуковых уровней|selesaikan {} level suara
+Ses Avcısı Çırağı|Sound Hunter Apprentice|Aprendiz de Cazador de Sonido|Aprendiz de Caçador de Som|Klangjäger-Lehrling|Apprenti Chasseur de Sons|Ученик охотника за звуком|Murid Pemburu Suara
+Ses Avcısı Ustası|Sound Hunter Master|Maestro Cazador de Sonido|Mestre Caçador de Som|Klangjäger-Meister|Maître Chasseur de Sons|Мастер охотника за звуком|Master Pemburu Suara
+Ses Avcısı Efsanesi|Sound Hunter Legend|Leyenda del Cazador de Sonido|Lenda do Caçador de Som|Klangjäger-Legende|Légende Chasseur de Sons|Легенда охотника за звуком|Legenda Pemburu Suara
+Ses Avcısı: {} seviye bitir|Sound Hunter: finish {} levels|Cazador de Sonido: supera {} niveles|Caçador de Som: conclua {} níveis|Klangjäger: schließe {} Level ab|Chasseur de Sons : termine {} niveaux|Охотник за звуком: пройди {} уровней|Pemburu Suara: selesaikan {} level
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];

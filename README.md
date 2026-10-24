@@ -15,3 +15,9 @@ Tek uygulamada mini oyunlar. İlk oyun: sonsuz koşu. Dosyalar `docs/` klasörü
 - Kelime listeleri `docs/words/<dil>.json` (tr, en, es, pt, de, fr, ru). Endonezce için liste yok, İngilizceye düşer.
 - Listeler: OpenSubtitles frekans listesi (FrequencyWords) + hunspell sözlükleriyle özel isim/gürültü filtresi + LDNOOBW küfür filtresi.
 - APK build'i `docs/words` klasörünü `www/words` içine kopyalar.
+
+## Yeni oyunlar
+- **Yuva Birleştir** (`yv`): sürükle-birleştir, siparişler, enerji, koleksiyon (cüzdan: merge)
+- **Su Sıralama Akvaryumu**: balık/süs al, seviye başına bonus (en fazla ödülün %60'ı)
+- **Zaman Bahçesi** (`gd`): gerçek zamanlı büyüyen bahçe, bildirim id 6 (cüzdan: garden)
+- **Ses Avcısı** (`av`): stereo ses + titreşimle gizli ateş böceğini bul (cüzdan: sound)
