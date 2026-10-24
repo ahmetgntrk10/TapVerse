@@ -6503,14 +6503,15 @@ function hoGoalCount(L){
   if(L<=29)return L%5===0?3:L%4===1?5:4;
   return L%7===0?3:L%2===0?5:4;
 }
-function hoGoals(L,B){
+function hoGoals(L,B,solo){
   B=B||hoBiome(L);const rnd=mzRng(L*131+7),ng=hoGoalCount(L),zl=(L-1)%10,P=B.pools;
   let tiers;
   if(ng===2)tiers=L%2?['t','m']:['s','m'];
   else if(ng===3)tiers=(zl>=4&&L%3===0)||L>=24&&L%3===1?['t','m','b']:['t','s','m'];
   else if(ng===4)tiers=L%4===2?['t','t','s','m']:['t','s','m','b'];
   else tiers=['t','t','s','m','b'];
-  const lim={t:5,s:Math.min(P.s.length,2+Math.floor(zl/3)),m:Math.min(P.m.length,1+Math.floor(zl/3)),b:Math.min(P.b.length,1+Math.floor(zl/4))};
+  if(solo)tiers=tiers.slice(0,-1).concat('b');
+  const lim={t:5,s:Math.min(P.s.length,2+Math.floor(zl/3)),m:Math.min(P.m.length,1+Math.floor(zl/3)),b:solo?P.b.length:Math.min(P.b.length,1+Math.floor(zl/4))};
   const base={t:30,s:15,m:11,b:7},gr=1+Math.min(1,0.016*L),fac=Math.pow(3/ng,0.85),used={},out=[];
   for(const tr of tiers){
     const pool=P[tr].slice(0,Math.max(1,Math.min(lim[tr],P[tr].length))).filter(k=>!used[k]);const pl=pool.length?pool:P[tr].filter(k=>!used[k]);if(!pl.length)continue;
@@ -6686,9 +6687,9 @@ function hoWorld(L,rnd){
   return items;
 }
 function hoCreate(L,opt){
-  opt=opt||{};const rnd=mzRng(L*7919+13),nb=opt.bots==null?HO_ROOM-1:opt.bots,B=hoBiome(L);
-  const items=B.id==='city'?hoWorld(L,rnd):hoGenBio(L,rnd,B),goals=hoGoals(L,B);
-  const G={level:L,t:0,bio:B,time:150+Math.min(60,Math.round(L*1.2))+5*hoUp.tm+(hoSkin().id===5?4:0),over:false,won:false,items,goals,gidx:{},holes:[],parts:[],fl:[],banner:2.6,bmsg:(L>1&&(L-1)%10===0)?B.e+' '+B.n:'Hedefleri ilk sen bitir!',boss:isBoss(L),rest:isRest(L),kills:0,kt:-9,kc:0,msg:'',msgT:0,winner:null,rings:[],shake:0};
+  opt=opt||{};const rnd=mzRng(L*7919+13),nb=opt.bots==null?(hoSolo(L)?0:HO_ROOM-1):opt.bots,B=hoBiome(L);
+  const solo=nb===0,items=B.id==='city'?hoWorld(L,rnd):hoGenBio(L,rnd,B),goals=hoGoals(L,B,solo);if(solo)hoSupply(items,B,L,rnd);
+  const G={level:L,t:0,solo,bio:B,time:Math.round((150+Math.min(60,Math.round(L*1.2)))*(solo?(B.id==='city'?0.85:0.62):1))+5*hoUp.tm+(hoSkin().id===5?4:0),over:false,won:false,items,goals,gidx:{},holes:[],parts:[],fl:[],banner:2.6,bmsg:solo?'Rakipsiz bölüm: nesneler yeniden doğmaz!':(L>1&&(L-1)%10===0)?B.e+' '+B.n:'Hedefleri ilk sen bitir!',boss:isBoss(L),rest:isRest(L),kills:0,kt:-9,kc:0,msg:'',msgT:0,winner:null,rings:[],shake:0};
   G.left=G.time;goals.forEach((g,i)=>G.gidx[g.k]=i);
   G.th=HO_TH[Math.floor((L-1)/10)%HO_TH.length];
   G.grid=Array.from({length:400},()=>[]);items.forEach((o,i)=>{o.i=i;const cx=Math.min(19,Math.max(0,Math.floor(o.x/100))),cy=Math.min(19,Math.max(0,Math.floor(o.y/100)));G.grid[cy*20+cx].push(o)});
@@ -6712,9 +6713,28 @@ function hoBurst(G,x,y,n,col){for(let i=0;i<n;i++){const a=Math.random()*6.283,v
 function hoProg(h,G){let t=0;const n=G.goals.length;for(let i=0;i<n;i++)t+=Math.min(1,h.pg[i]/G.goals[i].n);return t/n}
 function hoDone(h,G){for(let i=0;i<G.goals.length;i++)if(h.pg[i]<G.goals[i].n)return false;return true}
 function hoRespawn(G,o){
-  const solo=G.holes.length<=3;let b=solo?7:20;
-  if(G.me&&o.s>=G.me.r*0.45)b*=0.6;
+  if(G.solo)return 1e9;
+  let b=20;if(G.me&&o.s>=G.me.r*0.45)b*=0.7;
   return b*(0.85+Math.random()*0.3);
+}
+const hoSolo=L=>L>=5&&(isRest(L)||L%10===5);
+function hoSupply(items,B,L,rnd){
+  const tB=Math.min(HO_MAXB-1,6+Math.floor(L/6)+(L%2)),lim=b=>hoRad(b)*0.85;
+  const kinds=(B.id==='city'?['cone','hyd','bin','mail','bench','bush','lamp','tree','car','van','bus','house']:[...new Set(B.spec.map(q=>q.k))]).filter(k=>HO_K[k]&&!HO_K[k].b);
+  kinds.sort((a,b)=>HO_K[a].s-HO_K[b].s);
+  let add=0;
+  for(let b=1;b<=tB;b++){
+    let e=0;items.forEach(o=>{if(o.s<=lim(b))e+=o.v});
+    const need=1.5*hoXpAt(b)-e;if(need<=0)continue;
+    const ok=kinds.filter(k=>HO_K[k].s<=lim(b));if(!ok.length)continue;
+    const big=ok.filter(k=>HO_K[k].s>lim(b-1>0?b-1:1)*0.6);const pool=big.length?big:[ok[ok.length-1]];
+    let cnt=Math.min(500,Math.ceil(need/pool.reduce((a,k)=>a+HO_K[k].v,0)*pool.length));
+    for(let i=0;i<cnt;i++){const k=pool[i%pool.length],K=HO_K[k];
+      for(let a=0;a<25;a++){const x=K.s+20+rnd()*(HO_WW-2*K.s-40),y=K.s+20+rnd()*(HO_WH-2*K.s-40);
+        if(B.walk&&!B.walk(x,y))continue;if(B.land&&!B.land(x,y,K.s))continue;
+        items.push({k,x,y,s:K.s,v:K.v,vr:Math.floor(rnd()*4),or:'',alive:1,fall:null,rt:0,bld:0,z:0});add++;break}}
+  }
+  return add;
 }
 function hoNearGoal(G){
   const me=G.me;let best=null,bd=1e12;
@@ -9702,6 +9722,7 @@ Joystick ile gez, ürünleri raflara taşı!|Walk with the joystick, carry goods
 GİRİŞ|ENTRANCE|ENTRADA|ENTRADA|EINGANG|ENTRÉE|ВХОД|MASUK
 Kasa|Register|Caja|Caixa|Kasse|Caisse|Касса|Kasir
 Kasiyer|Cashier|Cajero|Caixa|Kassierer|Caissier|Кассир|Kasir
+Rakipsiz bölüm: nesneler yeniden doğmaz!|No rivals: objects don't respawn!|Sin rivales: ¡los objetos no reaparecen!|Sem rivais: os objetos não reaparecem!|Keine Gegner: Objekte kommen nicht wieder!|Sans rivaux : les objets ne réapparaissent pas !|Без соперников: предметы не возрождаются!|Tanpa lawan: objek tidak muncul lagi!
 Çiftlik|Farm|Granja|Fazenda|Bauernhof|Ferme|Ферма|Peternakan
 Siparişler|Orders|Pedidos|Pedidos|Aufträge|Commandes|Заказы|Pesanan
 Sipariş tamam|Order complete|Pedido completo|Pedido concluído|Auftrag erledigt|Commande terminée|Заказ выполнен|Pesanan selesai
