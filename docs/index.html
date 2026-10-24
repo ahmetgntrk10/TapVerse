@@ -5975,11 +5975,18 @@ const HO_SPR={};
 function hoFinishSprite(cv,P){
   const w=cv.width,h=cv.height,c=cv.getContext('2d');
   c.setTransform(1,0,0,1,0,0);
+  const mk=()=>{const x=document.createElement('canvas');x.width=w;x.height=h;return x};
+  const d=Math.max(1,P*0.6);
+  // yuvarlak 3B hissi: sol-üst kenarda parlak, sağ-alt kenarda gölgeli kenar
+  const hi=mk(),hc=hi.getContext('2d');hc.drawImage(cv,0,0);hc.globalCompositeOperation='destination-out';hc.drawImage(cv,d,d);hc.globalCompositeOperation='source-in';hc.fillStyle='rgba(255,255,255,.6)';hc.fillRect(0,0,w,h);
+  const lo=mk(),lc=lo.getContext('2d');lc.drawImage(cv,0,0);lc.globalCompositeOperation='destination-out';lc.drawImage(cv,-d,-d);lc.globalCompositeOperation='source-in';lc.fillStyle='rgba(35,12,80,.38)';lc.fillRect(0,0,w,h);
   c.save();c.globalCompositeOperation='source-atop';
-  const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'rgba(255,255,255,.15)');g.addColorStop(0.5,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(25,10,70,.18)');c.fillStyle=g;c.fillRect(0,0,w,h);c.restore();
-  const t=document.createElement('canvas');t.width=w;t.height=h;const tc=t.getContext('2d');
-  tc.drawImage(cv,0,0);tc.globalCompositeOperation='source-in';tc.fillStyle='rgba(28,14,60,.7)';tc.fillRect(0,0,w,h);
-  const o=Math.max(0.8,P*0.5),out=document.createElement('canvas');out.width=w;out.height=h;const oc=out.getContext('2d');
+  const g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,'rgba(255,255,255,.16)');g.addColorStop(0.5,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(25,10,70,.2)');c.fillStyle=g;c.fillRect(0,0,w,h);
+  const gl=c.createRadialGradient(w*.3,h*.22,0,w*.3,h*.22,Math.max(w,h)*.62);gl.addColorStop(0,'rgba(255,255,255,.26)');gl.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=gl;c.fillRect(0,0,w,h);
+  c.drawImage(lo,0,0);c.drawImage(hi,0,0);c.restore();
+  const t=mk(),tc=t.getContext('2d');
+  tc.drawImage(cv,0,0);tc.globalCompositeOperation='source-in';tc.fillStyle='rgba(32,16,66,.62)';tc.fillRect(0,0,w,h);
+  const o=Math.max(0.7,P*0.4),out=mk(),oc=out.getContext('2d');
   for(let a=0;a<8;a++)oc.drawImage(t,Math.cos(a*.785)*o,Math.sin(a*.785)*o);
   oc.drawImage(cv,0,0);c.clearRect(0,0,w,h);c.drawImage(out,0,0);
 }
