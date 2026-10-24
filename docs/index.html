@@ -635,8 +635,8 @@ const yestStr=()=>{const d=new Date(Date.now()-864e5);return d.getFullYear()+'-'
 const weekId=()=>{const d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5-4)/7)};
 const weekLeft=()=>{const d=new Date(),dow=(d.getDay()+6)%7;const end=new Date(d.getFullYear(),d.getMonth(),d.getDate()+(7-dow));return Math.max(0,end-d)};
 // Oyun tablosu: n=ad, e=simge, w=ödülün yatacağı cüzdan (parası olmayan oyunlar Sonsuz Koşu cüzdanına yazar)
-const QG={run:{n:'Sonsuz Koşu',e:'🏃',w:'run'},maze:{n:'Labirent',e:'🌀',w:'maze'},city:{n:'Tek Tuş Şehir',e:'🏙️',w:'run'},tiles:{n:'Melodi Karoları',e:'🎹',w:'tiles'},arrows:{n:'Ok Kaçışı',e:'🎯',w:'arrows'},sort:{n:'Su Sıralama',e:'🧪',w:'sort'},clean:{n:'Temizlik',e:'🧼',w:'clean'},ghost:{n:'Hayalet Takım',e:'👻',w:'ghost'},lock:{n:'Kasa Uzmanı',e:'🔐',w:'lock'},shadow:{n:'Gölge Bahçesi',e:'🌙',w:'shadow'},words:{n:'Kelime Çiçeği',e:'🌸',w:'words'},merge:{n:'Yuva Birleştir',e:'🥚',w:'merge'},garden:{n:'Zaman Bahçesi',e:'🌱',w:'garden'},sound:{n:'Ses Avcısı',e:'🎧',w:'sound'},hole:{n:'Obur Delik',e:'🕳️',w:'hole'},mini:{n:'Mini Oyunlar',e:'🎮',w:'run'},any:{n:'Genel',e:'⭐',w:'run'}};
-const WNAME={words:'Kelime Çiçeği',run:'Sonsuz Koşu',maze:'Labirent',tiles:'Melodi Karoları',arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik',ghost:'Hayalet Takım',lock:'Kasa Uzmanı',shadow:'Gölge Bahçesi',merge:'Yuva Birleştir',garden:'Zaman Bahçesi',sound:'Ses Avcısı',hole:'Obur Delik'};
+const QG={run:{n:'Sonsuz Koşu',e:'🏃',w:'run'},maze:{n:'Labirent',e:'🌀',w:'maze'},city:{n:'Tek Tuş Şehir',e:'🏙️',w:'run'},tiles:{n:'Melodi Karoları',e:'🎹',w:'tiles'},arrows:{n:'Ok Kaçışı',e:'🎯',w:'arrows'},sort:{n:'Su Sıralama',e:'🧪',w:'sort'},clean:{n:'Temizlik',e:'🧼',w:'clean'},ghost:{n:'Hayalet Takım',e:'👻',w:'ghost'},lock:{n:'Kasa Uzmanı',e:'🔐',w:'lock'},shadow:{n:'Gölge Bahçesi',e:'🌙',w:'shadow'},words:{n:'Kelime Çiçeği',e:'🌸',w:'words'},merge:{n:'Yuva Birleştir',e:'🥚',w:'merge'},garden:{n:'Zaman Bahçesi',e:'🌱',w:'garden'},sound:{n:'Ses Avcısı',e:'🎧',w:'sound'},hole:{n:'Obur Delik',e:'🕳️',w:'hole'},mart:{n:'Market Ustası',e:'🏪',w:'mart'},mini:{n:'Mini Oyunlar',e:'🎮',w:'run'},any:{n:'Genel',e:'⭐',w:'run'}};
+const WNAME={words:'Kelime Çiçeği',run:'Sonsuz Koşu',maze:'Labirent',tiles:'Melodi Karoları',arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik',ghost:'Hayalet Takım',lock:'Kasa Uzmanı',shadow:'Gölge Bahçesi',merge:'Yuva Birleştir',garden:'Zaman Bahçesi',sound:'Ses Avcısı',hole:'Obur Delik',mart:'Market Ustası'};
 // t: günlük [kolay,orta,zor], w: haftalık [kolay,orta,zor], x: metin ({n} sayı yerine geçer)
 const QT=[
  {k:'play',g:'run',m:'sum',x:'{n} kez koş',t:[2,4,8],w:[8,16,30]},
@@ -665,6 +665,7 @@ const QT=[
  {k:'garden',g:'garden',m:'sum',x:'{n} hasat yap',t:[6,12,20],w:[30,60,100]},
  {k:'sound',g:'sound',m:'sum',x:'{n} ses seviyesi bitir',t:[2,4,7],w:[8,16,28]},
  {k:'hole',g:'hole',m:'sum',x:'{n} delik seviyesi bitir',t:[2,4,7],w:[8,16,28]},
+ {k:'mart',g:'mart',m:'sum',x:'{n} müşteriye hizmet et',t:[8,20,40],w:[40,90,160]},
  {k:'mgplay',g:'mini',m:'sum',x:'{n} tur oyna',t:[3,6,12],w:[12,25,45]},
  {k:'diff',g:'any',m:'diff',x:'{n} farklı oyun oyna',t:[2,3,5],w:[4,7,10]}
 ];
@@ -672,7 +673,7 @@ const WORLD_TX=['','',"Buz Dünyası'na ulaş","Çöl Dünyası'na ulaş","Lav D
 const QRW={d:[40,90,180],w:[120,280,550]},QRF={run:1.5};
 const DIFFN=['Kolay','Orta','Zor'],DIFFC=['#52e08a','#ffd34d','#ff6b7a'];
 const GIFTS=[30,40,50,60,80,100,150];
-const GOF={play:'run',score:'run',runcoins:'run',c_run:'run',jump:'run',slide:'run',power:'run',world:'run',boss:'run',maze:'maze',c_maze:'maze',city:'city',cjump:'city',tile:'tiles',song:'tiles',c_tiles:'tiles',arrows:'arrows',c_arrows:'arrows',sort:'sort',c_sort:'sort',clean:'clean',c_clean:'clean',ghost:'ghost',c_ghost:'ghost',lock:'lock',c_lock:'lock',shadow:'shadow',c_shadow:'shadow',words:'words',c_words:'words',merge:'merge',c_merge:'merge',garden:'garden',c_garden:'garden',sound:'sound',c_sound:'sound',hole:'hole',c_hole:'hole'};
+const GOF={play:'run',score:'run',runcoins:'run',c_run:'run',jump:'run',slide:'run',power:'run',world:'run',boss:'run',maze:'maze',c_maze:'maze',city:'city',cjump:'city',tile:'tiles',song:'tiles',c_tiles:'tiles',arrows:'arrows',c_arrows:'arrows',sort:'sort',c_sort:'sort',clean:'clean',c_clean:'clean',ghost:'ghost',c_ghost:'ghost',lock:'lock',c_lock:'lock',shadow:'shadow',c_shadow:'shadow',words:'words',c_words:'words',merge:'merge',c_merge:'merge',garden:'garden',c_garden:'garden',sound:'sound',c_sound:'sound',hole:'hole',c_hole:'hole',mart:'mart',c_mart:'mart'};
 function gameOf(t){return GOF[t]||(t.indexOf('g_')===0?t.slice(2):t.indexOf('gp_')===0?t.slice(3):null)}
 let daily=ld('tv_daily',null),weekly=ld('tv_weekly',null),streak=ld('tv_streak',{last:'',count:0});
 let gs=ld('tv_gs',{});if(!gs.pl)gs.pl={};
@@ -4469,6 +4470,7 @@ function freeBig(){
   if(state!=='clean'){cl.G=null;const c=$('c_cl');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='shadow'){sg.G=null;const c=$('c_sg');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='hole'){ho.G=null;ho.stick=null;const c=$('c_ho');if(c&&c.width>1){c.width=1;c.height=1}}
+  if(state!=='mart'){mkt.G=null;mkt.stick=null;const c=$('c_mkt');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='hunt'){av.G=null;av.p=null;const c=$('c_av');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='garden'){gd.G=null;const c=$('c_gd');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='merge'){yv.G=null;const c=$('c_yv');if(c&&c.width>1){c.width=1;c.height=1}}
@@ -5817,9 +5819,9 @@ $('av_dbl').onclick=()=>{const G=av.G;if(!G)return;
 $('cardAv').onclick=()=>openLobby('av');
 
 // ---- Para Çevir (swap) ----
-const SW_V={run:1,maze:1.2,tiles:1.2,arrows:1.2,sort:1,clean:1.3,ghost:1.5,lock:1.8,shadow:1.5,words:1.4,merge:1,garden:2,sound:1.8,hole:1.6};
-const SW_E={run:'🏃',maze:'🌀',tiles:'🎹',arrows:'🎯',sort:'🧪',clean:'🧼',ghost:'👻',lock:'🔐',shadow:'🌙',words:'🌸',merge:'🥚',garden:'🌱',sound:'🎧',hole:'🕳️'};
-const SW_G={run:['#f59e0b','#ef4444'],maze:['#06b6d4','#6366f1'],tiles:['#ec4899','#8b5cf6'],arrows:['#22c55e','#0ea5e9'],sort:['#38bdf8','#2563eb'],clean:['#2dd4bf','#0891b2'],ghost:['#a78bfa','#4c1d95'],lock:['#fbbf24','#b45309'],shadow:['#6366f1','#1e1b4b'],words:['#f472b6','#14b8a6'],merge:['#fb7185','#a855f7'],garden:['#84cc16','#15803d'],sound:['#818cf8','#0e7490'],hole:['#7c3aed','#111827']};
+const SW_V={run:1,maze:1.2,tiles:1.2,arrows:1.2,sort:1,clean:1.3,ghost:1.5,lock:1.8,shadow:1.5,words:1.4,merge:1,garden:2,sound:1.8,hole:1.6,mart:1.7};
+const SW_E={run:'🏃',maze:'🌀',tiles:'🎹',arrows:'🎯',sort:'🧪',clean:'🧼',ghost:'👻',lock:'🔐',shadow:'🌙',words:'🌸',merge:'🥚',garden:'🌱',sound:'🎧',hole:'🕳️',mart:'🏪'};
+const SW_G={run:['#f59e0b','#ef4444'],maze:['#06b6d4','#6366f1'],tiles:['#ec4899','#8b5cf6'],arrows:['#22c55e','#0ea5e9'],sort:['#38bdf8','#2563eb'],clean:['#2dd4bf','#0891b2'],ghost:['#a78bfa','#4c1d95'],lock:['#fbbf24','#b45309'],shadow:['#6366f1','#1e1b4b'],words:['#f472b6','#14b8a6'],merge:['#fb7185','#a855f7'],garden:['#84cc16','#15803d'],sound:['#818cf8','#0e7490'],hole:['#7c3aed','#111827'],mart:['#16a34a','#f59e0b']};
 const SW_BASE=0.1,SW_FEE=0.03,SW_LIM=300;
 let swD=ld('tv_swd',{d:0,n:0,x:0});
 const swDay=()=>Math.floor(Date.now()/864e5);
@@ -6157,6 +6159,279 @@ $('ho_dbl').onclick=()=>{const G=ho.G;if(!G)return;
     G.over=false;show('ho_win',false);hoHud()});return}
   Ads.rewarded(()=>{credit('hole',G.reward);refreshCoins();$('ho_dbl').classList.add('hidden');$('ho_wi').textContent+=' · 2 kat yapıldı!'})};
 $('cardHo').onclick=()=>openLobby('ho');
+
+// ---- Market Ustası (marketi yönet, rafları doldur, müşterilere hizmet et) ----
+WN.mart='Market Ustası';WKEYS.push('mart');
+const MKT_P=[
+ {e:'🍎',pr:5,t:2.4,c:0,src:'🌳',col:'#2f9e44'},
+ {e:'🍞',pr:9,t:3.2,c:120,src:'🥖',col:'#d9822b'},
+ {e:'🥛',pr:15,t:4,c:600,src:'🐄',col:'#2b8fd9'},
+ {e:'🥚',pr:26,t:5,c:2600,src:'🐔',col:'#e0a800'}];
+const MKT_UP=[
+ {k:'cap',e:'🎒',n:'Taşıma Kapasitesi',d:'Daha çok ürün taşırsın',max:10,b:80,m:1.55},
+ {k:'spd',e:'👟',n:'Dükkâncı Hızı',d:'Dükkâncı daha hızlı koşar',max:8,b:100,m:1.6},
+ {k:'prod',e:'🏭',n:'Üretim Hızı',d:'Ürünler daha çabuk yetişir',max:10,b:120,m:1.6},
+ {k:'cust',e:'🚶',n:'Müşteri Akışı',d:'Dükkâna daha çok müşteri gelir',max:10,b:150,m:1.65},
+ {k:'price',e:'🏷️',n:'Satış Fiyatı',d:'Ürünler daha pahalı satılır',max:10,b:200,m:1.7},
+ {k:'stk',e:'🗄️',n:'Raf Kapasitesi',d:'Raflara daha çok ürün sığar',max:8,b:90,m:1.6}];
+const MKT_PD=[{k:'cash',e:'🧑‍💼',n:'Kasiyer',c:500,x:44,y:432},{k:'help',e:'🧒',n:'Çırak',c:1400,x:44,y:498}];
+const MKT_DEF={up:{cap:0,spd:0,prod:0,cust:0,price:0,stk:0},un:[1,0,0,0],hp:{cash:0,help:0},pad:{},served:0,lv:1,xp:0,pile:0};
+let mktS=Object.assign({},MKT_DEF,ld('tv_mkt',{}));
+mktS.up=Object.assign({},MKT_DEF.up,mktS.up);mktS.hp=Object.assign({},MKT_DEF.hp,mktS.hp);mktS.pad=mktS.pad||{};
+const mkt={G:null,raf:false,last:0,stick:null,sv:0};
+const mktSave=()=>sv('tv_mkt',mktS);
+const MK_W=360,MK_H=640,MK_SY=120,MK_HY=300,MK_CX=282,MK_CY=552,MK_PX=334,MK_PY=548,MK_DX=180,MK_DY=640;
+const mkSx=i=>60+80*i;
+const mktCap=()=>4+2*mktS.up.cap,mktScap=()=>6+2*mktS.up.stk,mktNeed=()=>6+4*mktS.lv;
+const mktUpC=k=>{const u=MKT_UP.find(x=>x.k===k);return Math.round(u.b*Math.pow(u.m,mktS.up[k]))};
+document.body.insertAdjacentHTML('beforeend','<div id="mart" class="hidden mgscr"><canvas id="c_mkt" style="touch-action:none"></canvas>'
+ +'<div class="mtop"><button id="mkt_back" class="ibtn alt">‹</button><div class="pill" id="mkt_lv">Seviye 1</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
+ +'<div class="sobar"><button id="mkt_up"><i>⬆️</i><span>Geliştir</span></button><button id="mkt_rush"><i>📺</i><span>Kalabalık</span></button></div></div>');
+document.head.insertAdjacentHTML('beforeend','<style>#mart .mtop{gap:6px;left:54px;right:8px}#mkt_lv{white-space:nowrap}</style>');
+SCR.push('mart');
+document.body.insertAdjacentHTML('beforeend','<div id="mkt_sh" class="overlay hidden" style="z-index:30"><div class="card" style="width:min(94vw,400px);max-height:84vh;display:flex;flex-direction:column"><div class="ttl">⬆️ Geliştir</div><div id="mkt_shl" style="overflow:auto;margin:10px 0"></div><button id="mkt_shx" class="alt">Kapat</button></div></div>');
+$('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardMkt" style="background:linear-gradient(135deg,#065f46,#16a34a 55%,#f59e0b)"><div class="gicon">🏪</div><div class="gtx"><b>Market Ustası</b><small>Marketi yönet, rafları doldur, müşterilere hizmet et!</small><span class="gtag" id="hsMkt">Seviye 1</span></div><div class="gplay" style="color:#16a34a">▶</div></div>');
+ACH3('t_mkt','mart','{n} müşteriye hizmet et',()=>mktS.served,[50,400,2000],RS);
+const _lbCfgMkt=lbCfg;
+lbCfg=function(id){
+  if(id==='mkt'){const wl=k=>'🪙 '+(k===curW?totalCoins:(WALLET[k]||0));return{emo:'🏪',t:'Market Ustası',d:'Joystick ile dükkâncıyı gezdir: üretim noktasından ürünleri al, raflara diz. Müşteriler alışveriş yapıp kasada sıraya girer; kasanın başında dur ve gelen altınları topla. Kazandığın parayla yeni ürünler aç, yardımcı tut ve marketini geliştir. Her 5. seviyede Kalabalık Saati!',i:'Seviye '+mktS.lv,w:wl('mart'),wk:'mart',play:openMkt,x:[['⬆️ Geliştir',()=>{openMkt();mktShop()}]]}}
+  return _lbCfgMkt(id);
+};
+function mktShop(){
+  const L=$('mkt_shl');L.innerHTML='';
+  MKT_UP.forEach(u=>{const lv=mktS.up[u.k],mx=lv>=u.max,c=mktUpC(u.k),b=document.createElement('button');b.className='gdr'+(!mx&&totalCoins<c?' no':'');
+    b.innerHTML='<i>'+u.e+'</i><div style="flex:1"><b>'+u.n+' · Sv.'+lv+'/'+u.max+'</b><small>'+u.d+'</small></div><span>'+(mx?'✅':'🪙 '+c)+'</span>';
+    b.onclick=()=>{if(mx){toast('En üst seviye');return}if(totalCoins<c){toast('Yeterli paran yok');buzz(40);return}credit('mart',-c);mktS.up[u.k]++;mktSave();refreshCoins();sfx.power();mktShop()};
+    L.appendChild(b)});
+  show('mkt_sh',true);
+}
+$('mkt_shx').onclick=()=>show('mkt_sh',false);$('mkt_up').onclick=mktShop;
+$('mkt_rush').onclick=()=>{const G=mkt.G;if(!G)return;if(G.rush>0){toast('Kalabalık zaten aktif');return}Ads.rewarded(()=>{G.rush=60;G.banner=2.2;G.bmsg='Kalabalık Saati!';sfx.power()})};
+function mktLayout(G){
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,1.6),cv=$('c_mkt');
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
+  G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;G.sc=Math.min(W/MK_W,H/(MK_H+40));G.ox=(W/G.sc-MK_W)/2;G.oy=(H/G.sc-MK_H)/2;
+}
+function mktStart(){
+  const G={t:0,over:false,rnd:Math.random,cu:[],q:[],pt:0,cd:2.5,pk:0,dp:0,fl:[],parts:[],rush:0,banner:2.5,bmsg:'Joystick ile gez, ürünleri raflara taşı!',st:[],sh:[]};
+  for(let i=0;i<4;i++){G.st.push({n:i===0?3:0,t:0});G.sh.push({n:i===0?2:0})}
+  G.me={x:180,y:420,vx:0,vy:0,cr:[],bob:0,dir:1};
+  G.hp={x:70,y:215,cr:[],tg:null,tm:0};
+  mkt.G=G;mkt.stick=null;mktLayout(G);mktHud();show('mkt_sh',false);
+  if(!mkt.raf){mkt.raf=true;mkt.last=performance.now();requestAnimationFrame(mktFrame)}
+}
+function openMkt(){state='mart';useW('mart');stopMusic();hideAll();show('mart',true);mktStart()}
+function mktHud(){
+  $('mkt_lv').textContent='Seviye '+mktS.lv+' · '+mktS.xp+'/'+mktNeed();
+  try{$('hsMkt').textContent='Seviye '+mktS.lv}catch(e){}
+}
+function mktFx(G,x,y,t,c){G.fl.push({x,y,t,l:1,c:c||'#fff'})}
+function mktBurst(G,x,y,n,col){for(let i=0;i<n;i++){const a=Math.random()*6.283,v=30+Math.random()*60;G.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-30,l:.6,m:.6,c:col,r:2+Math.random()*2})}}
+function mktMove(o,tx,ty,sp,dt){const dx=tx-o.x,dy=ty-o.y,d=Math.hypot(dx,dy);if(d<2)return true;const s=Math.min(d,sp*dt);o.x+=dx/d*s;o.y+=dy/d*s;o.dir=dx>=0?1:-1;return d-s<3}
+const mktInSt=(o,i)=>Math.abs(o.x-mkSx(i))<42&&o.y>MK_SY-30&&o.y<MK_SY+90;
+const mktInSh=(o,i)=>Math.abs(o.x-mkSx(i))<42&&o.y>MK_HY-30&&o.y<MK_HY+66;
+function mktLevelUp(G){
+  mktS.lv++;mktS.xp=0;const b=25*mktS.lv;credit('mart',b);stats.coins+=b;addProg('coins',b);addProg('c_mart',b);refreshCoins();
+  G.banner=2.4;G.bmsg='Seviye atladın!';mktFx(G,G.me.x,G.me.y-30,'+'+b,'#fde047');sfx.power();buzz(60);mktBurst(G,G.me.x,G.me.y,18,'#fde047');
+  if(mktS.lv%5===0){G.rush=45;G.bmsg='Kalabalık Saati!'}
+}
+function mktPay(G,c){
+  const v=Math.max(1,Math.round(c.val*(1+0.1*mktS.up.price)*(G.rush>0?1.5:1)));
+  mktS.pile+=v;mktS.served++;mktS.xp++;addProg('mart',1);
+  mktFx(G,MK_PX,MK_PY-20,'+'+v,'#fde047');tone(700,1100,.08,'triangle',.06);
+  c.st='out';c.mood='😊';
+  if(mktS.xp>=mktNeed())mktLevelUp(G);
+  mktHud();mktSave();
+}
+function mktSpawn(G){
+  const un=[];mktS.un.forEach((u,i)=>{if(u)un.push(i)});
+  const p=un[Math.floor(Math.random()*un.length)];
+  const n=1+(Math.random()<0.45?1:0)+(Math.random()<0.2?1:0);
+  const col=['#ef4444','#a855f7','#f97316','#06b6d4','#ec4899','#84cc16','#eab308'][Math.floor(Math.random()*7)];
+  G.cu.push({x:MK_DX+(Math.random()*40-20),y:MK_DY+10,st:'in',p,n,got:0,val:0,tm:0.3,pat:14+Math.random()*4,col,tx:mkSx(p)+(Math.random()*30-15),ty:MK_HY+46+Math.random()*12,dir:1,mood:'',sk:['#fcd5b0','#e8b48a','#c68642','#f1c27d'][Math.floor(Math.random()*4)]})
+}
+function mktHelper(G,dt){
+  const h=G.hp;
+  if(!h.cr.length){
+    if(h.tg==null){let b=-1,bs=9;mktS.un.forEach((u,i)=>{if(!u||G.st[i].n<2)return;const r=G.sh[i].n/mktScap();if(r<bs){bs=r;b=i}});if(b>=0&&bs<0.85)h.tg=b}
+    if(h.tg==null){mktMove(h,MK_DX-20,MK_SY+95,70,dt);return}
+    const ok=mktMove(h,mkSx(h.tg),MK_SY+62,80,dt);
+    if(ok){h.tm-=dt;if(h.tm<=0){h.tm=0.12;const s=G.st[h.tg];if(s.n>0&&h.cr.length<4){s.n--;h.cr.push(h.tg)}else{if(!h.cr.length)h.tg=null}}}
+  }else{
+    const i=h.cr[0],ok=mktMove(h,mkSx(i),MK_HY+56,80,dt);
+    if(ok){h.tm-=dt;if(h.tm<=0){h.tm=0.12;const s=G.sh[i];if(s.n<mktScap()&&h.cr.length){s.n++;h.cr.pop()}else h.cr.length=0;if(!h.cr.length)h.tg=null}}
+  }
+}
+function mktUpdate(G,dt){
+  G.t+=dt;if(G.banner>0)G.banner-=dt;if(G.rush>0)G.rush=Math.max(0,G.rush-dt);
+  const me=G.me,st=mkt.stick,sp=105+8*mktS.up.spd;
+  if(st&&st.mag>0.08){me.vx=st.dx*sp*Math.min(1,st.mag);me.vy=st.dy*sp*Math.min(1,st.mag)}else{me.vx*=0.6;me.vy*=0.6}
+  me.x=Math.max(16,Math.min(MK_W-16,me.x+me.vx*dt));me.y=Math.max(78,Math.min(606,me.y+me.vy*dt));
+  if(Math.abs(me.vx)>8)me.dir=me.vx>0?1:-1;if(Math.hypot(me.vx,me.vy)>12)me.bob+=dt*12;
+  const pm=1+0.12*mktS.up.prod;
+  mktS.un.forEach((u,i)=>{if(!u)return;const s=G.st[i];if(s.n<10){s.t+=dt*pm;if(s.t>=MKT_P[i].t){s.t=0;s.n++}}else s.t=0});
+  // al / bırak
+  G.pk-=dt;G.dp-=dt;
+  mktS.un.forEach((u,i)=>{if(!u)return;
+    if(mktInSt(me,i)&&G.st[i].n>0&&me.cr.length<mktCap()&&G.pk<=0){G.pk=0.09;G.st[i].n--;me.cr.push(i);tone(500+me.cr.length*30,600+me.cr.length*30,.04,'sine',.04)}
+    if(mktInSh(me,i)&&G.sh[i].n<mktScap()&&G.dp<=0){const k=me.cr.lastIndexOf(i);if(k>=0){G.dp=0.09;me.cr.splice(k,1);G.sh[i].n++;tone(380,300,.04,'sine',.04)}}});
+  // altın topla
+  if(mktS.pile>0&&Math.hypot(me.x-MK_PX,me.y-MK_PY)<30){
+    const n=mktS.pile;mktS.pile=0;credit('mart',n);stats.coins+=n;addProg('coins',n);addProg('c_mart',n);refreshCoins();mktSave();
+    mktFx(G,MK_PX,MK_PY-34,'🪙 +'+n,'#fde047');sfx.coin&&sfx.coin();buzz(25);mktBurst(G,MK_PX,MK_PY,10,'#fde047')}
+  // pad (kilit aç)
+  const pads=[];
+  for(let i=1;i<4;i++)if(!mktS.un[i]&&mktS.un[i-1])pads.push({key:'p'+i,x:mkSx(i),y:MK_SY,c:MKT_P[i].c,done:()=>{mktS.un[i]=1;G.st[i].n=2;G.sh[i].n=0}});
+  MKT_PD.forEach(p=>{if(!mktS.hp[p.k])pads.push({key:p.k,x:p.x,y:p.y,c:p.c,done:()=>{mktS.hp[p.k]=1}})});
+  G.pads=pads;
+  for(const p of pads){
+    if(Math.hypot(me.x-p.x,me.y-p.y)<32){
+      const paid=mktS.pad[p.key]||0;if(totalCoins>0&&paid<p.c){
+        G.pdc=(G.pdc||0)+Math.max(p.c/1.6,50)*dt;const a=Math.min(Math.floor(G.pdc),totalCoins,p.c-paid);
+        if(a>0){G.pdc-=a;credit('mart',-a);mktS.pad[p.key]=paid+a;refreshCoins();if(Math.random()<.5)tone(900,1100,.03,'square',.03)}
+        if(mktS.pad[p.key]>=p.c){p.done();delete mktS.pad[p.key];mktSave();G.banner=1.8;G.bmsg='Açıldı!';sfx.power();buzz(60);mktBurst(G,p.x,p.y,20,'#fff');mktFx(G,p.x,p.y-30,'✨','#fff')}
+      }
+    }
+  }
+  // yardımcı
+  if(mktS.hp.help)mktHelper(G,dt);
+  // müşteri
+  const maxC=5+Math.min(6,Math.floor(mktS.lv/4))+(G.rush>0?3:0);
+  const iv=Math.max(1.4,4.4-0.28*mktS.up.cust)*(1-0.012*Math.min(30,mktS.lv-1))/(G.rush>0?2:1);
+  G.cd-=dt;if(G.cd<=0&&G.cu.length<maxC){mktSpawn(G);G.cd=iv*(0.8+Math.random()*0.4)}
+  for(let i=G.cu.length-1;i>=0;i--){
+    const c=G.cu[i];
+    if(c.st==='in'){if(mktMove(c,c.tx,c.ty,70,dt))c.st='pick'}
+    else if(c.st==='pick'){
+      const s=G.sh[c.p];
+      if(c.got<c.n){
+        if(s.n>0){c.tm-=dt;if(c.tm<=0){c.tm=0.32;s.n--;c.got++;c.val+=MKT_P[c.p].pr;c.pat=14}}
+        else{c.pat-=dt;if(c.pat<=0){if(c.got>0){c.st='q';G.q.push(c)}else{c.st='out';c.mood='😠';mktFx(G,c.x,c.y-24,'😠','#fff')}}}
+      }
+      if(c.st==='pick'&&c.got>=c.n){c.st='q';G.q.push(c)}
+    }
+    else if(c.st==='q'){const k=G.q.indexOf(c);mktMove(c,232-32*k,MK_CY,80,dt)}
+    else if(c.st==='out'){if(mktMove(c,MK_DX,MK_DY+20,85,dt)&&c.y>MK_DY){G.cu.splice(i,1)}}
+  }
+  // kasa
+  const f=G.q[0];
+  if(f&&f.st==='q'&&Math.abs(f.x-232)<4&&Math.abs(f.y-MK_CY)<4){
+    const pl=Math.hypot(me.x-MK_CX,me.y-MK_CY)<34,ai=mktS.hp.cash;
+    if(pl||ai){G.pt+=dt*(pl?1:0.6);if(G.pt>=0.45){G.pt=0;G.q.shift();mktPay(G,f)}}
+  }else G.pt=0;
+  for(let i=G.fl.length-1;i>=0;i--){const q=G.fl[i];q.l-=dt;q.y-=30*dt;if(q.l<=0)G.fl.splice(i,1)}
+  for(let i=G.parts.length-1;i>=0;i--){const q=G.parts[i];q.l-=dt;if(q.l<=0){G.parts.splice(i,1);continue}q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=200*dt}
+}
+function mktDraw(G){
+  const c=G.ctx;if(!c)return;const d=G.dpr,sc=G.sc,W=G.W,H=G.H;
+  c.setTransform(d,0,0,d,0,0);
+  c.fillStyle='#2a2438';c.fillRect(0,0,W,H);
+  c.save();c.scale(sc,sc);c.translate(G.ox,G.oy);
+  const y0=-G.oy-4,y1=MK_H+G.oy+4;
+  // zemin (tahta)
+  for(let y=Math.floor(y0/40)*40;y<y1;y+=40)for(let x=-40;x<MK_W+40;x+=40){c.fillStyle=((x/40+y/40)&1)?'#e8cfa0':'#dfc38f';c.fillRect(x,y,40,40)}
+  // duvar
+  c.fillStyle='#8b5e3c';c.fillRect(-60,y0,MK_W+120,70-y0);c.fillStyle='#a8744a';c.fillRect(-60,y0,MK_W+120,64-y0);c.fillStyle='rgba(0,0,0,.25)';c.fillRect(-60,64,MK_W+120,6);
+  // dışarısı
+  c.fillStyle='#3b3350';c.fillRect(-60,618,MK_W+120,y1-618);c.fillStyle='#a8744a';c.fillRect(-60,614,MK_W+120,6);
+  c.fillStyle='#c0392b';rr(c,MK_DX-34,606,68,16,6);c.fill();c.fillStyle='#fff';c.font='bold 10px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(trStr('GİRİŞ'),MK_DX,614);
+  // istasyonlar + raflar
+  for(let i=0;i<4;i++){
+    const x=mkSx(i);
+    if(mktS.un[i]){
+      const s=G.st[i],P=MKT_P[i];
+      c.fillStyle='rgba(0,0,0,.18)';rr(c,x-33,MK_SY-22,66,56,12);c.fill();
+      c.fillStyle=P.col;rr(c,x-32,MK_SY-28,64,56,12);c.fill();c.fillStyle='rgba(255,255,255,.22)';rr(c,x-28,MK_SY-25,56,18,8);c.fill();
+      c.fillStyle='#fff';c.font='32px sans-serif';c.fillText(P.src,x,MK_SY-4);
+      c.fillStyle='rgba(0,0,0,.3)';rr(c,x-26,MK_SY+19,52,5,3);c.fill();c.fillStyle='#fff';rr(c,x-26,MK_SY+19,Math.max(4,52*(s.n>=10?1:s.t/P.t)),5,3);c.fill();
+      // yığın
+      c.font='15px sans-serif';for(let k=0;k<Math.min(s.n,10);k++){c.fillStyle='#fff';c.fillText(P.e,x-27+(k%5)*13.5,MK_SY+42+Math.floor(k/5)*-0+(k>=5?15:0))}
+      c.font='bold 11px sans-serif';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.55)';c.strokeText(s.n+'/10',x,MK_SY+68);c.fillStyle='#fff';c.fillText(s.n+'/10',x,MK_SY+68);
+      // raf
+      const h=G.sh[i];
+      c.fillStyle='rgba(0,0,0,.2)';rr(c,x-35,MK_HY-18,70,48,10);c.fill();
+      c.fillStyle='#7a4a24';rr(c,x-34,MK_HY-22,68,46,10);c.fill();c.fillStyle='#a8683a';rr(c,x-30,MK_HY-18,60,16,6);c.fill();rr(c,x-30,MK_HY+1,60,16,6);c.fill();
+      c.font='13px sans-serif';
+      const cap=mktScap(),shown=Math.min(h.n,12);
+      for(let k=0;k<shown;k++){c.fillStyle='#fff';c.fillText(P.e,x-24+(k%6)*9.6,MK_HY-10+Math.floor(k/6)*19)}
+      if(!h.n){c.globalAlpha=.3;c.fillStyle='#fff';c.font='20px sans-serif';c.fillText(P.e,x,MK_HY);c.globalAlpha=1}
+      c.font='bold 11px sans-serif';const lt=h.n+'/'+cap;c.strokeText(lt,x,MK_HY+36);c.fillStyle=h.n?'#fff':'#fca5a5';c.fillText(lt,x,MK_HY+36);
+    }
+  }
+  // kasa
+  c.fillStyle='rgba(0,0,0,.2)';rr(c,246,500,76,36,8);c.fill();c.fillStyle='#4b5563';rr(c,246,494,76,36,8);c.fill();c.fillStyle='#9ca3af';rr(c,250,498,68,14,5);c.fill();
+  c.fillStyle='#fff';c.font='22px sans-serif';c.fillText('🖥️',284,508);
+  c.strokeStyle=(Math.hypot(G.me.x-MK_CX,G.me.y-MK_CY)<34)?'rgba(255,255,255,.9)':'rgba(255,255,255,.35)';c.lineWidth=3;c.setLineDash([6,5]);c.beginPath();c.arc(MK_CX,MK_CY,30,0,6.283);c.stroke();c.setLineDash([]);
+  if(!G.q.length&&!mktS.hp.cash){c.font='bold 10px sans-serif';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.5)';c.strokeText(trStr('Kasa'),MK_CX,MK_CY+42);c.fillStyle='#fff';c.fillText(trStr('Kasa'),MK_CX,MK_CY+42)}
+  // altın yığını
+  if(mktS.pile>0){const n=Math.min(8,1+Math.floor(Math.log2(mktS.pile+1)));for(let k=0;k<n;k++){c.fillStyle='#b45309';c.beginPath();c.ellipse(MK_PX,MK_PY+12-k*4,15,6,0,0,6.283);c.fill();c.fillStyle='#fbbf24';c.beginPath();c.ellipse(MK_PX,MK_PY+9-k*4,15,6,0,0,6.283);c.fill()}
+    c.font='bold 12px sans-serif';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.6)';c.strokeText(mktS.pile,MK_PX,MK_PY-n*4-12);c.fillStyle='#fde047';c.fillText(mktS.pile,MK_PX,MK_PY-n*4-12)}
+  else{c.strokeStyle='rgba(253,224,71,.4)';c.lineWidth=2;c.setLineDash([4,4]);c.beginPath();c.arc(MK_PX,MK_PY,22,0,6.283);c.stroke();c.setLineDash([])}
+  // yardımcı pad'ler
+  for(const p of (G.pads||[])){
+    const paid=mktS.pad[p.key]||0,fr=paid/p.c,near=Math.hypot(G.me.x-p.x,G.me.y-p.y)<32;
+    const isP=p.key[0]==='p'&&p.key.length===2;
+    c.fillStyle=near?'rgba(255,255,255,.35)':'rgba(0,0,0,.28)';c.beginPath();c.arc(p.x,p.y,27,0,6.283);c.fill();
+    c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=3;c.setLineDash([6,5]);c.beginPath();c.arc(p.x,p.y,27,0,6.283);c.stroke();c.setLineDash([]);
+    if(fr>0){c.strokeStyle='#fde047';c.lineWidth=5;c.beginPath();c.arc(p.x,p.y,27,-1.5708,-1.5708+6.283*fr);c.stroke()}
+    c.fillStyle='#fff';c.font='24px sans-serif';c.fillText(isP?MKT_P[+p.key[1]].src:MKT_PD.find(q=>q.k===p.key).e,p.x,p.y-2);
+    const t='🪙 '+(p.c-paid);c.font='bold 11px sans-serif';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.6)';c.strokeText(t,p.x,p.y+40);c.fillStyle='#fde047';c.fillText(t,p.x,p.y+40);
+    if(!isP){const nm=trStr(MKT_PD.find(q=>q.k===p.key).n);c.fillStyle='#fff';c.strokeText(nm,p.x,p.y-38);c.fillText(nm,p.x,p.y-38)}
+  }
+  // kişiler: y'ye göre sırala
+  const L=[];
+  G.cu.forEach(o=>L.push({y:o.y,f:()=>mktPerson(c,G,o,o.col,o.sk,0)}));
+  if(mktS.hp.help)L.push({y:G.hp.y,f:()=>mktPerson(c,G,G.hp,'#f59e0b','#fcd5b0',1)});
+  if(mktS.hp.cash)L.push({y:MK_CY-28,f:()=>mktPerson(c,G,{x:MK_CX+4,y:MK_CY-24,cr:[],dir:-1,bob:G.t*0},'#7c3aed','#fcd5b0',2)});
+  L.push({y:G.me.y,f:()=>mktPerson(c,G,G.me,'#2563eb','#fcd5b0',3)});
+  L.sort((a,b)=>a.y-b.y).forEach(o=>o.f());
+  c.font='bold 16px sans-serif';
+  for(const p of G.parts){c.globalAlpha=Math.max(0,p.l/p.m);c.fillStyle=p.c;c.beginPath();c.arc(p.x,p.y,p.r,0,6.283);c.fill()}
+  for(const f of G.fl){c.globalAlpha=Math.min(1,f.l*1.6);c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.6)';c.strokeText(f.t,f.x,f.y);c.fillStyle=f.c;c.fillText(f.t,f.x,f.y)}
+  c.globalAlpha=1;c.restore();
+  // joystick
+  const st=mkt.stick;
+  if(st){c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=3;c.beginPath();c.arc(st.ox,st.oy,56,0,6.283);c.stroke();c.fillStyle='rgba(255,255,255,.5)';c.beginPath();c.arc(st.ox+st.dx*st.mag*56,st.oy+st.dy*st.mag*56,22,0,6.283);c.fill()}
+  // seviye çubuğu
+  const bw=W*0.5,bx=(W-bw)/2,by=62;
+  c.fillStyle='rgba(0,0,0,.4)';rr(c,bx,by,bw,9,5);c.fill();c.fillStyle='#4ade80';rr(c,bx,by,Math.max(6,bw*mktS.xp/mktNeed()),9,5);c.fill();
+  if(G.rush>0){c.textAlign='center';c.font='bold 13px sans-serif';c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.6)';const t='🔥 '+trStr('Kalabalık Saati!')+' '+Math.ceil(G.rush)+'s';c.strokeText(t,W/2,by+26);c.fillStyle='#fde047';c.fillText(t,W/2,by+26)}
+  if(G.banner>0){c.textAlign='center';c.globalAlpha=Math.min(1,G.banner);c.font='bold 22px sans-serif';c.lineWidth=5;c.strokeStyle='rgba(0,0,0,.6)';const tx=trStr(G.bmsg);c.strokeText(tx,W/2,H*0.4);c.fillStyle='#fff';c.fillText(tx,W/2,H*0.4);c.globalAlpha=1}
+}
+function mktPerson(c,G,o,col,sk,kind){
+  const bob=Math.sin(o.bob||0)*1.5;
+  c.fillStyle='rgba(0,0,0,.25)';c.beginPath();c.ellipse(o.x,o.y+11,11,4,0,0,6.283);c.fill();
+  c.fillStyle=col;rr(c,o.x-9,o.y-9+bob,18,20,7);c.fill();
+  if(kind===3){c.fillStyle='#fff';rr(c,o.x-6,o.y-2+bob,12,11,4);c.fill()}
+  c.fillStyle=sk;c.beginPath();c.arc(o.x,o.y-15+bob,8,0,6.283);c.fill();
+  c.fillStyle=kind===3?'#dc2626':kind===2?'#4c1d95':kind===1?'#92400e':'#3f3f46';c.beginPath();c.arc(o.x,o.y-18+bob,8,3.3,6.1);c.fill();
+  c.fillStyle='#111';const ex=(o.dir||1)*2.5;c.beginPath();c.arc(o.x+ex-2,o.y-15+bob,1.3,0,6.283);c.arc(o.x+ex+2.5,o.y-15+bob,1.3,0,6.283);c.fill();
+  if(o.cr&&o.cr.length){c.font='15px sans-serif';c.textAlign='center';o.cr.forEach((p,k)=>{c.fillStyle='#fff';c.fillText(MKT_P[p].e,o.x,o.y-30+bob-k*9)})}
+  if(kind===0){
+    if(o.st==='in'||o.st==='pick'){
+      c.fillStyle='rgba(255,255,255,.95)';rr(c,o.x-17,o.y-48,34,20,8);c.fill();c.font='13px sans-serif';c.fillStyle='#fff';c.textAlign='center';c.fillText(MKT_P[o.p].e,o.x-6,o.y-37);
+      c.fillStyle='#374151';c.font='bold 11px sans-serif';c.fillText('x'+(o.n-o.got),o.x+9,o.y-37);
+      if(o.st==='pick'&&o.got<o.n&&G.sh[o.p].n===0){c.fillStyle='rgba(0,0,0,.35)';rr(c,o.x-13,o.y-54,26,4,2);c.fill();c.fillStyle=o.pat>6?'#4ade80':'#ef4444';rr(c,o.x-13,o.y-54,Math.max(2,26*o.pat/14),4,2);c.fill()}
+    }else if(o.st==='out'&&o.mood){c.font='15px sans-serif';c.fillStyle='#fff';c.fillText(o.mood,o.x,o.y-30)}
+  }
+}
+function mktFrame(now){
+  if(state!=='mart'||!mkt.G){mkt.raf=false;return}
+  requestAnimationFrame(mktFrame);
+  const dt=Math.max(0,Math.min((now-mkt.last)/1000||0,0.05));mkt.last=now;
+  mktUpdate(mkt.G,dt);mktDraw(mkt.G);
+}
+(function(){
+  const cv=$('c_mkt');
+  const pt=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}};
+  const upd=(st,p)=>{const dx=p.x-st.ox,dy=p.y-st.oy,d=Math.hypot(dx,dy)||1;st.dx=dx/d;st.dy=dy/d;st.mag=Math.min(1,d/50);if(d>56){st.ox+=(dx/d)*(d-56);st.oy+=(dy/d)*(d-56)}};
+  cv.addEventListener('pointerdown',e=>{if(state!=='mart'||!mkt.G)return;ac();const p=pt(e);mkt.stick={ox:p.x,oy:p.y,dx:0,dy:0,mag:0,id:e.pointerId};try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+  cv.addEventListener('pointermove',e=>{const st=mkt.stick;if(!st||e.pointerId!==st.id)return;upd(st,pt(e))});
+  const up=e=>{if(mkt.stick&&e.pointerId===mkt.stick.id)mkt.stick=null};
+  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+})();
+$('mkt_back').onclick=()=>{mkt.stick=null;mktSave();openLobby('mkt')};
+$('cardMkt').onclick=()=>openLobby('mkt');
 
 // ---- Kelime Çiçeği (harf çarkı kelime bulmaca) ----
 WN.words='Kelime Çiçeği';WKEYS.push('words');
@@ -6727,7 +7002,7 @@ const cP=new THREE.Vector3(0,1.7,4.4),cL=new THREE.Vector3(0,0.8,0),dP=new THREE
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min(Math.max((now-last)/1000||0,0),0.05);last=now;
-  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||state==='gh'||state==='lock'||state==='shadow'||state==='words'||state==='merge'||state==='garden'||state==='hunt'||state==='hole'||state==='pause'||MG[state])return;
+  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||state==='gh'||state==='lock'||state==='shadow'||state==='words'||state==='merge'||state==='garden'||state==='hunt'||state==='hole'||state==='mart'||state==='pause'||MG[state])return;
   if(state==='run'){
     speedMul+=(1-speedMul)*Math.min(1,dt*0.45);
     speed=Math.min(14+score*0.02,40)*speedMul;   // zamanla hızlanır
@@ -7036,8 +7311,8 @@ addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')
 addEventListener('pagehide',pauseRun);
 setInterval(()=>{const on=state==='run';const b=$('pauseBtn');if(b)b.style.display=on?'':'none'},150);
 // ---- Skor tablosu: oyuncu kaydı, haftalık sıralama, benzersiz isim ----
-const LVG={maze:()=>mz.best,ar:()=>arLevel,so:()=>soLevel,cl:()=>clLevel,gh:()=>ghLevel,lk:()=>lkLevel,sg:()=>sgLevel,wd:()=>wdLevel,yv:()=>yvS.pl,gd:()=>gdS.lv,av:()=>avLevel,ho:()=>hoLevel};
-const LVL_G=[{id:'maze',e:'🌀',n:'Tek Parmak Labirent'},{id:'ar',e:'🎯',n:'Ok Kaçışı'},{id:'so',e:'🧪',n:'Su Sıralama'},{id:'cl',e:'🧼',n:'Temizlik Simülatörü'},{id:'gh',e:'👻',n:'Hayalet Takım'},{id:'lk',e:'🔐',n:'Kasa Uzmanı'},{id:'sg',e:'🌙',n:'Gölge Bahçesi'},{id:'wd',e:'🌸',n:'Kelime Çiçeği'},{id:'yv',e:'🥚',n:'Yuva Birleştir'},{id:'gd',e:'🌱',n:'Zaman Bahçesi'},{id:'av',e:'🎧',n:'Ses Avcısı'},{id:'ho',e:'🕳️',n:'Obur Delik'}];
+const LVG={maze:()=>mz.best,ar:()=>arLevel,so:()=>soLevel,cl:()=>clLevel,gh:()=>ghLevel,lk:()=>lkLevel,sg:()=>sgLevel,wd:()=>wdLevel,yv:()=>yvS.pl,gd:()=>gdS.lv,av:()=>avLevel,ho:()=>hoLevel,mk:()=>mktS.lv};
+const LVL_G=[{id:'maze',e:'🌀',n:'Tek Parmak Labirent'},{id:'ar',e:'🎯',n:'Ok Kaçışı'},{id:'so',e:'🧪',n:'Su Sıralama'},{id:'cl',e:'🧼',n:'Temizlik Simülatörü'},{id:'gh',e:'👻',n:'Hayalet Takım'},{id:'lk',e:'🔐',n:'Kasa Uzmanı'},{id:'sg',e:'🌙',n:'Gölge Bahçesi'},{id:'wd',e:'🌸',n:'Kelime Çiçeği'},{id:'yv',e:'🥚',n:'Yuva Birleştir'},{id:'gd',e:'🌱',n:'Zaman Bahçesi'},{id:'av',e:'🎧',n:'Ses Avcısı'},{id:'ho',e:'🕳️',n:'Obur Delik'},{id:'mk',e:'🏪',n:'Market Ustası'}];
 function lbGames(){const a=[{id:'run',e:'🏃',n:'Sonsuz Koşu'},{id:'city',e:'🏙️',n:'Tek Tuş Şehir'}];for(const k in MG)a.push({id:k,e:MG[k].emo,n:MG[k].title});return a.concat(LVL_G)}
 function lbIds(){return lbGames().map(x=>x.id)}
 function lbAll(g){let v=g==='run'?best:g==='city'?cityBest:LVG[g]?LVG[g]():(mgBest[g]||0);return Math.max(0,Math.floor(v)||0)}
@@ -7152,7 +7427,7 @@ $('exitNo').onclick=()=>show('exitOv',false);
 $('exitYes').onclick=()=>{try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()){C.registerPlugin('App').exitApp();return}}catch(e){}show('exitOv',false);try{window.close()}catch(e){}};
 // Açılış animasyonu
 (function(){const s=$('splash');if(!s)return;let done=false;const end=()=>{if(done)return;done=true;s.classList.add('out');setTimeout(()=>s.remove(),500)};s.onclick=end;setTimeout(end,2300)})();
-const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','aq_x','gd_ugx','gd_sdx','gd_unx','gd_luok','ho_shx','sw_okb','sw_pkx','sw_x','yv_shx','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','gd_back','av_back','ho_back','lb_back'];
+const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','aq_x','gd_ugx','gd_sdx','gd_unx','gd_luok','ho_shx','mkt_shx','sw_okb','sw_pkx','sw_x','yv_shx','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','gd_back','av_back','ho_back','mkt_back','lb_back'];
 function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
 function goBack(){
   if(state==='pause'){resumeRun();return true}
@@ -8456,6 +8731,36 @@ Salıncak Kancası: tek oyunda 50 metre|Swing Hook: 50 meters in one run|Gancho 
 Salıncak Kancası Efsanesi|Swing Hook Legend|Leyenda de Gancho Columpio|Lenda do Gancho Balanço|Schwunghaken-Legende|Légende Crochet Balançoire|Легенда крюка-качелей|Legenda Kait Ayun
 Salıncak Kancası: tek oyunda 375 puan yap|Swing Hook: score 375 in one run|Gancho Columpio: 375 puntos en una partida|Gancho Balanço: 375 pontos em uma partida|Schwunghaken: 375 Punkte in einem Spiel|Crochet Balançoire : 375 points en une partie|Крюк-качели: 375 очков за игру|Kait Ayun: 375 poin dalam satu game
 Lava düştün!|You fell into lava!|¡Caíste en la lava!|Você caiu na lava!|Du bist in die Lava gefallen!|Tu es tombé dans la lave !|Ты упал в лаву!|Kamu jatuh ke lava!
+Market Ustası|Market Master|Maestro del Mercado|Mestre do Mercado|Marktmeister|Maître du Marché|Мастер магазина|Master Minimarket
+Marketi yönet, rafları doldur, müşterilere hizmet et!|Run the store, fill the shelves, serve the customers!|¡Dirige la tienda, llena los estantes y atiende a los clientes!|Gerencie a loja, encha as prateleiras e atenda os clientes!|Führe den Laden, fülle die Regale, bediene die Kunden!|Gère le magasin, remplis les rayons, sers les clients !|Управляй магазином, пополняй полки, обслуживай покупателей!|Kelola toko, isi rak, layani pelanggan!
+Joystick ile dükkâncıyı gezdir: üretim noktasından ürünleri al, raflara diz. Müşteriler alışveriş yapıp kasada sıraya girer; kasanın başında dur ve gelen altınları topla. Kazandığın parayla yeni ürünler aç, yardımcı tut ve marketini geliştir. Her 5. seviyede Kalabalık Saati!|Move the shopkeeper with the joystick: pick up goods at the production spots and stock the shelves. Customers shop and queue at the register; stand at the register and collect the coins. Use your earnings to unlock new products, hire helpers and upgrade your store. Every 5th level is Rush Hour!|Mueve al tendero con el joystick: recoge productos en los puntos de producción y llena los estantes. Los clientes compran y hacen fila en la caja; quédate en la caja y recoge las monedas. Con tus ganancias desbloquea productos, contrata ayudantes y mejora tu tienda. ¡Cada 5.º nivel es hora punta!|Mova o lojista com o joystick: pegue produtos nos pontos de produção e abasteça as prateleiras. Os clientes compram e fazem fila no caixa; fique no caixa e colete as moedas. Use os ganhos para liberar produtos, contratar ajudantes e melhorar a loja. Todo 5º nível tem Horário de Pico!|Bewege den Ladenbesitzer mit dem Joystick: Hole Waren an den Produktionsstellen und fülle die Regale. Kunden kaufen ein und stehen an der Kasse an; bleib an der Kasse und sammle die Münzen. Schalte mit dem Verdienst neue Produkte frei, stelle Helfer ein und verbessere deinen Laden. Jedes 5. Level ist Stoßzeit!|Déplace le commerçant avec le joystick : récupère les produits aux points de production et remplis les rayons. Les clients achètent et font la queue à la caisse ; reste à la caisse et ramasse les pièces. Avec tes gains, débloque des produits, embauche des aides et améliore ton magasin. Tous les 5 niveaux, c'est l'heure de pointe !|Двигай продавца джойстиком: бери товары в местах производства и выкладывай на полки. Покупатели берут товары и встают в очередь у кассы; стой у кассы и собирай монеты. На заработанное открывай товары, нанимай помощников и улучшай магазин. Каждый 5-й уровень — час пик!|Gerakkan penjaga toko dengan joystick: ambil barang di titik produksi dan isi rak. Pelanggan berbelanja dan antre di kasir; berdiri di kasir dan kumpulkan koin. Gunakan hasilnya untuk membuka produk, merekrut pembantu, dan meningkatkan toko. Setiap level kelipatan 5 adalah Jam Ramai!
+Taşıma Kapasitesi|Carry Capacity|Capacidad de carga|Capacidade de carga|Tragekapazität|Capacité de transport|Грузоподъёмность|Kapasitas bawa
+Daha çok ürün taşırsın|You carry more goods|Llevas más productos|Você carrega mais produtos|Du trägst mehr Waren|Tu portes plus de produits|Ты несёшь больше товаров|Kamu membawa lebih banyak barang
+Dükkâncı Hızı|Shopkeeper Speed|Velocidad del tendero|Velocidade do lojista|Tempo des Ladenbesitzers|Vitesse du commerçant|Скорость продавца|Kecepatan penjaga
+Dükkâncı daha hızlı koşar|The shopkeeper runs faster|El tendero corre más rápido|O lojista corre mais rápido|Der Ladenbesitzer läuft schneller|Le commerçant court plus vite|Продавец бегает быстрее|Penjaga toko berlari lebih cepat
+Üretim Hızı|Production Speed|Velocidad de producción|Velocidade de produção|Produktionstempo|Vitesse de production|Скорость производства|Kecepatan produksi
+Ürünler daha çabuk yetişir|Goods are ready sooner|Los productos están listos antes|Os produtos ficam prontos mais rápido|Waren sind schneller fertig|Les produits sont prêts plus vite|Товары готовятся быстрее|Barang siap lebih cepat
+Müşteri Akışı|Customer Flow|Flujo de clientes|Fluxo de clientes|Kundenstrom|Flux de clients|Поток покупателей|Arus pelanggan
+Dükkâna daha çok müşteri gelir|More customers visit the store|Más clientes visitan la tienda|Mais clientes visitam a loja|Mehr Kunden besuchen den Laden|Plus de clients viennent au magasin|В магазин приходит больше покупателей|Lebih banyak pelanggan datang
+Satış Fiyatı|Sale Price|Precio de venta|Preço de venda|Verkaufspreis|Prix de vente|Цена продажи|Harga jual
+Ürünler daha pahalı satılır|Goods sell for more|Los productos se venden más caros|Os produtos vendem por mais|Waren verkaufen sich teurer|Les produits se vendent plus cher|Товары продаются дороже|Barang terjual lebih mahal
+Raf Kapasitesi|Shelf Capacity|Capacidad del estante|Capacidade da prateleira|Regalkapazität|Capacité des rayons|Вместимость полок|Kapasitas rak
+Raflara daha çok ürün sığar|Shelves hold more goods|Los estantes admiten más productos|As prateleiras comportam mais produtos|Die Regale fassen mehr Waren|Les rayons contiennent plus de produits|На полки помещается больше товаров|Rak muat lebih banyak barang
+Kalabalık|Rush|Hora punta|Pico|Andrang|Affluence|Час пик|Ramai
+Kalabalık zaten aktif|Rush is already active|La hora punta ya está activa|O pico já está ativo|Andrang ist schon aktiv|L'affluence est déjà active|Час пик уже идёт|Jam ramai sudah aktif
+Kalabalık Saati!|Rush Hour!|¡Hora punta!|Horário de Pico!|Stoßzeit!|Heure de pointe !|Час пик!|Jam Ramai!
+Seviye atladın!|Level up!|¡Subiste de nivel!|Subiu de nível!|Level aufgestiegen!|Niveau supérieur !|Новый уровень!|Naik level!
+Açıldı!|Unlocked!|¡Desbloqueado!|Desbloqueado!|Freigeschaltet!|Débloqué !|Открыто!|Terbuka!
+Joystick ile gez, ürünleri raflara taşı!|Walk with the joystick, carry goods to the shelves!|¡Camina con el joystick y lleva productos a los estantes!|Ande com o joystick e leve produtos às prateleiras!|Lauf mit dem Joystick und bring Waren zu den Regalen!|Déplace-toi au joystick et apporte les produits aux rayons !|Ходи джойстиком и неси товары на полки!|Berjalan dengan joystick, bawa barang ke rak!
+GİRİŞ|ENTRANCE|ENTRADA|ENTRADA|EINGANG|ENTRÉE|ВХОД|MASUK
+Kasa|Register|Caja|Caixa|Kasse|Caisse|Касса|Kasir
+Kasiyer|Cashier|Cajero|Caixa|Kassierer|Caissier|Кассир|Kasir
+Çırak|Apprentice|Aprendiz|Aprendiz|Lehrling|Apprenti|Помощник|Magang
+Market Ustası Çırağı|Market Master Apprentice|Aprendiz del Maestro del Mercado|Aprendiz do Mestre do Mercado|Lehrling des Marktmeisters|Apprenti Maître du Marché|Ученик мастера магазина|Magang Master Minimarket
+Market Ustası Ustası|Market Master Expert|Experto del Maestro del Mercado|Especialista do Mestre do Mercado|Meister des Marktmeisters|Expert Maître du Marché|Эксперт мастера магазина|Ahli Master Minimarket
+Market Ustası Efsanesi|Market Master Legend|Leyenda del Maestro del Mercado|Lenda do Mestre do Mercado|Legende des Marktmeisters|Légende Maître du Marché|Легенда мастера магазина|Legenda Master Minimarket
+Market Ustası: {} müşteriye hizmet et|Market Master: serve {} customers|Maestro del Mercado: atiende a {} clientes|Mestre do Mercado: atenda {} clientes|Marktmeister: bediene {} Kunden|Maître du Marché : sers {} clients|Мастер магазина: обслужи {} покупателей|Master Minimarket: layani {} pelanggan
+{} müşteriye hizmet et|serve {} customers|atiende a {} clientes|atenda {} clientes|bediene {} Kunden|sers {} clients|обслужи {} покупателей|layani {} pelanggan
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];

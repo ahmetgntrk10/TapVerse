@@ -21,3 +21,6 @@ Tek uygulamada mini oyunlar. İlk oyun: sonsuz koşu. Dosyalar `docs/` klasörü
 - **Su Sıralama Akvaryumu**: balık/süs al, seviye başına bonus (en fazla ödülün %60'ı)
 - **Zaman Bahçesi** (`gd`): gerçek zamanlı büyüyen bahçe, bildirim id 6 (cüzdan: garden)
 - **Ses Avcısı** (`av`): stereo ses + titreşimle gizli ateş böceğini bul (cüzdan: sound)
+
+- Market Ustası: marketi yönet, rafları doldur, müşterilere hizmet et (kendi parası, geliştirmeler, yardımcılar, Kalabalık Saati).
+- Drift Rotası ve Salıncak Kancası: iki yeni arcade oyunu.
