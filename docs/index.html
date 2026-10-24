@@ -2415,6 +2415,172 @@ mgRegister({id:'flap',title:'Kanat Çırp',emo:'🐤',desc:'Dokun, kuş kanat ç
    c.textAlign='center';c.font='700 76px Fredoka,sans-serif';c.fillStyle='rgba(255,255,255,.85)';c.strokeStyle='rgba(0,70,120,.4)';c.lineWidth=6;c.strokeText(G.score,W/2,H*0.2);c.fillText(G.score,W/2,H*0.2);
  }
 });
+// ---- Drift Rotası ----
+mgRegister({id:'drift',title:'Drift Rotası',emo:'🏎️',desc:'Dokun, arabayı döndür. Yoldan düşme, elmasları topla!',g1:'#f43f5e',g2:'#7c3aed',hint:'Dokun: yön değiştir',
+ coins:s=>Math.floor(s/3),
+ ach:[{name:'Drift Çırağı',text:'Drift Rotası: 25 puan yap',t:25,r:150},{name:'Drift Ustası',text:'Drift Rotası: 80 puan yap',t:80,r:500}],
+ q:{t:30,text:'Drift Rotası: tek oyunda 30 puan',r:150},
+ pg:30,keepRunning:true,
+ TH:[['#8b5cf6','#4c1d95'],['#22d3ee','#0e7490'],['#fb923c','#9a3412'],['#4ade80','#166534'],['#f472b6','#9d174d']],
+ revive(G){const r=G.runs[G.cur];G.ax=r.a===0?1:0;G.px=r.x+(r.a===0?0.8:0);G.py=r.y+(r.a===0?0:0.8);G.fall=0;G.spd=4},
+ init(G){
+   G.runs=[];G.cur=0;G.started=false;G.fall=0;G.spd=4;G.U=Math.min(G.W/9.5,44);G.gems=[];G.trT=0;
+   G.runs.push({x:0,y:0,a:0,L:6});G.px=0.7;G.py=0;G.ax=1;G.ex=6;G.ey=0;
+   G.stars=[];for(let i=0;i<40;i++)G.stars.push({x:Math.random()*G.W,y:Math.random()*G.H,s:Math.random()*2+.5});
+   this.gen(G);G.camx=0;G.camy=0;
+ },
+ hw(G){return Math.max(0.78,1.2-G.score*0.006)},
+ gen(G){
+   while(G.runs.length<G.cur+14){
+     const l=G.runs[G.runs.length-1],a=1-l.a,ex=l.a===0?l.x+l.L:l.x,ey=l.a===0?l.y:l.y+l.L;
+     const mn=G.score>25?2.6:3.2,mx=G.score>25?5.6:7;
+     const L=mn+Math.random()*(mx-mn),r={x:ex,y:ey,a,L};G.runs.push(r);
+     if(Math.random()<0.7){const t=0.25+Math.random()*0.5;G.gems.push({x:a===0?r.x+r.L*t:r.x,y:a===0?r.y:r.y+r.L*t,got:false})}
+   }
+ },
+ inRoad(G,x,y){
+   const hw=this.hw(G)-0.12;
+   for(let i=Math.max(0,G.cur-1);i<Math.min(G.runs.length,G.cur+3);i++){
+     const r=G.runs[i];let x0,x1,y0,y1;
+     if(r.a===0){x0=r.x-hw;x1=r.x+r.L+hw;y0=r.y-hw;y1=r.y+hw}else{x0=r.x-hw;x1=r.x+hw;y0=r.y-hw;y1=r.y+r.L+hw}
+     if(x>=x0&&x<=x1&&y>=y0&&y<=y1)return true;
+   }
+   return false;
+ },
+ down(G){
+   if(!G.started){G.started=true;return}
+   if(G.fall)return;
+   const oa=G.ax;G.ax=oa?0:1;tone(300,420,0.08,'square',0.05);
+   const n=G.runs[G.cur+1];
+   if(n&&n.a===(G.ax?0:1)){
+     const along=oa?G.px:G.py,corner=oa?n.x:n.y;
+     if(Math.abs(along-corner)<=this.hw(G)+0.3){
+       G.cur++;G.score++;G.spd=Math.min(9,4.2+G.score*0.06);mgPop(G,G.W/2,G.H*0.5,'+1','#fde047');mgBurst(G,G.sx,G.sy,8,['#fff','#fde047'],160);buzz(10);this.gen(G);
+     }
+   }
+ },
+ key(G,code){if(code==='Space'||code==='ArrowUp'||code==='ArrowLeft'||code==='ArrowRight')this.down(G)},
+ update(G,dt){
+   const U=G.U;
+   if(G.started&&!G.over&&!G.fall){
+     const mv=G.spd*dt;
+     if(G.ax)G.px+=mv;else G.py+=mv;
+     // elmas
+     for(const g of G.gems){if(!g.got&&Math.hypot(g.x-G.px,g.y-G.py)<0.85){g.got=true;G.score++;sfx.coin();mgPop(G,G.W/2+30,G.H*0.45,'💎 +1','#7dd3fc')}}
+     if(!this.inRoad(G,G.px,G.py)){G.fall=0.001;sfx.hit()}
+     G.trT-=dt;if(G.trT<=0){G.trT=0.04;const q=this.P(G,G.px,G.py);G.parts.push({x:q[0]-6*(G.ax?1:-1),y:q[1]+4,vx:(G.ax?-1:1)*10,vy:10,life:.45,max:.45,c:'rgba(255,255,255,.55)',s:3})}
+   }
+   if(G.fall){G.fall+=dt;const mv=G.spd*dt*0.6;if(G.ax)G.px+=mv;else G.py+=mv;if(G.fall>0.9&&!G.over)mgEnd(G,'Düştün!')}
+   const q=this.P(G,G.px,G.py);
+   if(!G.camInit){G.camx=q[0];G.camy=q[1];G.camInit=true}
+   G.camx+=(q[0]-G.camx)*Math.min(1,dt*5);G.camy+=(q[1]-G.camy)*Math.min(1,dt*5);
+   G.sx=G.W/2+q[0]-G.camx;G.sy=G.H*0.66+q[1]-G.camy;
+   if(G.gems.length>20)G.gems=G.gems.filter(g=>!g.got||Math.abs(g.x+g.y-(G.px+G.py))<12);
+ },
+ P(G,x,y){return[(x-y)*G.U,-(x+y)*G.U*0.56]},
+ draw(G,c){
+   const W=G.W,H=G.H,th=this.TH[Math.floor(G.score/25)%this.TH.length];
+   const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#0b0720');bg.addColorStop(1,'#241257');c.fillStyle=bg;c.fillRect(0,0,W,H);
+   c.fillStyle='#fff';for(const s of G.stars){c.globalAlpha=.3+.3*Math.sin(G.t*2+s.x);c.fillRect(s.x,s.y,s.s,s.s)}c.globalAlpha=1;
+   const hw=this.hw(G),ox=W/2-G.camx,oy=G.H*0.66-G.camy,U=G.U;
+   const pr=(x,y)=>[ox+(x-y)*U,oy-(x+y)*U*0.56];
+   const dep=U*0.5;
+   for(let i=Math.min(G.runs.length-1,G.cur+11);i>=Math.max(0,G.cur-2);i--){
+     const r=G.runs[i];let x0,x1,y0,y1;
+     if(r.a===0){x0=r.x-hw;x1=r.x+r.L+hw;y0=r.y-hw;y1=r.y+hw}else{x0=r.x-hw;x1=r.x+hw;y0=r.y-hw;y1=r.y+r.L+hw}
+     const p=[pr(x0,y0),pr(x1,y0),pr(x1,y1),pr(x0,y1)];
+     c.fillStyle=th[1];c.beginPath();c.moveTo(p[0][0],p[0][1]+dep);for(let k=1;k<4;k++)c.lineTo(p[k][0],p[k][1]+dep);c.closePath();c.fill();
+     c.beginPath();c.moveTo(p[3][0],p[3][1]);c.lineTo(p[3][0],p[3][1]+dep);c.lineTo(p[2][0],p[2][1]+dep);c.lineTo(p[2][0],p[2][1]);c.closePath();c.fillStyle='rgba(0,0,0,.25)';c.fill();
+     c.fillStyle=i%2?th[0]:th[0];c.globalAlpha=1;c.beginPath();c.moveTo(p[0][0],p[0][1]);for(let k=1;k<4;k++)c.lineTo(p[k][0],p[k][1]);c.closePath();c.fill();
+     c.strokeStyle='rgba(255,255,255,.35)';c.lineWidth=2;c.setLineDash([8,8]);
+     const a=r.a===0?pr(r.x,r.y):pr(r.x,r.y),b=r.a===0?pr(r.x+r.L,r.y):pr(r.x,r.y+r.L);c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke();c.setLineDash([]);
+     c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=2;c.beginPath();c.moveTo(p[0][0],p[0][1]);for(let k=1;k<4;k++)c.lineTo(p[k][0],p[k][1]);c.closePath();c.stroke();
+   }
+   c.textAlign='center';c.textBaseline='middle';
+   for(const g of G.gems){if(g.got)continue;const q=pr(g.x,g.y);if(q[1]<-30||q[1]>H+30)continue;c.font='22px sans-serif';c.fillStyle='#fff';c.fillText('💎',q[0],q[1]-6+Math.sin(G.t*4+g.x)*3)}
+   // araba
+   const sx=G.sx,sy=G.sy;let fy=0,al=1;if(G.fall){fy=G.fall*G.fall*320;al=Math.max(0,1-G.fall*0.9)}
+   c.globalAlpha=al;c.fillStyle='rgba(0,0,0,.35)';if(!G.fall){c.beginPath();c.ellipse(sx,sy+8,16,6,0,0,6.283);c.fill()}
+   c.save();c.translate(sx,sy-6+fy);if(G.fall)c.rotate(G.fall*2.5);c.scale(G.ax?-1:1,1);c.font='46px sans-serif';c.fillStyle='#fff';c.fillText('🏎️',0,0);c.restore();c.globalAlpha=1;
+ }
+});
+// ---- Salıncak Kancası ----
+mgRegister({id:'hook',title:'Salıncak Kancası',emo:'🪝',desc:'Basılı tut, ipe tutun; bırak, uç. Lavlara düşme!',g1:'#06b6d4',g2:'#4f46e5',hint:'Basılı tut: tutun · Bırak: uç',
+ coins:s=>Math.floor(s/4),
+ ach:[{name:'Salıncak Çırağı',text:'Salıncak Kancası: 40 metre git',t:40,r:150},{name:'Salıncak Ustası',text:'Salıncak Kancası: 150 metre git',t:150,r:500}],
+ q:{t:50,text:'Salıncak Kancası: tek oyunda 50 metre',r:150},
+ pg:400,keepRunning:true,
+ revive(G){const p=G.p;p.y=G.H*0.3;p.vx=Math.max(160,p.vx);p.vy=0;G.att=null;G.held=false},
+ init(G){
+   G.p={x:80,y:G.H*0.3,vx:170,vy:0};G.att=null;G.held=false;G.anch=[];G.nx=140;G.ly=G.H*0.16;G.maxX=0;G.trail=[];G.started=false;G.camx=0;
+   while(G.nx<G.W*3)this.addA(G);
+   if(!G._ev){G._ev=1;const up=()=>{const g=mgR.G;if(g&&g.d.id==='hook'){g.held=false;g.att=null}};window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up)}
+ },
+ addA(G){const s=G.maxS||0;G.nx+=140+Math.random()*(70+Math.min(40,G.score*0.4));G.anch.push({x:G.nx,y:G.H*(0.1+Math.random()*0.17)})},
+ down(G){
+   G.held=true;if(!G.started)G.started=true;if(G.over)return;
+   const p=G.p;let b=null,bs=1e9;
+   for(const a of G.anch){if(a.x<p.x-30||a.y>p.y-30)continue;const d=Math.hypot(a.x-p.x,a.y-p.y);if(d>380)continue;const sc=d-(a.x-p.x)*0.25;if(sc<bs){bs=sc;b=a}}
+   if(b){G.att={a:b,L:Math.hypot(b.x-p.x,b.y-p.y)};tone(400,800,0.08,'triangle',0.06);buzz(8)}
+ },
+ key(G,code){if(code==='Space'||code==='ArrowUp')this.down(G)},
+ update(G,dt){
+   const p=G.p;
+   if(G.over){G.camx+=(p.x-G.W*0.35-G.camx)*0.05;return}
+   if(!G.started){p.y=G.H*0.3+Math.sin(G.t*3)*6;return}
+   const N=3,h=dt/N;
+   for(let i=0;i<N;i++){
+     p.vy+=1050*h;
+     if(G.att&&G.held){p.vx+=0;}
+     p.x+=p.vx*h;p.y+=p.vy*h;
+     if(G.att&&G.held){
+       const a=G.att.a,dx=p.x-a.x,dy=p.y-a.y,d=Math.hypot(dx,dy);
+       if(d>G.att.L){const nx=dx/d,ny=dy/d;p.x=a.x+nx*G.att.L;p.y=a.y+ny*G.att.L;const vn=p.vx*nx+p.vy*ny;if(vn>0){p.vx-=vn*nx;p.vy-=vn*ny}}
+     }
+   }
+   if(!G.held)G.att=null;
+   if(G.att&&G.held&&G.att.a.y<p.y){p.vx*=1+0.12*dt}
+   p.vx=Math.min(p.vx,700);
+   if(p.x<G.camx+30){p.x=G.camx+30;p.vx=Math.max(p.vx,60)}
+   G.camx+=(p.x-G.W*0.35-G.camx)*Math.min(1,dt*6);
+   if(p.x>G.maxX){G.maxX=p.x;G.score=Math.floor((p.x-80)/40)}
+   while(G.nx<G.camx+G.W*2.5)this.addA(G);
+   G.anch=G.anch.filter(a=>a.x>G.camx-200);
+   G.trail.push({x:p.x,y:p.y});if(G.trail.length>22)G.trail.shift();
+   if(p.y>G.H-70){mgEnd(G,'Lava düştün!');G.parts.push({x:p.x-G.camx,y:G.H-70,vx:0,vy:-150,life:.6,max:.6,c:'#f97316',s:5})}
+   if(p.y<-60){p.y=-60;p.vy=Math.abs(p.vy)*0.5}
+ },
+ draw(G,c){
+   const W=G.W,H=G.H,cx=G.camx,p=G.p;
+   const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#1e1b4b');bg.addColorStop(.7,'#312e81');bg.addColorStop(1,'#4c1d95');c.fillStyle=bg;c.fillRect(0,0,W,H);
+   // paralaks sütunlar
+   c.fillStyle='rgba(255,255,255,.05)';
+   for(let i=-1;i<8;i++){const x=((i*170-cx*0.3)%1190+1190)%1190-120;c.fillRect(x,0,46,H)}
+   c.fillStyle='rgba(255,255,255,.08)';
+   for(let i=-1;i<8;i++){const x=((i*230-cx*0.55)%1610+1610)%1610-120;c.fillRect(x,0,26,H*0.8)}
+   // tavan
+   c.fillStyle='#0f0a2e';c.fillRect(0,0,W,H*0.07);
+   // lav
+   const ly=H-62,lg=c.createLinearGradient(0,ly,0,H);lg.addColorStop(0,'#fb923c');lg.addColorStop(1,'#b91c1c');c.fillStyle=lg;c.beginPath();c.moveTo(0,H);
+   for(let x=0;x<=W;x+=14)c.lineTo(x,ly+Math.sin((x+cx)*0.05+G.t*3)*5);
+   c.lineTo(W,H);c.closePath();c.fill();
+   // çapalar
+   for(const a of G.anch){const x=a.x-cx;if(x<-30||x>W+30)continue;const on=G.att&&G.att.a===a;
+     c.strokeStyle='rgba(255,255,255,.12)';c.lineWidth=2;c.beginPath();c.moveTo(x,0);c.lineTo(x,a.y);c.stroke();
+     c.fillStyle=on?'#fde047':'#a5f3fc';c.shadowColor=on?'#fde047':'#22d3ee';c.shadowBlur=on?18:10;c.beginPath();c.arc(x,a.y,on?9:7,0,6.283);c.fill();c.shadowBlur=0}
+   // iz
+   if(G.trail.length>2){c.lineCap='round';for(let i=1;i<G.trail.length;i++){c.strokeStyle='rgba(103,232,249,'+(i/G.trail.length*0.5)+')';c.lineWidth=i/G.trail.length*10;c.beginPath();c.moveTo(G.trail[i-1].x-cx,G.trail[i-1].y);c.lineTo(G.trail[i].x-cx,G.trail[i].y);c.stroke()}}
+   // ip
+   const px=p.x-cx;
+   if(G.att&&G.held){c.strokeStyle='#fde68a';c.lineWidth=3;c.beginPath();c.moveTo(G.att.a.x-cx,G.att.a.y);c.lineTo(px,p.y);c.stroke()}
+   // karakter
+   const g=c.createRadialGradient(px-4,p.y-4,2,px,p.y,15);g.addColorStop(0,'#fff');g.addColorStop(1,'#22d3ee');
+   c.fillStyle=g;c.beginPath();c.arc(px,p.y,14,0,6.283);c.fill();
+   c.fillStyle='#0f172a';const ex=p.vx>0?3:-3;c.beginPath();c.arc(px+ex-3,p.y-2,2.2,0,6.283);c.arc(px+ex+4,p.y-2,2.2,0,6.283);c.fill();
+   c.font='600 18px Fredoka,sans-serif';c.textAlign='left';c.fillStyle='rgba(255,255,255,.85)';c.fillText(G.score+' m',12,H-24);
+ }
+});
+
 // ---- Blok Bulmaca ----
 const BB_SH=[
  [[0,0]],[[0,0],[0,1]],[[0,0],[1,0]],[[0,0],[0,1],[0,2]],[[0,0],[1,0],[2,0]],
@@ -8268,6 +8434,28 @@ Obur Delik Çırağı|Hungry Hole Apprentice|Aprendiz del Agujero Glotón|Aprend
 Obur Delik Ustası|Hungry Hole Master|Maestro del Agujero Glotón|Mestre do Buraco Faminto|Meister des gierigen Lochs|Maître du Trou Glouton|Мастер прожорливой дыры|Master Lubang Rakus
 Obur Delik Efsanesi|Hungry Hole Legend|Leyenda del Agujero Glotón|Lenda do Buraco Faminto|Legende des gierigen Lochs|Légende du Trou Glouton|Легенда прожорливой дыры|Legenda Lubang Rakus
 Obur Delik: {} seviye bitir|Hungry Hole: finish {} levels|Agujero Glotón: supera {} niveles|Buraco Faminto: conclua {} níveis|Gieriges Loch: schließe {} Level ab|Trou Glouton : termine {} niveaux|Прожорливая дыра: пройди {} уровней|Lubang Rakus: selesaikan {} level
+Drift Rotası|Drift Route|Ruta Drift|Rota Drift|Drift-Route|Route Drift|Дрифт-трасса|Rute Drift
+Dokun, arabayı döndür. Yoldan düşme, elmasları topla!|Tap to turn the car. Don't fall off, collect gems!|¡Toca para girar el coche! No te caigas, recoge gemas.|Toque para virar o carro. Não caia, colete gemas!|Tippe, um das Auto zu drehen. Nicht abstürzen, Edelsteine sammeln!|Touche pour tourner la voiture. Ne tombe pas, ramasse les gemmes !|Нажимай, чтобы повернуть машину. Не упади, собирай кристаллы!|Ketuk untuk membelok. Jangan jatuh, kumpulkan permata!
+Dokun: yön değiştir|Tap: change direction|Toca: cambiar dirección|Toque: mudar direção|Tippen: Richtung wechseln|Touche : changer de direction|Нажми: смена направления|Ketuk: ganti arah
+Drift Çırağı|Drift Apprentice|Aprendiz de Drift|Aprendiz de Drift|Drift-Lehrling|Apprenti Drift|Ученик дрифта|Murid Drift
+Drift Ustası|Drift Master|Maestro del Drift|Mestre do Drift|Drift-Meister|Maître du Drift|Мастер дрифта|Master Drift
+Drift Rotası: 25 puan yap|Drift Route: score 25 points|Ruta Drift: consigue 25 puntos|Rota Drift: faça 25 pontos|Drift-Route: erreiche 25 Punkte|Route Drift : fais 25 points|Дрифт-трасса: набери 25 очков|Rute Drift: raih 25 poin
+Drift Rotası: 80 puan yap|Drift Route: score 80 points|Ruta Drift: consigue 80 puntos|Rota Drift: faça 80 pontos|Drift-Route: erreiche 80 Punkte|Route Drift : fais 80 points|Дрифт-трасса: набери 80 очков|Rute Drift: raih 80 poin
+Drift Rotası: tek oyunda 30 puan|Drift Route: 30 points in one run|Ruta Drift: 30 puntos en una partida|Rota Drift: 30 pontos em uma partida|Drift-Route: 30 Punkte in einem Spiel|Route Drift : 30 points en une partie|Дрифт-трасса: 30 очков за игру|Rute Drift: 30 poin dalam satu game
+Drift Rotası Efsanesi|Drift Route Legend|Leyenda de Ruta Drift|Lenda da Rota Drift|Drift-Route-Legende|Légende Route Drift|Легенда дрифт-трассы|Legenda Rute Drift
+Drift Rotası: tek oyunda 200 puan yap|Drift Route: score 200 in one run|Ruta Drift: 200 puntos en una partida|Rota Drift: 200 pontos em uma partida|Drift-Route: 200 Punkte in einem Spiel|Route Drift : 200 points en une partie|Дрифт-трасса: 200 очков за игру|Rute Drift: 200 poin dalam satu game
+Düştün!|You fell!|¡Te caíste!|Você caiu!|Du bist gefallen!|Tu es tombé !|Ты упал!|Kamu jatuh!
+Salıncak Kancası|Swing Hook|Gancho Columpio|Gancho Balanço|Schwunghaken|Crochet Balançoire|Крюк-качели|Kait Ayun
+Basılı tut, ipe tutun; bırak, uç. Lavlara düşme!|Hold to grab the rope; release to fly. Don't fall into the lava!|Mantén para agarrar la cuerda; suelta para volar. ¡No caigas en la lava!|Segure para agarrar a corda; solte para voar. Não caia na lava!|Halten zum Greifen, loslassen zum Fliegen. Nicht in die Lava fallen!|Maintiens pour t'accrocher, relâche pour voler. Ne tombe pas dans la lave !|Держи, чтобы схватиться за верёвку; отпусти, чтобы лететь. Не упади в лаву!|Tahan untuk memegang tali; lepas untuk terbang. Jangan jatuh ke lava!
+Basılı tut: tutun · Bırak: uç|Hold: grab · Release: fly|Mantén: agarrar · Suelta: volar|Segure: agarrar · Solte: voar|Halten: greifen · Loslassen: fliegen|Maintiens : s'accrocher · Relâche : voler|Держи: схватиться · Отпусти: лететь|Tahan: pegang · Lepas: terbang
+Salıncak Çırağı|Swing Apprentice|Aprendiz de Columpio|Aprendiz de Balanço|Schwung-Lehrling|Apprenti Balançoire|Ученик качелей|Murid Ayun
+Salıncak Ustası|Swing Master|Maestro del Columpio|Mestre do Balanço|Schwung-Meister|Maître Balançoire|Мастер качелей|Master Ayun
+Salıncak Kancası: 40 metre git|Swing Hook: go 40 meters|Gancho Columpio: llega a 40 metros|Gancho Balanço: vá 40 metros|Schwunghaken: 40 Meter weit|Crochet Balançoire : va à 40 mètres|Крюк-качели: пролети 40 метров|Kait Ayun: capai 40 meter
+Salıncak Kancası: 150 metre git|Swing Hook: go 150 meters|Gancho Columpio: llega a 150 metros|Gancho Balanço: vá 150 metros|Schwunghaken: 150 Meter weit|Crochet Balançoire : va à 150 mètres|Крюк-качели: пролети 150 метров|Kait Ayun: capai 150 meter
+Salıncak Kancası: tek oyunda 50 metre|Swing Hook: 50 meters in one run|Gancho Columpio: 50 metros en una partida|Gancho Balanço: 50 metros em uma partida|Schwunghaken: 50 Meter in einem Spiel|Crochet Balançoire : 50 mètres en une partie|Крюк-качели: 50 метров за игру|Kait Ayun: 50 meter dalam satu game
+Salıncak Kancası Efsanesi|Swing Hook Legend|Leyenda de Gancho Columpio|Lenda do Gancho Balanço|Schwunghaken-Legende|Légende Crochet Balançoire|Легенда крюка-качелей|Legenda Kait Ayun
+Salıncak Kancası: tek oyunda 375 puan yap|Swing Hook: score 375 in one run|Gancho Columpio: 375 puntos en una partida|Gancho Balanço: 375 pontos em uma partida|Schwunghaken: 375 Punkte in einem Spiel|Crochet Balançoire : 375 points en une partie|Крюк-качели: 375 очков за игру|Kait Ayun: 375 poin dalam satu game
+Lava düştün!|You fell into lava!|¡Caíste en la lava!|Você caiu na lava!|Du bist in die Lava gefallen!|Tu es tombé dans la lave !|Ты упал в лаву!|Kamu jatuh ke lava!
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];
