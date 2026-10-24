@@ -634,8 +634,8 @@ const yestStr=()=>{const d=new Date(Date.now()-864e5);return d.getFullYear()+'-'
 const weekId=()=>{const d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5-4)/7)};
 const weekLeft=()=>{const d=new Date(),dow=(d.getDay()+6)%7;const end=new Date(d.getFullYear(),d.getMonth(),d.getDate()+(7-dow));return Math.max(0,end-d)};
 // Oyun tablosu: n=ad, e=simge, w=ödülün yatacağı cüzdan (parası olmayan oyunlar Sonsuz Koşu cüzdanına yazar)
-const QG={run:{n:'Sonsuz Koşu',e:'🏃',w:'run'},maze:{n:'Labirent',e:'🌀',w:'maze'},city:{n:'Tek Tuş Şehir',e:'🏙️',w:'run'},tiles:{n:'Melodi Karoları',e:'🎹',w:'tiles'},arrows:{n:'Ok Kaçışı',e:'🎯',w:'arrows'},sort:{n:'Su Sıralama',e:'🧪',w:'sort'},clean:{n:'Temizlik',e:'🧼',w:'clean'},ghost:{n:'Hayalet Takım',e:'👻',w:'ghost'},lock:{n:'Kasa Uzmanı',e:'🔐',w:'lock'},shadow:{n:'Gölge Bahçesi',e:'🌙',w:'shadow'},words:{n:'Kelime Çiçeği',e:'🌸',w:'words'},mini:{n:'Mini Oyunlar',e:'🎮',w:'run'},any:{n:'Genel',e:'⭐',w:'run'}};
-const WNAME={words:'Kelime Çiçeği',run:'Sonsuz Koşu',maze:'Labirent',tiles:'Melodi Karoları',arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik',ghost:'Hayalet Takım',lock:'Kasa Uzmanı',shadow:'Gölge Bahçesi'};
+const QG={run:{n:'Sonsuz Koşu',e:'🏃',w:'run'},maze:{n:'Labirent',e:'🌀',w:'maze'},city:{n:'Tek Tuş Şehir',e:'🏙️',w:'run'},tiles:{n:'Melodi Karoları',e:'🎹',w:'tiles'},arrows:{n:'Ok Kaçışı',e:'🎯',w:'arrows'},sort:{n:'Su Sıralama',e:'🧪',w:'sort'},clean:{n:'Temizlik',e:'🧼',w:'clean'},ghost:{n:'Hayalet Takım',e:'👻',w:'ghost'},lock:{n:'Kasa Uzmanı',e:'🔐',w:'lock'},shadow:{n:'Gölge Bahçesi',e:'🌙',w:'shadow'},words:{n:'Kelime Çiçeği',e:'🌸',w:'words'},merge:{n:'Yuva Birleştir',e:'🥚',w:'merge'},mini:{n:'Mini Oyunlar',e:'🎮',w:'run'},any:{n:'Genel',e:'⭐',w:'run'}};
+const WNAME={words:'Kelime Çiçeği',run:'Sonsuz Koşu',maze:'Labirent',tiles:'Melodi Karoları',arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik',ghost:'Hayalet Takım',lock:'Kasa Uzmanı',shadow:'Gölge Bahçesi',merge:'Yuva Birleştir'};
 // t: günlük [kolay,orta,zor], w: haftalık [kolay,orta,zor], x: metin ({n} sayı yerine geçer)
 const QT=[
  {k:'play',g:'run',m:'sum',x:'{n} kez koş',t:[2,4,8],w:[8,16,30]},
@@ -660,6 +660,7 @@ const QT=[
  {k:'lock',g:'lock',m:'sum',x:'{n} kasa aç',t:[1,3,5],w:[4,8,14]},
  {k:'shadow',g:'shadow',m:'sum',x:'{n} bahçe bitir',t:[1,3,5],w:[4,8,14]},
  {k:'words',g:'words',m:'sum',x:'{n} kelime seviyesi bitir',t:[2,4,7],w:[8,16,28]},
+ {k:'merge',g:'merge',m:'sum',x:'{n} sipariş teslim et',t:[2,4,7],w:[8,16,28]},
  {k:'mgplay',g:'mini',m:'sum',x:'{n} tur oyna',t:[3,6,12],w:[12,25,45]},
  {k:'diff',g:'any',m:'diff',x:'{n} farklı oyun oyna',t:[2,3,5],w:[4,7,10]}
 ];
@@ -667,7 +668,7 @@ const WORLD_TX=['','',"Buz Dünyası'na ulaş","Çöl Dünyası'na ulaş","Lav D
 const QRW={d:[40,90,180],w:[120,280,550]},QRF={run:1.5};
 const DIFFN=['Kolay','Orta','Zor'],DIFFC=['#52e08a','#ffd34d','#ff6b7a'];
 const GIFTS=[30,40,50,60,80,100,150];
-const GOF={play:'run',score:'run',runcoins:'run',c_run:'run',jump:'run',slide:'run',power:'run',world:'run',boss:'run',maze:'maze',c_maze:'maze',city:'city',cjump:'city',tile:'tiles',song:'tiles',c_tiles:'tiles',arrows:'arrows',c_arrows:'arrows',sort:'sort',c_sort:'sort',clean:'clean',c_clean:'clean',ghost:'ghost',c_ghost:'ghost',lock:'lock',c_lock:'lock',shadow:'shadow',c_shadow:'shadow',words:'words',c_words:'words'};
+const GOF={play:'run',score:'run',runcoins:'run',c_run:'run',jump:'run',slide:'run',power:'run',world:'run',boss:'run',maze:'maze',c_maze:'maze',city:'city',cjump:'city',tile:'tiles',song:'tiles',c_tiles:'tiles',arrows:'arrows',c_arrows:'arrows',sort:'sort',c_sort:'sort',clean:'clean',c_clean:'clean',ghost:'ghost',c_ghost:'ghost',lock:'lock',c_lock:'lock',shadow:'shadow',c_shadow:'shadow',words:'words',c_words:'words',merge:'merge',c_merge:'merge'};
 function gameOf(t){return GOF[t]||(t.indexOf('g_')===0?t.slice(2):t.indexOf('gp_')===0?t.slice(3):null)}
 let daily=ld('tv_daily',null),weekly=ld('tv_weekly',null),streak=ld('tv_streak',{last:'',count:0});
 let gs=ld('tv_gs',{});if(!gs.pl)gs.pl={};
@@ -4166,6 +4167,7 @@ function freeBig(){
   if(state!=='sort'){so.G=null;const c=$('c_so');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='clean'){cl.G=null;const c=$('c_cl');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='shadow'){sg.G=null;const c=$('c_sg');if(c&&c.width>1){c.width=1;c.height=1}}
+  if(state!=='merge'){yv.G=null;const c=$('c_yv');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='words'){wd.G=null;const c=$('c_wd');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='lock'){lk.G=null;const c=$('c_lk');if(c&&c.width>1){c.width=1;c.height=1}}
   if(state!=='gh'){gh.G=null;const c=$('c_gh');if(c&&c.width>1){c.width=1;c.height=1}}
@@ -4718,6 +4720,301 @@ const wdCache=new Map();
 function wdGet(level,code,L){const key=code+'|'+level+'|'+wdSalt;const h=wdCache.get(key);if(h){wdCache.delete(key);return h}return wdGen0(level,code,L)}
 function wdPre(level,code,L){const key=code+'|'+level+'|'+wdSalt;if(wdCache.has(key)||wdCache.size>3)return;try{wdCache.set(key,wdGen0(level,code,L))}catch(e){}}
 function wdGen0(level,code,L){return wdGen(level,code,L,0)||wdGen(level,code,L,1)||wdGen(level,code,L,2)||wdGen(level,code,L,3)}
+
+// ---- Yuva Birleştir (birleştir, büyüt, sipariş ver) ----
+WN.merge='Yuva Birleştir';WKEYS.push('merge');
+const YV_C=5,YV_R=6,YV_N=30,YV_MAXL=7,YV_REGEN=40000;
+const YV_CH=[{n:'Yuva',e:['🥚','🐣','🐥','🦆','🦉','🦅','🦚','🐉'],col:'#fbbf24'},{n:'Bahçe',e:['🌱','🌿','🌼','🌻','🌷','🌳','🍎','🌈'],col:'#34d399'}];
+let yvS=ld('tv_yv',null);
+(function(){
+  const ok=yvS&&Array.isArray(yvS.b)&&yvS.b.length===YV_N&&Array.isArray(yvS.col);
+  if(!ok){const b=Array(YV_N).fill(0);[[6,0,0],[7,0,0],[8,1,0],[11,1,0],[12,0,1],[13,1,1]].forEach(x=>b[x[0]]={c:x[1],l:x[2]});
+    yvS={b,en:20,et:Date.now(),xp:0,pl:1,ord:[],oc:0,col:[1,1],mc:0,done:0}}
+})();
+const yv={G:null,raf:false,last:0};
+const yvCap=()=>20+Math.min(20,Math.floor(yvS.pl/3)*2);
+const yvNeed=()=>20+15*(yvS.pl-1);
+const yvSave=()=>sv('tv_yv',yvS);
+const yvVal=l=>Math.max(1,(1<<l)>>1);
+function yvRegen(){
+  const cap=yvCap(),now=Date.now();
+  if(yvS.en>=cap){yvS.et=now;return false}
+  if(now<yvS.et)yvS.et=now;
+  let ch=false;
+  while(yvS.en<cap&&now-yvS.et>=YV_REGEN){yvS.en++;yvS.et+=YV_REGEN;ch=true}
+  if(yvS.en>=cap)yvS.et=now;
+  if(ch)yvSave();
+  return ch;
+}
+function yvOrder(){
+  const pl=yvS.pl,maxL=Math.min(5,1+Math.floor((pl+1)/2));
+  const vip=yvS.oc%6===5&&!yvS.ord.some(o=>o&&o.vip);
+  const pick=()=>{const l=yvS.oc<4?2:Math.max(1,maxL-Math.floor(Math.random()*3)),c=Math.random()<.5?0:1;return{c,l,n:(l<=3&&pl>=3&&Math.random()<.4)?2:1}};
+  const key=o=>o.need.map(x=>x.c+':'+x.l).join('|');
+  let need,tries=0;
+  do{need=[pick()];
+    if(vip){const b=pick();if(b.c===need[0].c)b.c=1-b.c;if(b.l<maxL)b.l++;need.push(b)}
+    tries++}while(tries<10&&yvS.ord.some(o=>o&&key(o)===key({need})));
+  let tot=0;need.forEach(x=>tot+=x.n*(1<<x.l));
+  return{need,rw:Math.round((tot*1.5+4)*(vip?1.6:1)),xp:Math.round(tot*1.2)+2,vip};
+}
+function yvFillOrders(){while(yvS.ord.length<3)yvS.ord.push(null);for(let i=0;i<3;i++)if(!yvS.ord[i])yvS.ord[i]=yvOrder()}
+function yvCount(c,l){let k=0;for(const it of yvS.b)if(it&&it.c===c&&it.l===l)k++;return k}
+const yvOrdHave=o=>o.need.every(x=>yvCount(x.c,x.l)>=x.n);
+document.body.insertAdjacentHTML('beforeend','<div id="merge" class="hidden mgscr"><canvas id="c_yv" style="touch-action:none"></canvas>'
+ +'<div class="mtop"><button id="yv_back" class="ibtn alt">‹</button><div class="pill" id="yv_lv">Yuva Seviye 1</div><div class="pill sm" id="yv_en">⚡ 20/20</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
+ +'<div id="yv_ord"></div>'
+ +'<div class="sobar"><button id="yv_sp"><i>✨</i><span id="yv_spt">Üret</span></button><button id="yv_cl"><i>📖</i><span>Koleksiyon</span></button><button id="yv_ad"><i>📺</i><span>+10 ⚡</span></button></div>'
+ +'<div id="yv_lu" class="overlay hidden"><div class="card"><div class="ttl" id="yv_lut" style="color:var(--gold)">Yuva Seviye 2! 🎉</div><div id="yv_lui" style="color:var(--mute);margin:8px 0;white-space:pre-line"></div><button id="yv_luok" class="gold">▶ Devam</button><button id="yv_ludbl" class="alt">📺 Ödülü 2 kat yap</button></div></div></div>');
+document.head.insertAdjacentHTML('beforeend','<style>#yv_lv{font-size:14px;padding:6px 11px;white-space:nowrap}#yv_en{white-space:nowrap}#yv_ord{position:absolute;top:calc(58px + env(safe-area-inset-top));left:8px;right:8px;height:92px;display:flex;gap:8px;pointer-events:none}#yv_ord>button{pointer-events:auto;flex:1;min-width:0;height:92px;padding:4px 2px;border-radius:16px;background:linear-gradient(#3b3173,#241a5a);box-shadow:0 3px 0 #170f3a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12px;color:#e9e4ff;border:2px solid transparent}#yv_ord>button.rdy{border-color:#52e08a;background:linear-gradient(#1f6b46,#14452f);box-shadow:0 3px 0 #0b2a1c,0 0 14px #52e08a88;animation:yvpulse 1s ease-in-out infinite}#yv_ord>button.vip{border-color:#ffd34d}#yv_ord>button.vip.rdy{border-color:#52e08a}#yv_ord .yvn{font-size:21px;line-height:1.1;white-space:nowrap}#yv_ord .yvh{font-weight:700;font-size:12px;opacity:.85}#yv_ord .yvr{font-weight:700;color:#ffd34d;font-size:13px}#yv_ord .yvv{font-size:10px;color:#ffd34d;font-weight:700;letter-spacing:1px}@keyframes yvpulse{50%{transform:scale(1.04)}}#yv_col{z-index:30}.yvslot{width:34px;height:46px;border-radius:10px;background:rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:21px;line-height:1}.yvslot small{font-size:9px;color:var(--mute);margin-top:2px}.yvslot.no{opacity:.45;filter:grayscale(1)}</style>');
+SCR.push('merge');
+document.body.insertAdjacentHTML('beforeend','<div id="yv_col" class="overlay hidden"><div class="card" style="width:min(94vw,400px)"><div class="ttl">📖 Koleksiyon</div><div id="yv_ci" style="color:var(--mute);margin:6px 0 10px;font-size:14px"></div><div id="yv_cl2"></div><button id="yv_cx" class="alt" style="margin-top:12px">Kapat</button></div></div>');
+$('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardYv" style="background:linear-gradient(135deg,#f472b6,#a855f7 55%,#4f46e5)"><div class="gicon">🥚</div><div class="gtx"><b>Yuva Birleştir</b><small>Aynıları birleştir, yumurtadan ejderhayı çıkar!</small><span class="gtag" id="hsYv">Yuva Sv.1</span></div><div class="gplay" style="color:#a855f7">▶</div></div>');
+ACH3('t_mg','merge','{n} yuva seviyesine ulaş',()=>yvS.pl-1,[4,12,30],RS);
+ACH.push({id:'mgd1',name:'Koleksiyoncu',text:'Yuva Birleştir: 8 ürün keşfet',get:()=>yvS.col[0]+yvS.col[1]-2,target:8,reward:150,w:'merge'},{id:'mgd2',name:'Yuva Efsanesi',text:'Yuva Birleştir: Ejderha ve Gökkuşağı\'nı keşfet',get:()=>(yvS.col[0]>=7?1:0)+(yvS.col[1]>=7?1:0),target:2,reward:500,w:'merge'});
+const _lbCfgYv=lbCfg;
+lbCfg=function(id){
+  if(id==='yv'){const wl=k=>'🪙 '+(k===curW?totalCoins:(WALLET[k]||0));return{emo:'🥚',t:'Yuva Birleştir',d:'Aynı iki ürünü sürükleyip birleştir: yumurta civciv olur, tohum çiçek olur, en sonda ejderha ve gökkuşağı! Siparişleri teslim et, para ve tecrübe kazan. Enerji zamanla dolar. Her 6. sipariş VIP!',i:'Yuva Sv.'+yvS.pl+' · ⚡ '+yvS.en+'/'+yvCap(),w:wl('merge'),wk:'merge',play:()=>openMg(),x:[['📖 Koleksiyon',yvColOpen]]}}
+  return _lbCfgYv(id);
+};
+function yvFmtT(ms){const s=Math.ceil(ms/1000);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+function yvHud(){
+  const G=yv.G;
+  const need=yvNeed(),p=Math.max(0,Math.min(100,yvS.xp/need*100));
+  const lv=$('yv_lv');lv.textContent='Yuva Seviye '+yvS.pl;
+  lv.style.background='linear-gradient(90deg,rgba(168,85,247,.7) '+p+'%,rgba(255,255,255,.1) '+p+'%)';
+  const cap=yvCap();
+  $('yv_en').textContent='⚡ '+yvS.en+'/'+cap+(yvS.en<cap?' · '+yvFmtT(Math.max(0,YV_REGEN-(Date.now()-yvS.et))):'');
+  $('yv_spt').textContent=yvS.en>=1?'Üret ⚡1':'📺 Enerji';
+  try{$('hsYv').textContent='Yuva Sv.'+yvS.pl}catch(e){}
+}
+function yvOrdUI(){
+  const box=$('yv_ord');box.innerHTML='';
+  yvS.ord.forEach((o,i)=>{
+    const b=document.createElement('button');if(!o){box.appendChild(b);return}
+    const rdy=yvOrdHave(o);b.className=(rdy?'rdy ':'')+(o.vip?'vip':'');
+    const nm=o.need.map(x=>YV_CH[x.c].e[x.l]+(x.n>1?'×'+x.n:'')).join(' ');
+    const hv=o.need.map(x=>Math.min(x.n,yvCount(x.c,x.l))+'/'+x.n).join(' ');
+    b.innerHTML=(o.vip?'<div class="yvv">VIP</div>':'')+'<div class="yvn">'+nm+'</div><div class="yvh">'+(rdy?'Teslim!':hv)+'</div><div class="yvr">🪙 '+o.rw+'</div>';
+    b.onclick=()=>yvDeliver(i);
+    box.appendChild(b);
+  });
+}
+function yvCoin(n){credit('merge',n);stats.coins+=n;addProg('coins',n);addProg('c_merge',n);refreshCoins()}
+function yvLayout(G){
+  const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_yv');
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
+  G.W=W;G.H=H;G.dpr=dpr;G.ctx=cv.getContext?cv.getContext('2d'):null;
+  const top=58+92+8,zoneH=38,bot=86;
+  const avail=H-top-bot-zoneH-14;
+  const cell=Math.max(38,Math.floor(Math.min((W-20)/YV_C,avail/YV_R)));
+  G.cell=cell;G.bw=cell*YV_C;G.ox=Math.round((W-G.bw)/2);
+  G.oy=Math.round(top+Math.max(0,(avail-cell*YV_R)/2));
+  G.zone={x:G.ox,y:G.oy+cell*YV_R+8,w:G.bw,h:zoneH};
+}
+function yvStart(){
+  yvRegen();yvFillOrders();
+  const G={t:0,pop:{},flash:{},shake:{},parts:[],fl:[],sel:null,drag:null,idle:0,hint:null,hintT:0,hudT:0,lu:null,pend:[]};
+  yv.G=G;yvLayout(G);yvHud();yvOrdUI();show('yv_lu',false);show('yv_col',false);
+  if(!yv.raf){yv.raf=true;yv.last=performance.now();requestAnimationFrame(yvFrame)}
+}
+function openMg(){state='merge';useW('merge');stopMusic();hideAll();show('merge',true);yvStart()}
+const yvCellAt=(G,x,y)=>{const c=Math.floor((x-G.ox)/G.cell),r=Math.floor((y-G.oy)/G.cell);return c<0||r<0||c>=YV_C||r>=YV_R?-1:r*YV_C+c};
+const yvCX=(G,i)=>G.ox+(i%YV_C+.5)*G.cell,yvCY=(G,i)=>G.oy+(Math.floor(i/YV_C)+.5)*G.cell;
+function yvBurst(G,i,col,n){const x=yvCX(G,i),y=yvCY(G,i);for(let k=0;k<n;k++){const a=Math.random()*6.283,s=40+Math.random()*120;G.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-30,l:.5+Math.random()*.4,m:.9,c:col,r:2+Math.random()*3})}}
+function yvFloat(G,i,t,col){G.fl.push({x:yvCX(G,i),y:yvCY(G,i)-G.cell*.3,t:t,l:1.1,c:col||'#fff'})}
+function yvSnd(l){tone(380+l*85,640+l*100,0.16,'triangle',0.1);if(l>=4)tone(900+l*60,1300+l*60,0.2,'sine',0.07,0.08);buzz(12)}
+function yvCanMerge(a,b){const A=yvS.b[a],B=yvS.b[b];return a!==b&&A&&B&&A.c===B.c&&A.l===B.l&&A.l<YV_MAXL}
+function yvDiscover(G,c,l,i){
+  if(l<=yvS.col[c])return;
+  yvS.col[c]=l;
+  const bonus=l>=2?4*l:0;
+  if(bonus){yvCoin(bonus);yvFloat(G,i,'+'+bonus+'🪙','#ffd34d')}
+  toast('Yeni keşif! '+YV_CH[c].e[l]+(bonus?' · 🪙 +'+bonus:''));
+  if(l>=YV_MAXL&&!((yvS.done>>c)&1)){yvS.done|=1<<c;yvCoin(150);setTimeout(()=>toast('Zincir tamam! '+YV_CH[c].e[l]+' · 🪙 +150'),1500)}
+}
+function yvMerge(a,b){
+  const G=yv.G,A=yvS.b[a];if(!yvCanMerge(a,b))return false;
+  const nl=A.l+1;yvS.b[a]=0;yvS.b[b]={c:A.c,l:nl};
+  G.pop[b]=G.t;G.flash[b]=G.t;yvBurst(G,b,YV_CH[A.c].col,6+nl*3);yvSnd(nl);
+  yvS.mc++;
+  if(nl>=5)buzz(40);
+  yvDiscover(G,A.c,nl,b);
+  if(Math.random()<.1){const fr=[];for(let i=0;i<YV_N;i++)if(!yvS.b[i])fr.push(i);
+    if(fr.length){const j=fr[Math.floor(Math.random()*fr.length)];yvS.b[j]={c:Math.random()<.5?0:1,l:0};G.pop[j]=G.t+.15;yvFloat(G,j,'Şans! +1','#a7f3d0')}}
+  G.sel=null;G.hint=null;G.idle=0;yvSave();yvOrdUI();return true;
+}
+function yvSpawn(){
+  const G=yv.G;if(!G)return;yvRegen();
+  if(yvS.en<1){yvAd();return}
+  const fr=[];for(let i=0;i<YV_N;i++)if(!yvS.b[i])fr.push(i);
+  if(!fr.length){toast('Tahta dolu! Birleştir ya da sat');buzz(40);return}
+  const cap=yvCap();if(yvS.en>=cap)yvS.et=Date.now();
+  yvS.en--;
+  const j=fr[Math.floor(Math.random()*fr.length)],l=Math.random()<Math.min(.25,.02*yvS.pl)?1:0;
+  yvS.b[j]={c:Math.random()<.5?0:1,l};G.pop[j]=G.t;yvBurst(G,j,'#ffffff',5);tone(520,780,0.1,'sine',0.08);
+  G.idle=0;G.hint=null;yvSave();yvHud();yvOrdUI();
+}
+function yvAd(){
+  Ads.rewarded(()=>{yvRegen();yvS.en+=10;if(yvS.en<yvCap())yvS.et=Date.now();yvSave();yvHud();toast('⚡ +10');sfx.coin()});
+}
+function yvSell(i){
+  const G=yv.G,it=yvS.b[i];if(!it)return;
+  const v=yvVal(it.l);yvS.b[i]=0;yvCoin(v);sfx.coin();yvFloat(G,i,'+'+v+'🪙','#ffd34d');yvBurst(G,i,'#ffd34d',6);
+  G.sel=null;yvSave();yvOrdUI();
+}
+function yvDeliver(i){
+  const G=yv.G,o=yvS.ord[i];if(!G||!o)return;
+  const idx=[],used=new Set();
+  for(const nd of o.need){let k=0;for(let j=0;j<YV_N&&k<nd.n;j++){const it=yvS.b[j];if(it&&it.c===nd.c&&it.l===nd.l&&!used.has(j)){used.add(j);idx.push(j);k++}}
+    if(k<nd.n){toast('Bu ürün tahtada yok');buzz(30);return}}
+  idx.forEach(j=>{yvBurst(G,j,'#52e08a',8);yvS.b[j]=0});
+  yvCoin(o.rw);yvS.oc++;addProg('merge',1);
+  if(o.vip){yvS.en+=3}
+  sfx.coin();tone(700,1200,0.2,'triangle',0.1,0.1);buzz(30);
+  toast('Sipariş tamam! · 🪙 +'+o.rw+(o.vip?' · ⚡ +3':''));
+  yvS.ord[i]=null;
+  yvS.xp+=o.xp;
+  let lu=null;
+  while(yvS.xp>=yvNeed()){yvS.xp-=yvNeed();yvS.pl++;const boss=yvS.pl%10===0,m=boss?3:1;
+    const coins=(20+10*yvS.pl)*m;yvCoin(coins);yvS.en+=10*m;
+    const gift=[];for(let q=0;q<YV_N&&gift.length<(boss?3:1);q++)if(!yvS.b[q]){const c=Math.random()<.5?0:1;yvS.b[q]={c,l:2};gift.push(q);G.pop[q]=G.t+.3}
+    lu={pl:yvS.pl,coins:(lu?lu.coins:0)+coins,en:(lu?lu.en:0)+10*m,boss:boss||(lu&&lu.boss),gift:(lu?lu.gift:0)+gift.length}}
+  setTimeout(()=>{if(yv.G===G){yvFillOrders();yvSave();yvOrdUI();yvHud()}},350);
+  yvSave();yvOrdUI();yvHud();
+  if(lu){G.lu=lu;setTimeout(()=>{if(state==='merge'&&yv.G===G)yvLuShow(lu)},900)}
+}
+function yvLuShow(lu){
+  $('yv_lut').textContent='Yuva Seviye '+lu.pl+'! 🎉';
+  $('yv_lui').textContent=(lu.boss?'🔥 BOSS seviyesi · ödül x3\n':'')+'🪙 +'+lu.coins+' · ⚡ +'+lu.en+(lu.gift?'\n🎁 +'+lu.gift+' hediye ürün':'');
+  $('yv_ludbl').classList.remove('hidden');show('yv_lu',true);sfx.coin();
+}
+$('yv_luok').onclick=()=>show('yv_lu',false);
+$('yv_ludbl').onclick=()=>{const lu=yv.G&&yv.G.lu;if(!lu)return;Ads.rewarded(()=>{yvCoin(lu.coins);$('yv_ludbl').classList.add('hidden');$('yv_lui').textContent+=' · 2 kat yapıldı!'})};
+$('yv_sp').onclick=yvSpawn;$('yv_ad').onclick=yvAd;
+function yvColOpen(){
+  const l=$('yv_cl2');l.innerHTML='';let tot=0;
+  YV_CH.forEach((ch,c)=>{
+    let h='<div style="font-weight:700;margin:8px 0 6px;text-align:left">'+ch.n+(yvS.col[c]>=YV_MAXL?' ✅':'')+'</div><div style="display:flex;gap:3px;justify-content:center">';
+    ch.e.forEach((e,i)=>{const ok=i<=yvS.col[c];if(ok)tot++;h+='<div class="yvslot'+(ok?'':' no')+'">'+(ok?e:'❓')+'<small>'+(i+1)+'</small></div>'});
+    l.insertAdjacentHTML('beforeend',h+'</div>');
+  });
+  $('yv_ci').textContent='Keşfedilen: '+tot+'/16 · Yeni keşif = ekstra para';
+  show('yv_col',true);
+}
+$('yv_cl').onclick=yvColOpen;$('yv_cx').onclick=()=>show('yv_col',false);
+$('yv_back').onclick=()=>{yvSave();openLobby('yv')};
+function yvPair(){for(let i=0;i<YV_N;i++)for(let j=i+1;j<YV_N;j++)if(yvCanMerge(i,j))return[i,j];return null}
+function yvTick(G,dt){
+  G.t+=dt;G.idle+=dt;
+  for(const p of G.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=260*dt;p.l-=dt}
+  G.parts=G.parts.filter(p=>p.l>0);
+  for(const f of G.fl){f.y-=26*dt;f.l-=dt}
+  G.fl=G.fl.filter(f=>f.l>0);
+  G.hudT-=dt;
+  if(G.hudT<=0){G.hudT=.5;if(yvRegen()||true){yvHud();}}
+  if(G.idle>5&&!G.drag){G.hintT-=dt;if(G.hintT<=0){G.hintT=1;G.hint=yvPair()}}
+  else if(G.idle<=5)G.hint=null;
+}
+function yvItem(c,it,cx,cy,cell,sc,t){
+  const col=YV_CH[it.c].col,fs=cell*(0.5+it.l*0.034)*sc;
+  const g=c.createRadialGradient(cx,cy,0,cx,cy,cell*.52);g.addColorStop(0,col+(it.l>=3?'bb':'55'));g.addColorStop(1,col+'00');
+  c.fillStyle=g;c.fillRect(cx-cell/2,cy-cell/2,cell,cell);
+  if(it.l>=YV_MAXL){c.save();c.translate(cx,cy);c.rotate(t*1.2);c.strokeStyle='rgba(255,255,255,.55)';c.lineWidth=2;c.setLineDash([4,6]);c.beginPath();c.arc(0,0,cell*.44,0,6.283);c.stroke();c.restore()}
+  c.font=fs+'px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillStyle='#fff';c.fillText(YV_CH[it.c].e[it.l],cx,cy+fs*0.06);
+  c.fillStyle='rgba(255,255,255,.85)';
+  const n=it.l+1,sp=Math.min(6,(cell*.7)/n);
+  for(let d=0;d<n;d++){c.beginPath();c.arc(cx+(d-(n-1)/2)*sp,cy+cell*.42,1.8,0,6.283);c.fill()}
+}
+const yvEase=x=>{x=Math.max(0,Math.min(1,x));const s=1.70158;return 1+(s+1)*Math.pow(x-1,3)+s*Math.pow(x-1,2)};
+function yvDraw(G){
+  const c=G.ctx;if(!c)return;const d=G.dpr,cell=G.cell,t=G.t;
+  c.setTransform(d,0,0,d,0,0);
+  const bg=c.createLinearGradient(0,0,0,G.H);bg.addColorStop(0,'#3b2a86');bg.addColorStop(.5,'#241a5a');bg.addColorStop(1,'#120b2e');
+  c.fillStyle=bg;c.fillRect(0,0,G.W,G.H);
+  // tahta
+  c.fillStyle='rgba(10,6,30,.55)';rr(c,G.ox-6,G.oy-6,G.bw+12,cell*YV_R+12,16);c.fill();
+  c.strokeStyle='rgba(168,85,247,.45)';c.lineWidth=2;c.stroke();
+  const selOk=G.sel!=null&&yvS.b[G.sel]?yvS.b[G.sel]:null;
+  for(let i=0;i<YV_N;i++){
+    const x=G.ox+(i%YV_C)*cell,y=G.oy+Math.floor(i/YV_C)*cell,alt=((i%YV_C)+Math.floor(i/YV_C))%2;
+    c.fillStyle=alt?'rgba(255,255,255,.07)':'rgba(255,255,255,.12)';rr(c,x+2,y+2,cell-4,cell-4,10);c.fill();
+  }
+  const hint=G.hint;
+  for(let i=0;i<YV_N;i++){
+    const it=yvS.b[i];const x=yvCX(G,i),y=yvCY(G,i);
+    if(G.drag&&G.drag.moved&&G.drag.i===i)continue;
+    if(G.drag&&G.drag.moved){const ti=yvCellAt(G,G.drag.x,G.drag.y);if(ti===i&&ti!==G.drag.i){const ok=yvCanMerge(G.drag.i,i);c.fillStyle=ok?'rgba(82,224,138,.35)':'rgba(255,255,255,.14)';rr(c,x-cell/2+2,y-cell/2+2,cell-4,cell-4,10);c.fill()}}
+    if(!it)continue;
+    let sc=1;const pt=G.pop[i];if(pt!==undefined){const p=(t-pt)/.32;if(p<0)continue;sc=p>=1?1:0.2+0.8*yvEase(p)}
+    const sh=G.shake[i];let dx=0;if(sh!==undefined&&t-sh<.3)dx=Math.sin((t-sh)*60)*4;
+    const isSel=G.sel===i,isMt=selOk&&G.sel!==i&&selOk.c===it.c&&selOk.l===it.l&&it.l<YV_MAXL,isH=hint&&(hint[0]===i||hint[1]===i);
+    if(isSel||isMt||isH){const pu=0.5+0.5*Math.sin(t*7);c.strokeStyle=isSel?'#ffd34d':isMt?'#52e08a':'rgba(255,255,255,'+(0.5+0.4*pu)+')';c.lineWidth=3;rr(c,x-cell/2+3,y-cell/2+3,cell-6,cell-6,10);c.stroke();if(isH||isMt)sc*=1+0.06*pu}
+    yvItem(c,it,x+dx,y,cell,sc,t);
+    const fl=G.flash[i];if(fl!==undefined&&t-fl<.35){const p=(t-fl)/.35;c.strokeStyle='rgba(255,255,255,'+(1-p)+')';c.lineWidth=4*(1-p)+1;c.beginPath();c.arc(x,y,cell*(.3+p*.45),0,6.283);c.stroke()}
+  }
+  // öğretici el
+  if(yvS.mc<3&&!G.drag){const pr=yvPair();if(pr){const p=(t*0.7)%1.6,k=Math.max(0,Math.min(1,(p-.2)/.9));const e=k*k*(3-2*k);
+    const ax=yvCX(G,pr[0]),ay=yvCY(G,pr[0]),bx=yvCX(G,pr[1]),by=yvCY(G,pr[1]);
+    c.font=(cell*.6)+'px sans-serif';c.textAlign='center';c.textBaseline='middle';c.globalAlpha=p>1.3?Math.max(0,(1.6-p)/.3):1;c.fillText('👆',ax+(bx-ax)*e+cell*.1,ay+(by-ay)*e+cell*.25);c.globalAlpha=1}}
+  // satma alanı
+  const z=G.zone;let over=false,sv0=0;
+  if(G.drag&&G.drag.moved){over=G.drag.x>=z.x&&G.drag.x<=z.x+z.w&&G.drag.y>=z.y-10&&G.drag.y<=z.y+z.h+30;const it=yvS.b[G.drag.i];if(it)sv0=yvVal(it.l)}
+  c.fillStyle=over?'rgba(255,211,77,.3)':'rgba(255,255,255,.06)';rr(c,z.x,z.y,z.w,z.h,12);c.fill();
+  c.strokeStyle=over?'#ffd34d':'rgba(255,255,255,.22)';c.lineWidth=2;c.setLineDash([6,5]);c.stroke();c.setLineDash([]);
+  c.font='bold 14px sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillStyle=over?'#ffd34d':'rgba(255,255,255,.6)';
+  const tx=yvS.mc<3?'Aynı iki ürünü üst üste sürükle!':(G.drag&&G.drag.moved?'💰 '+trStr('Bırak: Sat')+' +'+sv0+' 🪙':'💰 '+trStr('Satmak için buraya sürükle'));
+  c.fillText(yvS.mc<3?trStr(tx):tx,z.x+z.w/2,z.y+z.h/2);
+  // sürüklenen
+  if(G.drag&&G.drag.moved){const it=yvS.b[G.drag.i];if(it)yvItem(c,it,G.drag.x,G.drag.y-cell*.35,cell,1.18,t)}
+  // parçacık
+  for(const p of G.parts){c.globalAlpha=Math.max(0,p.l/p.m);c.fillStyle=p.c;c.beginPath();c.arc(p.x,p.y,p.r,0,6.283);c.fill()}
+  c.globalAlpha=1;
+  c.font='bold 15px sans-serif';c.textAlign='center';c.textBaseline='middle';
+  for(const f of G.fl){c.globalAlpha=Math.min(1,f.l*1.5);c.lineWidth=3;c.strokeStyle='rgba(0,0,0,.6)';const tt=trStr(f.t);c.strokeText(tt,f.x,f.y);c.fillStyle=f.c;c.fillText(tt,f.x,f.y)}
+  c.globalAlpha=1;
+}
+function yvFrame(now){
+  if(state!=='merge'||!yv.G){yv.raf=false;return}
+  const dt=Math.max(0,Math.min((now-yv.last)/1000||0,0.05));yv.last=now;
+  yvTick(yv.G,dt);yvDraw(yv.G);requestAnimationFrame(yvFrame);
+}
+(function(){
+  const cv=$('c_yv');
+  const pt=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}};
+  cv.addEventListener('pointerdown',e=>{
+    const G=yv.G;if(state!=='merge'||!G||G.drag)return;ac();G.idle=0;G.hint=null;
+    const p=pt(e),i=yvCellAt(G,p.x,p.y);
+    if(i<0||!yvS.b[i]){if(i>=0&&G.sel!=null&&yvS.b[G.sel]&&!yvS.b[i]){const it=yvS.b[G.sel];yvS.b[i]=it;yvS.b[G.sel]=0;G.pop[i]=G.t;G.sel=null;yvSave();yvOrdUI()}else G.sel=null;return}
+    G.drag={i,x:p.x,y:p.y,sx:p.x,sy:p.y,moved:false,id:e.pointerId};
+    try{cv.setPointerCapture(e.pointerId)}catch(_){}
+  });
+  cv.addEventListener('pointermove',e=>{
+    const G=yv.G;if(!G||!G.drag||e.pointerId!==G.drag.id)return;const p=pt(e);G.drag.x=p.x;G.drag.y=p.y;
+    if(!G.drag.moved&&Math.hypot(p.x-G.drag.sx,p.y-G.drag.sy)>9){G.drag.moved=true;G.sel=null}
+  });
+  const up=e=>{
+    const G=yv.G;if(!G||!G.drag||e.pointerId!==G.drag.id)return;
+    const d=G.drag;G.drag=null;G.idle=0;
+    if(e.type==='pointercancel')return;
+    const from=d.i;
+    if(!d.moved){ // dokunma
+      if(G.sel!=null&&G.sel!==from&&yvCanMerge(G.sel,from)){yvMerge(G.sel,from)}
+      else if(G.sel===from)G.sel=null;
+      else{G.sel=from;tone(600,640,0.05,'sine',0.05)}
+      return;
+    }
+    const z=G.zone;
+    if(d.x>=z.x&&d.x<=z.x+z.w&&d.y>=z.y-10&&d.y<=z.y+z.h+30){yvSell(from);return}
+    const to=yvCellAt(G,d.x,d.y);
+    if(to<0||to===from)return;
+    if(!yvS.b[to]){yvS.b[to]=yvS.b[from];yvS.b[from]=0;G.pop[to]=G.t-.15;yvSave();yvOrdUI();tone(480,520,0.05,'sine',0.05)}
+    else if(yvCanMerge(from,to))yvMerge(from,to);
+    else{const a=yvS.b[from];yvS.b[from]=yvS.b[to];yvS.b[to]=a;G.pop[to]=G.t-.15;G.pop[from]=G.t-.15;G.shake[to]=G.t;yvSave();yvOrdUI()}
+  };
+  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+})();
+$('cardYv').onclick=()=>openLobby('yv');
 
 // ---- Kelime Çiçeği (harf çarkı kelime bulmaca) ----
 WN.words='Kelime Çiçeği';WKEYS.push('words');
@@ -5288,7 +5585,7 @@ const cP=new THREE.Vector3(0,1.7,4.4),cL=new THREE.Vector3(0,0.8,0),dP=new THREE
 function frame(now){
   requestAnimationFrame(frame);
   const dt=Math.min(Math.max((now-last)/1000||0,0),0.05);last=now;
-  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||state==='gh'||state==='lock'||state==='shadow'||state==='words'||state==='pause'||MG[state])return;
+  if(state==='hub'||state==='maze'||state==='city'||state==='tiles'||state==='arrows'||state==='sort'||state==='clean'||state==='job'||state==='sky'||state==='gh'||state==='lock'||state==='shadow'||state==='words'||state==='merge'||state==='pause'||MG[state])return;
   if(state==='run'){
     speedMul+=(1-speedMul)*Math.min(1,dt*0.45);
     speed=Math.min(14+score*0.02,40)*speedMul;   // zamanla hızlanır
@@ -5597,8 +5894,8 @@ addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')
 addEventListener('pagehide',pauseRun);
 setInterval(()=>{const on=state==='run';const b=$('pauseBtn');if(b)b.style.display=on?'':'none'},150);
 // ---- Skor tablosu: oyuncu kaydı, haftalık sıralama, benzersiz isim ----
-const LVG={maze:()=>mz.best,ar:()=>arLevel,so:()=>soLevel,cl:()=>clLevel,gh:()=>ghLevel,lk:()=>lkLevel,sg:()=>sgLevel,wd:()=>wdLevel};
-const LVL_G=[{id:'maze',e:'🌀',n:'Tek Parmak Labirent'},{id:'ar',e:'🎯',n:'Ok Kaçışı'},{id:'so',e:'🧪',n:'Su Sıralama'},{id:'cl',e:'🧼',n:'Temizlik Simülatörü'},{id:'gh',e:'👻',n:'Hayalet Takım'},{id:'lk',e:'🔐',n:'Kasa Uzmanı'},{id:'sg',e:'🌙',n:'Gölge Bahçesi'},{id:'wd',e:'🌸',n:'Kelime Çiçeği'}];
+const LVG={maze:()=>mz.best,ar:()=>arLevel,so:()=>soLevel,cl:()=>clLevel,gh:()=>ghLevel,lk:()=>lkLevel,sg:()=>sgLevel,wd:()=>wdLevel,yv:()=>yvS.pl};
+const LVL_G=[{id:'maze',e:'🌀',n:'Tek Parmak Labirent'},{id:'ar',e:'🎯',n:'Ok Kaçışı'},{id:'so',e:'🧪',n:'Su Sıralama'},{id:'cl',e:'🧼',n:'Temizlik Simülatörü'},{id:'gh',e:'👻',n:'Hayalet Takım'},{id:'lk',e:'🔐',n:'Kasa Uzmanı'},{id:'sg',e:'🌙',n:'Gölge Bahçesi'},{id:'wd',e:'🌸',n:'Kelime Çiçeği'},{id:'yv',e:'🥚',n:'Yuva Birleştir'}];
 function lbGames(){const a=[{id:'run',e:'🏃',n:'Sonsuz Koşu'},{id:'city',e:'🏙️',n:'Tek Tuş Şehir'}];for(const k in MG)a.push({id:k,e:MG[k].emo,n:MG[k].title});return a.concat(LVL_G)}
 function lbIds(){return lbGames().map(x=>x.id)}
 function lbAll(g){let v=g==='run'?best:g==='city'?cityBest:LVG[g]?LVG[g]():(mgBest[g]||0);return Math.max(0,Math.floor(v)||0)}
@@ -5713,7 +6010,7 @@ $('exitNo').onclick=()=>show('exitOv',false);
 $('exitYes').onclick=()=>{try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()){C.registerPlugin('App').exitApp();return}}catch(e){}show('exitOv',false);try{window.close()}catch(e){}};
 // Açılış animasyonu
 (function(){const s=$('splash');if(!s)return;let done=false;const end=()=>{if(done)return;done=true;s.classList.add('out');setTimeout(()=>s.remove(),500)};s.onclick=end;setTimeout(end,2300)})();
-const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','wd_mx','wd_bx','lk_back','sg_back','wd_back','lb_back'];
+const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','lb_back'];
 function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
 function goBack(){
   if(state==='pause'){resumeRun();return true}
@@ -5750,7 +6047,7 @@ const KB_G={
 };
 const KB_MOUSE=['arrows','sort','clean','job','sky','balloon','blocks'];
 const KB_NM={arrows:'Ok Kaçışı',sort:'Su Sıralama',clean:'Temizlik Simülatörü',job:'Günlük İş',sky:'Gök Adaları',balloon:'Balon Patlat',blocks:'Blok Bulmaca'};
-const KB_L2G={maze:'maze',city:'city',gh:'gh',lk:'lock',sg:'shadow',wd:'-',stack:'stack',snake:'snake',color:'color',flap:'flap',ar:'-',so:'-',cl:'-',sky:'-',balloon:'-',blocks:'-'};
+const KB_L2G={maze:'maze',city:'city',gh:'gh',lk:'lock',sg:'shadow',wd:'-',yv:'-',stack:'stack',snake:'snake',color:'color',flap:'flap',ar:'-',so:'-',cl:'-',sky:'-',balloon:'-',blocks:'-'};
 let KBS=ld('tv_keys',{});if(!KBS||typeof KBS!=='object')KBS={};
 let kbOn=false;try{kbOn=matchMedia('(hover:hover) and (pointer:fine)').matches}catch(e){}
 function kbCodes(g,a){return(KBS[g]&&KBS[g][a[0]])||a[3]}
@@ -6782,6 +7079,44 @@ Kristal Mağara|Crystal Cave|Cueva de Cristal|Caverna de Cristal|Kristallhöhle|
 Her 21 seviyede yeni bir dünya açılır, dünyayı bitirince sandık verir.|A new world opens every 21 levels, and finishing a world gives a chest.|Cada 21 niveles se abre un mundo nuevo y al terminarlo recibes un cofre.|A cada 21 níveis abre um novo mundo, e ao terminá-lo você ganha um baú.|Alle 21 Level öffnet sich eine neue Welt, am Ende gibt es eine Truhe.|Tous les 21 niveaux, un nouveau monde s'ouvre et le terminer donne un coffre.|Каждые 21 уровень открывается новый мир, а за его прохождение дают сундук.|Setiap 21 level dunia baru terbuka, menyelesaikannya memberi peti.
 🎁 Dünya tamam:|🎁 World complete:|🎁 ¡Mundo completado:|🎁 Mundo concluído:|🎁 Welt geschafft:|🎁 Monde terminé :|🎁 Мир пройден:|🎁 Dunia selesai:
 ✨ Bize özel|✨ Only here|✨ Solo aquí|✨ Só aqui|✨ Nur hier|✨ Exclusif|✨ Только у нас|✨ Hanya di sini
+Yuva Birleştir|Nest Merge|Fusión de Nidos|Fusão de Ninhos|Nestfusion|Fusion de Nids|Слияние гнёзд|Gabung Sarang
+Aynıları birleştir, yumurtadan ejderhayı çıkar!|Merge matches, hatch a dragon from an egg!|¡Fusiona iguales y saca un dragón de un huevo!|Una iguais e faça um dragão nascer de um ovo!|Verschmelze Gleiches – aus dem Ei wird ein Drache!|Fusionne les pareils, fais naître un dragon d'un œuf !|Объединяй одинаковые — из яйца вылупится дракон!|Gabungkan yang sama, tetaskan naga dari telur!
+Yuva Sv.{}|Nest Lv.{}|Nido Nv.{}|Ninho Nv.{}|Nest Lv.{}|Nid Niv.{}|Гнездо ур.{}|Sarang Lv.{}
+Yuva Seviye {}|Nest Level {}|Nivel de Nido {}|Nível do Ninho {}|Nest-Level {}|Niveau du Nid {}|Уровень гнезда {}|Level Sarang {}
+Yuva Seviye {}!|Nest Level {}!|¡Nivel de Nido {}!|Nível do Ninho {}!|Nest-Level {}!|Niveau du Nid {} !|Уровень гнезда {}!|Level Sarang {}!
+Aynı iki ürünü sürükleyip birleştir: yumurta civciv olur, tohum çiçek olur, en sonda ejderha ve gökkuşağı! Siparişleri teslim et, para ve tecrübe kazan. Enerji zamanla dolar. Her 6. sipariş VIP!|Drag two identical items together: eggs become chicks, seeds become flowers, and at the end a dragon and a rainbow! Deliver orders to earn coins and XP. Energy refills over time. Every 6th order is VIP!|Arrastra dos objetos iguales: los huevos se vuelven pollitos, las semillas flores, ¡y al final un dragón y un arcoíris! Entrega pedidos para ganar monedas y experiencia. La energía se recarga con el tiempo. ¡Cada 6.º pedido es VIP!|Arraste dois itens iguais: ovos viram pintinhos, sementes viram flores e no fim um dragão e um arco-íris! Entregue pedidos para ganhar moedas e XP. A energia recarrega com o tempo. Todo 6º pedido é VIP!|Ziehe zwei gleiche Dinge zusammen: Eier werden Küken, Samen werden Blumen, am Ende ein Drache und ein Regenbogen! Liefere Aufträge für Münzen und EP. Energie lädt sich mit der Zeit auf. Jeder 6. Auftrag ist VIP!|Glisse deux objets identiques ensemble : les œufs deviennent poussins, les graines fleurs, et à la fin un dragon et un arc-en-ciel ! Livre les commandes pour gagner pièces et XP. L'énergie se recharge avec le temps. Chaque 6e commande est VIP !|Перетащи два одинаковых предмета: яйца станут цыплятами, семена — цветами, а в конце — дракон и радуга! Выполняй заказы за монеты и опыт. Энергия восстанавливается со временем. Каждый 6-й заказ — VIP!|Seret dua benda sama: telur jadi anak ayam, biji jadi bunga, dan di akhir naga dan pelangi! Antar pesanan untuk koin dan XP. Energi terisi seiring waktu. Setiap pesanan ke-6 adalah VIP!
+Üret ⚡1|Spawn ⚡1|Crear ⚡1|Criar ⚡1|Erzeugen ⚡1|Créer ⚡1|Создать ⚡1|Buat ⚡1
+Üret|Spawn|Crear|Criar|Erzeugen|Créer|Создать|Buat
+📺 Enerji|📺 Energy|📺 Energía|📺 Energia|📺 Energie|📺 Énergie|📺 Энергия|📺 Energi
+Koleksiyon|Collection|Colección|Coleção|Sammlung|Collection|Коллекция|Koleksi
+📖 Koleksiyon|📖 Collection|📖 Colección|📖 Coleção|📖 Sammlung|📖 Collection|📖 Коллекция|📖 Koleksi
+Teslim!|Deliver!|¡Entregar!|Entregar!|Liefern!|Livrer !|Сдать!|Antar!
+Bu ürün tahtada yok|That item isn't on the board|Ese objeto no está en el tablero|Esse item não está no tabuleiro|Dieses Teil liegt nicht auf dem Brett|Cet objet n'est pas sur le plateau|Этого предмета нет на поле|Benda itu tidak ada di papan
+Tahta dolu! Birleştir ya da sat|Board full! Merge or sell|¡Tablero lleno! Fusiona o vende|Tabuleiro cheio! Una ou venda|Brett voll! Verschmelze oder verkaufe|Plateau plein ! Fusionne ou vends|Поле заполнено! Объедини или продай|Papan penuh! Gabung atau jual
+Sipariş tamam!|Order complete!|¡Pedido completo!|Pedido concluído!|Auftrag erledigt!|Commande terminée !|Заказ выполнен!|Pesanan selesai!
+Yeni keşif!|New discovery!|¡Nuevo descubrimiento!|Nova descoberta!|Neue Entdeckung!|Nouvelle découverte !|Новое открытие!|Penemuan baru!
+Zincir tamam!|Chain complete!|¡Cadena completa!|Corrente completa!|Kette komplett!|Chaîne complète !|Цепочка завершена!|Rantai selesai!
+Şans! +1|Lucky! +1|¡Suerte! +1|Sorte! +1|Glück! +1|Chance ! +1|Удача! +1|Beruntung! +1
+Aynı iki ürünü üst üste sürükle!|Drag two identical items onto each other!|¡Arrastra dos objetos iguales uno sobre otro!|Arraste dois itens iguais um sobre o outro!|Ziehe zwei gleiche Dinge übereinander!|Glisse deux objets identiques l'un sur l'autre !|Перетащи два одинаковых предмета друг на друга!|Seret dua benda sama saling bertumpuk!
+Satmak için buraya sürükle|Drag here to sell|Arrastra aquí para vender|Arraste aqui para vender|Zum Verkaufen hierher ziehen|Glisse ici pour vendre|Перетащи сюда, чтобы продать|Seret ke sini untuk jual
+Bırak: Sat|Drop: Sell|Soltar: vender|Soltar: vender|Loslassen: verkaufen|Lâcher : vendre|Отпусти: продать|Lepas: jual
+Keşfedilen: {}/16|Discovered: {}/16|Descubiertos: {}/16|Descobertos: {}/16|Entdeckt: {}/16|Découverts : {}/16|Открыто: {}/16|Ditemukan: {}/16
+Yeni keşif = ekstra para|New discovery = bonus coins|Nuevo descubrimiento = monedas extra|Nova descoberta = moedas extras|Neue Entdeckung = Bonusmünzen|Nouvelle découverte = pièces bonus|Новое открытие = бонусные монеты|Penemuan baru = koin bonus
+Yuva|Nest|Nido|Ninho|Nest|Nid|Гнездо|Sarang
+🔥 BOSS seviyesi · ödül x3|🔥 BOSS level · reward x3|🔥 Nivel JEFE · premio x3|🔥 Nível CHEFE · prêmio x3|🔥 BOSS-Level · Belohnung x3|🔥 Niveau BOSS · récompense x3|🔥 Уровень БОСС · награда x3|🔥 Level BOSS · hadiah x3
+{} hediye ürün|{} gift items|{} objetos de regalo|{} itens de presente|{} Geschenk-Items|{} objets cadeaux|{} подарочных предметов|{} item hadiah
+Ödülü 2 kat yap|Double the reward|Duplica el premio|Dobre o prêmio|Belohnung verdoppeln|Double la récompense|Удвой награду|Gandakan hadiah
+2 kat yapıldı!|Doubled!|¡Duplicado!|Dobrado!|Verdoppelt!|Doublé !|Удвоено!|Digandakan!
+{} sipariş teslim et|deliver {} orders|entrega {} pedidos|entregue {} pedidos|liefere {} Aufträge|livre {} commandes|выполни {} заказов|antar {} pesanan
+Yuva Birleştir Çırağı|Nest Merge Apprentice|Aprendiz de Fusión de Nidos|Aprendiz de Fusão de Ninhos|Nestfusion-Lehrling|Apprenti Fusion de Nids|Ученик слияния гнёзд|Murid Gabung Sarang
+Yuva Birleştir Ustası|Nest Merge Master|Maestro de Fusión de Nidos|Mestre da Fusão de Ninhos|Nestfusion-Meister|Maître Fusion de Nids|Мастер слияния гнёзд|Master Gabung Sarang
+Yuva Birleştir Efsanesi|Nest Merge Legend|Leyenda de Fusión de Nidos|Lenda da Fusão de Ninhos|Nestfusion-Legende|Légende Fusion de Nids|Легенда слияния гнёзд|Legenda Gabung Sarang
+Yuva Birleştir: {} yuva seviyesine ulaş|Nest Merge: reach nest level {}|Fusión de Nidos: llega al nivel de nido {}|Fusão de Ninhos: chegue ao nível de ninho {}|Nestfusion: erreiche Nest-Level {}|Fusion de Nids : atteins le niveau de nid {}|Слияние гнёзд: достигни уровня гнезда {}|Gabung Sarang: capai level sarang {}
+Koleksiyoncu|Collector|Coleccionista|Colecionador|Sammler|Collectionneur|Коллекционер|Kolektor
+Yuva Birleştir: 8 ürün keşfet|Nest Merge: discover 8 items|Fusión de Nidos: descubre 8 objetos|Fusão de Ninhos: descubra 8 itens|Nestfusion: entdecke 8 Items|Fusion de Nids : découvre 8 objets|Слияние гнёзд: открой 8 предметов|Gabung Sarang: temukan 8 benda
+Yuva Efsanesi|Nest Legend|Leyenda del Nido|Lenda do Ninho|Nest-Legende|Légende du Nid|Легенда гнезда|Legenda Sarang
+Yuva Birleştir: Ejderha ve Gökkuşağı'nı keşfet|Nest Merge: discover the Dragon and the Rainbow|Fusión de Nidos: descubre el Dragón y el Arcoíris|Fusão de Ninhos: descubra o Dragão e o Arco-íris|Nestfusion: entdecke Drache und Regenbogen|Fusion de Nids : découvre le Dragon et l'Arc-en-ciel|Слияние гнёзд: открой Дракона и Радугу|Gabung Sarang: temukan Naga dan Pelangi
+{} ürün keşfet|discover {} items|descubre {} objetos|descubra {} itens|entdecke {} Items|découvre {} objets|открой {} предметов|temukan {} benda
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];
