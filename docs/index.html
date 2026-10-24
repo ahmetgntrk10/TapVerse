@@ -4858,7 +4858,7 @@ function wdGen0(level,code,L){return wdGen(level,code,L,0)||wdGen(level,code,L,1
 
 // ---- Yuva Birleştir (birleştir, büyüt, sipariş ver) ----
 WN.merge='Yuva Birleştir';WKEYS.push('merge');
-const YV_C=5,YV_R=6,YV_N=30,YV_MAXL=7,YV_REGEN=40000;
+const YV_C=5,YV_R=6,YV_N=30,YV_MAXL=7,YV_REGEN=30000;
 const YV_CH=[{n:'Yuva',e:['🥚','🐣','🐥','🦆','🦉','🦅','🦚','🐉'],col:'#fbbf24'},{n:'Bahçe',e:['🌱','🌿','🌼','🌻','🌷','🌳','🍎','🌈'],col:'#34d399'}];
 let yvS=ld('tv_yv',null);
 (function(){
@@ -4868,9 +4868,9 @@ let yvS=ld('tv_yv',null);
 })();
 const yv={G:null,raf:false,last:0};
 const yvCap=()=>20+Math.min(20,Math.floor(yvS.pl/3)*2);
-const yvNeed=()=>20+15*(yvS.pl-1);
+const yvNeed=()=>30+25*(yvS.pl-1);
 const yvSave=()=>sv('tv_yv',yvS);
-const yvVal=l=>Math.max(1,(1<<l)>>1);
+const yvVal=l=>Math.max(1,(1<<l)>>2);
 function yvRegen(){
   const cap=yvCap(),now=Date.now();
   if(yvS.en>=cap){yvS.et=now;return false}
@@ -4882,7 +4882,7 @@ function yvRegen(){
   return ch;
 }
 function yvOrder(){
-  const pl=yvS.pl,maxL=Math.min(5,1+Math.floor((pl+1)/2));
+  const pl=yvS.pl,maxL=Math.min(6,2+Math.floor(pl/3));
   const vip=yvS.oc%6===5&&!yvS.ord.some(o=>o&&o.vip);
   const pick=()=>{const l=yvS.oc<4?2:Math.max(1,maxL-Math.floor(Math.random()*3)),c=Math.random()<.5?0:1;return{c,l,n:(l<=3&&pl>=3&&Math.random()<.4)?2:1}};
   const key=o=>o.need.map(x=>x.c+':'+x.l).join('|');
@@ -4891,7 +4891,7 @@ function yvOrder(){
     if(vip){const b=pick();if(b.c===need[0].c)b.c=1-b.c;if(b.l<maxL)b.l++;need.push(b)}
     tries++}while(tries<10&&yvS.ord.some(o=>o&&key(o)===key({need})));
   let tot=0;need.forEach(x=>tot+=x.n*(1<<x.l));
-  return{need,rw:Math.round((tot*1.5+4)*(vip?1.6:1)),xp:Math.round(tot*1.2)+2,vip};
+  return{need,rw:Math.round((tot*1.1+3)*(vip?1.6:1)),xp:Math.round(tot*1.2)+2,vip};
 }
 function yvFillOrders(){while(yvS.ord.length<3)yvS.ord.push(null);for(let i=0;i<3;i++)if(!yvS.ord[i])yvS.ord[i]=yvOrder()}
 function yvCount(c,l){let k=0;for(const it of yvS.b)if(it&&it.c===c&&it.l===l)k++;return k}
@@ -5005,14 +5005,14 @@ function yvDeliver(i){
     if(k<nd.n){toast('Bu ürün tahtada yok');buzz(30);return}}
   idx.forEach(j=>{yvBurst(G,j,'#52e08a',8);yvS.b[j]=0});
   yvCoin(o.rw);yvS.oc++;addProg('merge',1);
-  if(o.vip){yvS.en+=3}
+  if(o.vip){yvS.en+=2}
   sfx.coin();tone(700,1200,0.2,'triangle',0.1,0.1);buzz(30);
-  toast('Sipariş tamam! · 🪙 +'+o.rw+(o.vip?' · ⚡ +3':''));
+  toast('Sipariş tamam! · 🪙 +'+o.rw+(o.vip?' · ⚡ +2':''));
   yvS.ord[i]=null;
   yvS.xp+=o.xp;
   let lu=null;
   while(yvS.xp>=yvNeed()){yvS.xp-=yvNeed();yvS.pl++;const boss=yvS.pl%10===0,m=boss?3:1;
-    const coins=(20+10*yvS.pl)*m;yvCoin(coins);yvS.en+=10*m;
+    const coins=(20+10*yvS.pl)*m;yvCoin(coins);yvS.en+=5*m;
     const gift=[];for(let q=0;q<YV_N&&gift.length<(boss?3:1);q++)if(!yvS.b[q]){const c=Math.random()<.5?0:1;yvS.b[q]={c,l:2};gift.push(q);G.pop[q]=G.t+.3}
     lu={pl:yvS.pl,coins:(lu?lu.coins:0)+coins,en:(lu?lu.en:0)+10*m,boss:boss||(lu&&lu.boss),gift:(lu?lu.gift:0)+gift.length}}
   setTimeout(()=>{if(yv.G===G){yvFillOrders();yvSave();yvOrdUI();yvHud()}},350);
@@ -5154,30 +5154,40 @@ $('cardYv').onclick=()=>openLobby('yv');
 // ---- Zaman Bahçesi (gerçek zamanlı büyüyen bahçe) ----
 WN.garden='Zaman Bahçesi';WKEYS.push('garden');
 const GD_S=[
- {e:'🥕',n:'Havuç',t:30,c:5,v:9,x:4,r:1},
- {e:'🍅',n:'Domates',t:120,c:15,v:27,x:10,r:1},
- {e:'🌽',n:'Mısır',t:600,c:40,v:76,x:24,r:2},
- {e:'🍓',n:'Çilek',t:1800,c:100,v:195,x:50,r:4},
- {e:'🍉',n:'Karpuz',t:7200,c:250,v:490,x:100,r:6},
- {e:'🎃',n:'Balkabağı',t:21600,c:600,v:1180,x:200,r:8},
- {e:'🍇',n:'Üzüm',t:43200,c:1500,v:2900,x:380,r:10},
- {e:'🌹',n:'Altın Gül',t:86400,c:4000,v:7900,x:700,r:13}];
-const GD_UN=[0,0,0,0,60,140,300,650,1300,2600,5200,9000],GD_N=12,GD_W=0.15;
+ {e:'🥕',n:'Havuç',t:45,c:5,v:8,x:4,r:1},
+ {e:'🍅',n:'Domates',t:180,c:18,v:28,x:10,r:1},
+ {e:'🌽',n:'Mısır',t:900,c:60,v:95,x:24,r:3},
+ {e:'🍓',n:'Çilek',t:2700,c:180,v:290,x:50,r:5},
+ {e:'🍉',n:'Karpuz',t:10800,c:520,v:840,x:100,r:8},
+ {e:'🎃',n:'Balkabağı',t:28800,c:1500,v:2400,x:200,r:11},
+ {e:'🍇',n:'Üzüm',t:57600,c:4000,v:6500,x:380,r:14},
+ {e:'🌹',n:'Altın Gül',t:86400,c:12000,v:19500,x:700,r:18}];
+const GD_UN=[0,0,0,0,120,300,700,1500,3200,6500,13000,25000],GD_N=12,GD_W=0.15;
+const GD_UP=[
+ {k:'wc',e:'🪣',n:'Sulama Kovası',d:'Sulama süreyi daha çok kısaltır',max:5,b:150,m:2.2},
+ {k:'fz',e:'🧪',n:'Gübre',d:'Bitkiler daha hızlı büyür',max:8,b:300,m:2},
+ {k:'sc',e:'🧑‍🌾',n:'Korkuluk',d:'Hasat parası artar',max:10,b:250,m:1.9},
+ {k:'gl',e:'✨',n:'Altın Şans',d:'Altın hasat şansı artar',max:6,b:400,m:2.1}];
+const GD_RK=[[0,'Çaylak'],[30,'Tarım İşçisi'],[120,'Çiftçi'],[350,'Usta Çiftçi'],[900,'Bahçıvan'],[2200,'Toprak Ağası'],[5000,'Efsane Çiftçi']];
 let gdS=ld('tv_gd',null);
 if(!gdS||!Array.isArray(gdS.pl)||gdS.pl.length!==GD_N)gdS={lv:1,xp:0,pl:Array(GD_N).fill(0),un:4,tot:0};
+if(!gdS.up)gdS.up={wc:0,fz:0,sc:0,gl:0};if(gdS.rk==null)gdS.rk=0;
+const gdUpC=k=>{const u=GD_UP.find(x=>x.k===k);return Math.round(u.b*Math.pow(u.m,gdS.up[k]))};
+const gdRank=()=>{let r=0;GD_RK.forEach((x,i)=>{if(gdS.tot>=x[0])r=i});return r};
 const gd={G:null,raf:false,last:0};
 const gdSave=()=>sv('tv_gd',gdS);
-const gdNeed=()=>50*gdS.lv+10*gdS.lv*gdS.lv;
+const gdNeed=()=>60*gdS.lv+18*gdS.lv*gdS.lv;
 const gdRem=p=>Math.max(0,p.t0+p.d-Date.now());
 const gdFmt=ms=>{const s=Math.ceil(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),c=s%60;return h?h+':'+String(m).padStart(2,'0')+':'+String(c).padStart(2,'0'):m+':'+String(c).padStart(2,'0')};
 const gdRdy=p=>p&&gdRem(p)<=0;
 document.body.insertAdjacentHTML('beforeend','<div id="garden" class="hidden mgscr"><canvas id="c_gd"></canvas>'
  +'<div class="mtop"><button id="gd_back" class="ibtn alt">‹</button><div class="pill" id="gd_lv">Bahçe Seviye 1</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
- +'<div class="sobar"><button id="gd_hv"><i>🧺</i><span>Hepsini Topla</span></button><button id="gd_pa"><i>🌱</i><span>Hepsine Ek</span></button><button id="gd_sp"><i>📺</i><span>Hızlandır</span></button></div>'
+ +'<div class="sobar"><button id="gd_hv"><i>🧺</i><span>Hepsini Topla</span></button><button id="gd_pa"><i>🌱</i><span>Hepsine Ek</span></button><button id="gd_sp"><i>📺</i><span>Hızlandır</span></button><button id="gd_up"><i>⬆️</i><span>Geliştir</span></button></div>'
  +'<div id="gd_lu" class="overlay hidden"><div class="card"><div class="ttl" id="gd_lut" style="color:var(--gold)">Bahçe Seviye 2! 🎉</div><div id="gd_lui" style="color:var(--mute);margin:8px 0;white-space:pre-line"></div><button id="gd_luok" class="gold">▶ Devam</button></div></div></div>');
 document.head.insertAdjacentHTML('beforeend','<style>#gd_lv{font-size:14px;padding:6px 11px;white-space:nowrap}.gdr{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px 10px;border-radius:14px;background:linear-gradient(#3b3173,#241a5a);box-shadow:0 3px 0 #170f3a;margin-bottom:8px;font-size:13px}.gdr i{font-style:normal;font-size:32px;width:40px;text-align:center}.gdr b{display:block;font-size:15px}.gdr small{color:#bfb5ff}.gdr.no{opacity:.5}</style>');
 SCR.push('garden');
-document.body.insertAdjacentHTML('beforeend','<div id="gd_sd" class="overlay hidden" style="z-index:30"><div class="card" style="width:min(94vw,400px);max-height:84vh;display:flex;flex-direction:column"><div class="ttl" id="gd_sdt">🌱 Tohum seç</div><div id="gd_sdl" style="overflow:auto;margin:10px 0"></div><button id="gd_sdx" class="alt">Kapat</button></div></div>'
+document.body.insertAdjacentHTML('beforeend','<div id="gd_ug" class="overlay hidden" style="z-index:30"><div class="card" style="width:min(94vw,400px);max-height:84vh;display:flex;flex-direction:column"><div class="ttl">⬆️ Geliştir</div><div id="gd_ugr" style="color:var(--mute);margin:6px 0;font-size:13px"></div><div id="gd_ugl" style="overflow:auto;margin:6px 0"></div><button id="gd_ugx" class="alt">Kapat</button></div></div>'
+ +'<div id="gd_sd" class="overlay hidden" style="z-index:30"><div class="card" style="width:min(94vw,400px);max-height:84vh;display:flex;flex-direction:column"><div class="ttl" id="gd_sdt">🌱 Tohum seç</div><div id="gd_sdl" style="overflow:auto;margin:10px 0"></div><button id="gd_sdx" class="alt">Kapat</button></div></div>'
  +'<div id="gd_un" class="overlay hidden" style="z-index:30"><div class="card"><div class="ttl">🌾 Yeni tarla</div><div id="gd_uni" style="color:var(--mute);margin:8px 0"></div><button id="gd_unok" class="gold">Aç</button><button id="gd_unx" class="alt">Vazgeç</button></div></div>');
 $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardGd" style="background:linear-gradient(135deg,#65a30d,#15803d 55%,#0e7490)"><div class="gicon">🌱</div><div class="gtx"><b>Zaman Bahçesi</b><small>Ek, bekle, hasat et. Kapalıyken de büyür!</small><span class="gtag" id="hsGd">Bahçe Sv.1</span></div><div class="gplay" style="color:#15803d">▶</div></div>');
 ACH3('t_gd','garden','{n} bahçe seviyesine ulaş',()=>gdS.lv-1,[4,12,30],RS);
@@ -5218,10 +5228,10 @@ function gdLayout(G){
 const gdRect=(G,i)=>({x:G.ox+(i%3)*G.cw+G.gap/2,y:G.oy+Math.floor(i/3)*G.ch+G.gap/2,w:G.cw-G.gap,h:G.ch-G.gap});
 function gdStart(){
   const G={t:0,parts:[],fl:[],cl:[{x:30,y:90,s:1,v:8},{x:220,y:140,s:.7,v:5},{x:120,y:60,s:.5,v:11}],hudT:0,sel:-1};
-  gd.G=G;gdLayout(G);gdHud();show('gd_lu',false);show('gd_sd',false);show('gd_un',false);
+  gd.G=G;gdLayout(G);gdHud();show('gd_lu',false);show('gd_sd',false);show('gd_un',false);show('gd_ug',false);
   if(!gd.raf){gd.raf=true;gd.last=performance.now();requestAnimationFrame(gdFrame)}
 }
-function openGd(){state='garden';useW('garden');stopMusic();hideAll();show('garden',true);gdNotify(false);gdStart()}
+function openGd(){state='garden';useW('garden');stopMusic();hideAll();show('garden',true);gdNotify(false);gdStart();if(!gdS.gift){gdS.gift=1;credit('garden',30);gdSave();refreshCoins();toast('🎁 Başlangıç hediyesi: 🪙 30')}}
 let gdMode=-1;
 function gdSeedList(mode){
   gdMode=mode;const L=$('gd_sdl');L.innerHTML='';
@@ -5239,7 +5249,7 @@ function gdPlant(mode,si){
   const G=gd.G,s=GD_S[si];if(!G)return;
   const idx=mode<0?gdS.pl.map((p,i)=>i<gdS.un&&!p?i:-1).filter(i=>i>=0):[mode];
   let n=0;
-  for(const i of idx){if(totalCoins<s.c){break}credit('garden',-s.c);gdS.pl[i]={p:si,t0:Date.now(),d:s.t*1000,w:0};n++;
+  for(const i of idx){const free=si===0&&n===0&&totalCoins<s.c&&!gdS.pl.some(q=>q);if(totalCoins<s.c&&!free){break}if(!free)credit('garden',-s.c);else toast('🎁 Bedava havuç!');gdS.pl[i]={p:si,t0:Date.now(),d:Math.round(s.t*1000*(1-0.04*gdS.up.fz)),w:0};n++;
     const r=gdRect(G,i);for(let k=0;k<6;k++)G.parts.push({x:r.x+r.w/2,y:r.y+r.h*.7,vx:(Math.random()-.5)*80,vy:-30-Math.random()*60,l:.6,m:.6,c:'#8b5a2b',r:2+Math.random()*2,g:200})}
   if(!n){toast('Yeterli paran yok');buzz(40);return}
   gdSave();refreshCoins();show('gd_sd',false);sfx.coin();tone(300,500,0.1,'triangle',0.08);gdHud();
@@ -5252,7 +5262,7 @@ function gdXp(x){
 }
 function gdHarvest(i,quiet){
   const G=gd.G,p=gdS.pl[i];if(!p||!gdRdy(p))return null;
-  const s=GD_S[p.p],gold=Math.random()<.08,v=s.v*(gold?2:1);
+  const s=GD_S[p.p],gold=Math.random()<.08+.02*gdS.up.gl,v=Math.round(s.v*(1+0.06*gdS.up.sc))*(gold?2:1);
   gdS.pl[i]=0;gdS.tot++;gdCoin(v);addProg('garden',1);
   const r=gdRect(G,i);
   G.fl.push({x:r.x+r.w/2,y:r.y+r.h*.3,t:'+'+v+'🪙'+(gold?' ✨':''),l:1.2,c:gold?'#fde047':'#fff'});
@@ -5265,8 +5275,23 @@ function gdHarvestAll(list){
   for(const i of list){const r=gdHarvest(i,true);if(r){xp+=r.xp;n++}}
   if(!n)return;
   sfx.coin();tone(800,1300,0.15,'triangle',0.1,0.08);buzz(30);
-  const lu=gdXp(xp);gdSave();gdHud();gdNotify(false);
+  const lu=gdXp(xp);gdRankCheck();gdSave();gdHud();gdNotify(false);
   if(lu)setTimeout(()=>{if(state==='garden'&&gd.G===G)gdLuShow(lu)},700);
+}
+function gdRankCheck(){
+  const r=gdRank();
+  while(gdS.rk<r){gdS.rk++;const c=200*gdS.rk*gdS.rk;gdCoin(c);setTimeout(()=>toast('🏅 Yeni rütbe: '+GD_RK[gdS.rk][1]+' · 🪙 +'+c),900)}
+}
+function gdUgOpen(){
+  const L=$('gd_ugl');L.innerHTML='';const r=gdRank(),nx=GD_RK[r+1];
+  $('gd_ugr').textContent='🏅 '+GD_RK[r][1]+(nx?' · Sonraki rütbe: '+nx[1]+' ('+gdS.tot+'/'+nx[0]+' hasat)':' · En üst rütbe!');
+  GD_UP.forEach(u=>{
+    const lv=gdS.up[u.k],mx=lv>=u.max,c=gdUpC(u.k),b=document.createElement('button');b.className='gdr'+(!mx&&totalCoins<c?' no':'');
+    b.innerHTML='<i>'+u.e+'</i><div style="flex:1"><b>'+u.n+' · Sv.'+lv+'/'+u.max+'</b><small>'+u.d+'</small></div><span>'+(mx?'✅':'🪙 '+c)+'</span>';
+    b.onclick=()=>{if(mx){toast('En üst seviye');return}if(totalCoins<c){toast('Yeterli paran yok');buzz(40);return}credit('garden',-c);gdS.up[u.k]++;gdSave();refreshCoins();sfx.power();gdUgOpen()};
+    L.appendChild(b);
+  });
+  show('gd_ug',true);
 }
 function gdLuShow(lu){
   $('gd_lut').textContent='Bahçe Seviye '+lu.lv+'! 🎉';
@@ -5274,7 +5299,7 @@ function gdLuShow(lu){
   show('gd_lu',true);sfx.power();
 }
 $('gd_luok').onclick=()=>show('gd_lu',false);
-$('gd_sdx').onclick=()=>show('gd_sd',false);
+$('gd_sdx').onclick=()=>show('gd_sd',false);$('gd_ugx').onclick=()=>show('gd_ug',false);$('gd_up').onclick=gdUgOpen;
 let gdUnI=-1;
 function gdTapPlot(i){
   const G=gd.G,p=gdS.pl[i];
@@ -5284,9 +5309,9 @@ function gdTapPlot(i){
   }
   if(!p){gdSeedList(i);return}
   if(gdRdy(p)){gdHarvestAll([i]);return}
-  if(!p.w){p.w=1;const rem=gdRem(p);p.d-=Math.round(rem*GD_W);gdSave();
+  if(!p.w){p.w=1;const rem=gdRem(p);p.d-=Math.round(rem*(GD_W+0.03*gdS.up.wc));gdSave();
     const r=gdRect(G,i);for(let k=0;k<9;k++)G.parts.push({x:r.x+r.w*(.2+Math.random()*.6),y:r.y+r.h*.1,vx:(Math.random()-.5)*20,vy:40+Math.random()*50,l:.7,m:.7,c:'#7dd3fc',r:2.5,g:240});
-    tone(900,600,0.12,'sine',0.06);buzz(12);toast('💧 −15%');
+    tone(900,600,0.12,'sine',0.06);buzz(12);toast('💧 −'+Math.round((GD_W+0.03*gdS.up.wc)*100)+'%');
   }else{toast('Zaten sulandı · '+gdFmt(gdRem(p)))}
 }
 $('gd_unok').onclick=()=>{const i=gdUnI,c=GD_UN[i];if(totalCoins<c){toast('Yeterli paran yok');buzz(40);return}credit('garden',-c);gdS.un=i+1;gdSave();refreshCoins();show('gd_un',false);sfx.power();gdHud()};
@@ -6591,7 +6616,7 @@ $('exitNo').onclick=()=>show('exitOv',false);
 $('exitYes').onclick=()=>{try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()){C.registerPlugin('App').exitApp();return}}catch(e){}show('exitOv',false);try{window.close()}catch(e){}};
 // Açılış animasyonu
 (function(){const s=$('splash');if(!s)return;let done=false;const end=()=>{if(done)return;done=true;s.classList.add('out');setTimeout(()=>s.remove(),500)};s.onclick=end;setTimeout(end,2300)})();
-const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','aq_x','gd_sdx','gd_unx','gd_luok','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','gd_back','av_back','lb_back'];
+const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','aq_x','gd_ugx','gd_sdx','gd_unx','gd_luok','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','gd_back','av_back','lb_back'];
 function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
 function goBack(){
   if(state==='pause'){resumeRun();return true}
@@ -7788,6 +7813,30 @@ Ses Avcısı Çırağı|Sound Hunter Apprentice|Aprendiz de Cazador de Sonido|Ap
 Ses Avcısı Ustası|Sound Hunter Master|Maestro Cazador de Sonido|Mestre Caçador de Som|Klangjäger-Meister|Maître Chasseur de Sons|Мастер охотника за звуком|Master Pemburu Suara
 Ses Avcısı Efsanesi|Sound Hunter Legend|Leyenda del Cazador de Sonido|Lenda do Caçador de Som|Klangjäger-Legende|Légende Chasseur de Sons|Легенда охотника за звуком|Legenda Pemburu Suara
 Ses Avcısı: {} seviye bitir|Sound Hunter: finish {} levels|Cazador de Sonido: supera {} niveles|Caçador de Som: conclua {} níveis|Klangjäger: schließe {} Level ab|Chasseur de Sons : termine {} niveaux|Охотник за звуком: пройди {} уровней|Pemburu Suara: selesaikan {} level
+⬆️ Geliştir|⬆️ Upgrade|⬆️ Mejorar|⬆️ Melhorar|⬆️ Verbessern|⬆️ Améliorer|⬆️ Улучшить|⬆️ Tingkatkan
+Geliştir|Upgrade|Mejorar|Melhorar|Verbessern|Améliorer|Улучшить|Tingkatkan
+Sulama Kovası|Watering Can|Regadera|Regador|Gießkanne|Arrosoir|Лейка|Ember Siram
+Sulama süreyi daha çok kısaltır|Watering cuts more time|Regar acorta más el tiempo|Regar reduz mais o tempo|Gießen spart mehr Zeit|L'arrosage réduit plus le temps|Полив сокращает больше времени|Menyiram memangkas lebih banyak waktu
+Gübre|Fertilizer|Fertilizante|Fertilizante|Dünger|Engrais|Удобрение|Pupuk
+Bitkiler daha hızlı büyür|Plants grow faster|Las plantas crecen más rápido|As plantas crescem mais rápido|Pflanzen wachsen schneller|Les plantes poussent plus vite|Растения растут быстрее|Tanaman tumbuh lebih cepat
+Korkuluk|Scarecrow|Espantapájaros|Espantalho|Vogelscheuche|Épouvantail|Пугало|Orang-orangan
+Hasat parası artar|Harvest coins increase|Aumentan las monedas de cosecha|As moedas da colheita aumentam|Ernte-Münzen steigen|Les pièces de récolte augmentent|Монеты за урожай растут|Koin panen bertambah
+Altın Şans|Golden Luck|Suerte Dorada|Sorte Dourada|Goldglück|Chance Dorée|Золотая удача|Keberuntungan Emas
+Altın hasat şansı artar|Golden harvest chance rises|Sube la probabilidad de cosecha dorada|A chance de colheita dourada aumenta|Chance auf Goldernte steigt|La chance de récolte dorée augmente|Шанс золотого урожая растёт|Peluang panen emas naik
+Sv.{}/{}|Lv.{}/{}|Nv.{}/{}|Nv.{}/{}|Lv.{}/{}|Niv.{}/{}|Ур.{}/{}|Lv.{}/{}
+En üst seviye|Max level|Nivel máximo|Nível máximo|Max. Level|Niveau max|Макс. уровень|Level maks
+Çaylak|Rookie|Novato|Novato|Neuling|Novice|Новичок|Pemula
+Tarım İşçisi|Farmhand|Peón|Ajudante|Landarbeiter|Ouvrier agricole|Работник|Buruh Tani
+Usta Çiftçi|Master Farmer|Granjero Maestro|Fazendeiro Mestre|Meisterbauer|Fermier Maître|Мастер-фермер|Petani Master
+Bahçıvan|Gardener|Jardinero|Jardineiro|Gärtner|Jardinier|Садовник|Tukang Kebun
+Toprak Ağası|Land Baron|Terrateniente|Latifundiário|Gutsherr|Seigneur terrien|Землевладелец|Tuan Tanah
+Efsane Çiftçi|Legendary Farmer|Granjero Legendario|Fazendeiro Lendário|Legendärer Bauer|Fermier Légendaire|Легендарный фермер|Petani Legendaris
+🏅 Yeni rütbe: {} · 🪙 +{}|🏅 New rank: {} · 🪙 +{}|🏅 Nuevo rango: {} · 🪙 +{}|🏅 Novo posto: {} · 🪙 +{}|🏅 Neuer Rang: {} · 🪙 +{}|🏅 Nouveau rang : {} · 🪙 +{}|🏅 Новый ранг: {} · 🪙 +{}|🏅 Peringkat baru: {} · 🪙 +{}
+🎁 Bedava havuç!|🎁 Free carrot!|🎁 ¡Zanahoria gratis!|🎁 Cenoura grátis!|🎁 Gratis-Karotte!|🎁 Carotte gratuite !|🎁 Бесплатная морковь!|🎁 Wortel gratis!
+🎁 Başlangıç hediyesi: 🪙 {}|🎁 Starter gift: 🪙 {}|🎁 Regalo inicial: 🪙 {}|🎁 Presente inicial: 🪙 {}|🎁 Startgeschenk: 🪙 {}|🎁 Cadeau de départ : 🪙 {}|🎁 Стартовый подарок: 🪙 {}|🎁 Hadiah awal: 🪙 {}
+Sonraki rütbe|Next rank|Siguiente rango|Próximo posto|Nächster Rang|Rang suivant|Следующий ранг|Peringkat berikutnya
+hasat|harvests|cosechas|colheitas|Ernten|récoltes|сборов|panen
+En üst rütbe!|Top rank!|¡Rango máximo!|Posto máximo!|Höchster Rang!|Rang maximum !|Высший ранг!|Peringkat tertinggi!
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];
