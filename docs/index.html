@@ -4867,7 +4867,14 @@ let yvS=ld('tv_yv',null);
     yvS={b,en:20,et:Date.now(),xp:0,pl:1,ord:[],oc:0,col:[1,1],mc:0,done:0}}
 })();
 const yv={G:null,raf:false,last:0};
-const yvCap=()=>20+Math.min(20,Math.floor(yvS.pl/3)*2);
+if(!yvS.up)yvS.up={cap:0,lk:0,rg:0};
+const YV_UP=[
+ {k:'cap',e:'🔋',n:'Büyük Depo',d:'Enerji deposu +5',max:6,b:150,m:2},
+ {k:'rg',e:'⏱️',n:'Hızlı Dolum',d:'Enerji 3 sn daha hızlı dolar',max:6,b:250,m:2},
+ {k:'lk',e:'🍀',n:'Şanslı Yuva',d:'Üretilen ürün daha büyük çıkma şansı +3%',max:6,b:200,m:2.1}];
+const yvUpC=k=>{const u=YV_UP.find(x=>x.k===k);return Math.round(u.b*Math.pow(u.m,yvS.up[k]))};
+const YV_REGEN_F=()=>30000-3000*yvS.up.rg;
+const yvCap=()=>20+Math.min(20,Math.floor(yvS.pl/3)*2)+5*yvS.up.cap;
 const yvNeed=()=>30+25*(yvS.pl-1);
 const yvSave=()=>sv('tv_yv',yvS);
 const yvVal=l=>Math.max(1,(1<<l)>>2);
@@ -4876,7 +4883,7 @@ function yvRegen(){
   if(yvS.en>=cap){yvS.et=now;return false}
   if(now<yvS.et)yvS.et=now;
   let ch=false;
-  while(yvS.en<cap&&now-yvS.et>=YV_REGEN){yvS.en++;yvS.et+=YV_REGEN;ch=true}
+  while(yvS.en<cap&&now-yvS.et>=YV_REGEN_F()){yvS.en++;yvS.et+=YV_REGEN_F();ch=true}
   if(yvS.en>=cap)yvS.et=now;
   if(ch)yvSave();
   return ch;
@@ -4899,10 +4906,11 @@ const yvOrdHave=o=>o.need.every(x=>yvCount(x.c,x.l)>=x.n);
 document.body.insertAdjacentHTML('beforeend','<div id="merge" class="hidden mgscr"><canvas id="c_yv" style="touch-action:none"></canvas>'
  +'<div class="mtop"><button id="yv_back" class="ibtn alt">‹</button><div class="pill" id="yv_lv">Yuva Seviye 1</div><div class="pill sm" id="yv_en">⚡ 20/20</div><div class="sp"></div><div class="pill" style="color:var(--gold)">🪙 <span class="tc">0</span></div></div>'
  +'<div id="yv_ord"></div>'
- +'<div class="sobar"><button id="yv_sp"><i>✨</i><span id="yv_spt">Üret</span></button><button id="yv_cl"><i>📖</i><span>Koleksiyon</span></button><button id="yv_ad"><i>📺</i><span>+10 ⚡</span></button></div>'
+ +'<div class="sobar"><button id="yv_sp"><i>✨</i><span id="yv_spt">Üret</span></button><button id="yv_cl"><i>📖</i><span>Koleksiyon</span></button><button id="yv_ad"><i>📺</i><span>+10 ⚡</span></button><button id="yv_shb"><i>🛒</i><span>Dükkan</span></button></div>'
  +'<div id="yv_lu" class="overlay hidden"><div class="card"><div class="ttl" id="yv_lut" style="color:var(--gold)">Yuva Seviye 2! 🎉</div><div id="yv_lui" style="color:var(--mute);margin:8px 0;white-space:pre-line"></div><button id="yv_luok" class="gold">▶ Devam</button><button id="yv_ludbl" class="alt">📺 Ödülü 2 kat yap</button></div></div></div>');
 document.head.insertAdjacentHTML('beforeend','<style>#yv_lv{font-size:14px;padding:6px 11px;white-space:nowrap}#yv_en{white-space:nowrap}#yv_ord{position:absolute;top:calc(58px + env(safe-area-inset-top));left:8px;right:8px;height:92px;display:flex;gap:8px;pointer-events:none}#yv_ord>button{pointer-events:auto;flex:1;min-width:0;height:92px;padding:4px 2px;border-radius:16px;background:linear-gradient(#3b3173,#241a5a);box-shadow:0 3px 0 #170f3a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:12px;color:#e9e4ff;border:2px solid transparent}#yv_ord>button.rdy{border-color:#52e08a;background:linear-gradient(#1f6b46,#14452f);box-shadow:0 3px 0 #0b2a1c,0 0 14px #52e08a88;animation:yvpulse 1s ease-in-out infinite}#yv_ord>button.vip{border-color:#ffd34d}#yv_ord>button.vip.rdy{border-color:#52e08a}#yv_ord .yvn{font-size:21px;line-height:1.1;white-space:nowrap}#yv_ord .yvh{font-weight:700;font-size:12px;opacity:.85}#yv_ord .yvr{font-weight:700;color:#ffd34d;font-size:13px}#yv_ord .yvv{font-size:10px;color:#ffd34d;font-weight:700;letter-spacing:1px}@keyframes yvpulse{50%{transform:scale(1.04)}}#yv_col{z-index:30}.yvslot{width:34px;height:46px;border-radius:10px;background:rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:21px;line-height:1}.yvslot small{font-size:9px;color:var(--mute);margin-top:2px}.yvslot.no{opacity:.45;filter:grayscale(1)}</style>');
 SCR.push('merge');
+document.body.insertAdjacentHTML('beforeend','<div id="yv_sh" class="overlay hidden" style="z-index:30"><div class="card" style="width:min(94vw,400px);max-height:84vh;display:flex;flex-direction:column"><div class="ttl">🛒 Dükkan</div><div id="yv_shl" style="overflow:auto;margin:10px 0"></div><button id="yv_shx" class="alt">Kapat</button></div></div>');
 document.body.insertAdjacentHTML('beforeend','<div id="yv_col" class="overlay hidden"><div class="card" style="width:min(94vw,400px)"><div class="ttl">📖 Koleksiyon</div><div id="yv_ci" style="color:var(--mute);margin:6px 0 10px;font-size:14px"></div><div id="yv_cl2"></div><button id="yv_cx" class="alt" style="margin-top:12px">Kapat</button></div></div>');
 $('hubCards').insertAdjacentHTML('beforeend','<div class="gcard" id="cardYv" style="background:linear-gradient(135deg,#f472b6,#a855f7 55%,#4f46e5)"><div class="gicon">🥚</div><div class="gtx"><b>Yuva Birleştir</b><small>Aynıları birleştir, yumurtadan ejderhayı çıkar!</small><span class="gtag" id="hsYv">Yuva Sv.1</span></div><div class="gplay" style="color:#a855f7">▶</div></div>');
 ACH3('t_mg','merge','{n} yuva seviyesine ulaş',()=>yvS.pl-1,[4,12,30],RS);
@@ -4919,7 +4927,7 @@ function yvHud(){
   const lv=$('yv_lv');lv.textContent='Yuva Seviye '+yvS.pl;
   lv.style.background='linear-gradient(90deg,rgba(168,85,247,.7) '+p+'%,rgba(255,255,255,.1) '+p+'%)';
   const cap=yvCap();
-  $('yv_en').textContent='⚡ '+yvS.en+'/'+cap+(yvS.en<cap?' · '+yvFmtT(Math.max(0,YV_REGEN-(Date.now()-yvS.et))):'');
+  $('yv_en').textContent='⚡ '+yvS.en+'/'+cap+(yvS.en<cap?' · '+yvFmtT(Math.max(0,YV_REGEN_F()-(Date.now()-yvS.et))):'');
   $('yv_spt').textContent=yvS.en>=1?'Üret ⚡1':'📺 Enerji';
   try{$('hsYv').textContent='Yuva Sv.'+yvS.pl}catch(e){}
 }
@@ -4936,6 +4944,7 @@ function yvOrdUI(){
   });
 }
 function yvCoin(n){credit('merge',n);stats.coins+=n;addProg('coins',n);addProg('c_merge',n);refreshCoins()}
+function yvSpend(n){credit('merge',-n);refreshCoins()}
 function yvLayout(G){
   const W=VW(),H=innerHeight,dpr=Math.min(devicePixelRatio||1,2),cv=$('c_yv');
   cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.width=W+'px';cv.style.height=H+'px';
@@ -4986,7 +4995,7 @@ function yvSpawn(){
   if(!fr.length){toast('Tahta dolu! Birleştir ya da sat');buzz(40);return}
   const cap=yvCap();if(yvS.en>=cap)yvS.et=Date.now();
   yvS.en--;
-  const j=fr[Math.floor(Math.random()*fr.length)],l=Math.random()<Math.min(.25,.02*yvS.pl)?1:0;
+  const j=fr[Math.floor(Math.random()*fr.length)],l=Math.random()<Math.min(.4,.02*yvS.pl+.03*yvS.up.lk)?1:0;
   yvS.b[j]={c:Math.random()<.5?0:1,l};G.pop[j]=G.t;yvBurst(G,j,'#ffffff',5);tone(520,780,0.1,'sine',0.08);
   G.idle=0;G.hint=null;yvSave();yvHud();yvOrdUI();
 }
@@ -5037,6 +5046,22 @@ function yvColOpen(){
   $('yv_ci').textContent='Keşfedilen: '+tot+'/16 · Yeni keşif = ekstra para';
   show('yv_col',true);
 }
+function yvShopOpen(){
+  const L=$('yv_shl');L.innerHTML='';
+  const row=(e,n,d,price,fn,no)=>{const b=document.createElement('button');b.className='gdr'+(no?' no':'');b.innerHTML='<i>'+e+'</i><div style="flex:1"><b>'+n+'</b><small>'+d+'</small></div><span>'+price+'</span>';b.onclick=fn;L.appendChild(b)};
+  const G=yv.G;
+  row('⚡','Enerji Paketi','+10 enerji','🪙 60',()=>{if(totalCoins<60){toast('Yeterli paran yok');buzz(40);return}yvSpend(60);yvRegen();yvS.en+=10;if(yvS.en<yvCap())yvS.et=Date.now();yvSave();yvHud();sfx.coin();yvShopOpen()},totalCoins<60);
+  row('🎁','Gizemli Kutu','Tahtaya 2. veya 3. seviye ürün düşer','🪙 80',()=>{
+    if(totalCoins<80){toast('Yeterli paran yok');buzz(40);return}
+    const fr=[];for(let i=0;i<YV_N;i++)if(!yvS.b[i])fr.push(i);
+    if(!fr.length){toast('Tahta dolu! Birleştir ya da sat');return}
+    yvSpend(80);const j=fr[Math.floor(Math.random()*fr.length)];yvS.b[j]={c:Math.random()<.5?0:1,l:Math.random()<.7?2:3};if(G)G.pop[j]=G.t;
+    yvSave();yvOrdUI();sfx.power();yvShopOpen()},totalCoins<80);
+  YV_UP.forEach(u=>{const lv=yvS.up[u.k],mx=lv>=u.max,c=yvUpC(u.k);
+    row(u.e,u.n+' · Sv.'+lv+'/'+u.max,u.d,mx?'✅':'🪙 '+c,()=>{if(mx){toast('En üst seviye');return}if(totalCoins<c){toast('Yeterli paran yok');buzz(40);return}yvSpend(c);yvS.up[u.k]++;yvSave();yvHud();sfx.power();yvShopOpen()},!mx&&totalCoins<c)});
+  show('yv_sh',true);
+}
+$('yv_shb').onclick=yvShopOpen;$('yv_shx').onclick=()=>show('yv_sh',false);
 $('yv_cl').onclick=yvColOpen;$('yv_cx').onclick=()=>show('yv_col',false);
 $('yv_back').onclick=()=>{yvSave();openLobby('yv')};
 function yvPair(){for(let i=0;i<YV_N;i++)for(let j=i+1;j<YV_N;j++)if(yvCanMerge(i,j))return[i,j];return null}
@@ -6616,7 +6641,7 @@ $('exitNo').onclick=()=>show('exitOv',false);
 $('exitYes').onclick=()=>{try{const C=window.Capacitor;if(C&&C.isNativePlatform&&C.isNativePlatform()){C.registerPlugin('App').exitApp();return}}catch(e){}show('exitOv',false);try{window.close()}catch(e){}};
 // Açılış animasyonu
 (function(){const s=$('splash');if(!s)return;let done=false;const end=()=>{if(done)return;done=true;s.classList.add('out');setTimeout(()=>s.remove(),500)};s.onclick=end;setTimeout(end,2300)})();
-const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','aq_x','gd_ugx','gd_sdx','gd_unx','gd_luok','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','gd_back','av_back','lb_back'];
+const BACKS=['exitNo','pvResume','setBack','keyBack','back','lback','aback','qback','wback','mtBack','mtlistBack','cBack','mBack','ar_back','so_back','cl_back','jb_back','sk_back','gh_back','aq_x','gd_ugx','gd_sdx','gd_unx','gd_luok','yv_shx','yv_luok','yv_cx','wd_mx','wd_bx','lk_back','sg_back','wd_back','yv_back','gd_back','av_back','lb_back'];
 function visEl(e){return !!e&&e.getClientRects().length>0&&getComputedStyle(e).visibility!=='hidden'}
 function goBack(){
   if(state==='pause'){resumeRun();return true}
@@ -7837,6 +7862,18 @@ Efsane Çiftçi|Legendary Farmer|Granjero Legendario|Fazendeiro Lendário|Legend
 Sonraki rütbe|Next rank|Siguiente rango|Próximo posto|Nächster Rang|Rang suivant|Следующий ранг|Peringkat berikutnya
 hasat|harvests|cosechas|colheitas|Ernten|récoltes|сборов|panen
 En üst rütbe!|Top rank!|¡Rango máximo!|Posto máximo!|Höchster Rang!|Rang maximum !|Высший ранг!|Peringkat tertinggi!
+🛒 Dükkan|🛒 Shop|🛒 Tienda|🛒 Loja|🛒 Shop|🛒 Boutique|🛒 Магазин|🛒 Toko
+Dükkan|Shop|Tienda|Loja|Shop|Boutique|Магазин|Toko
+Enerji Paketi|Energy Pack|Paquete de energía|Pacote de energia|Energiepaket|Pack d'énergie|Пакет энергии|Paket Energi
++10 enerji|+10 energy|+10 de energía|+10 de energia|+10 Energie|+10 d'énergie|+10 энергии|+10 energi
+Gizemli Kutu|Mystery Box|Caja Misteriosa|Caixa Misteriosa|Geheimbox|Boîte Mystère|Загадочная коробка|Kotak Misteri
+Tahtaya 2. veya 3. seviye ürün düşer|Drops a level 2 or 3 item on the board|Cae un objeto de nivel 2 o 3 en el tablero|Cai um item de nível 2 ou 3 no tabuleiro|Ein Item von Level 2 oder 3 landet auf dem Brett|Un objet de niveau 2 ou 3 tombe sur le plateau|На поле падает предмет 2 или 3 уровня|Benda level 2 atau 3 jatuh ke papan
+Büyük Depo|Big Tank|Depósito Grande|Tanque Grande|Großer Tank|Grand Réservoir|Большой запас|Tangki Besar
+Enerji deposu +5|Energy tank +5|Depósito de energía +5|Tanque de energia +5|Energietank +5|Réservoir d'énergie +5|Запас энергии +5|Tangki energi +5
+Hızlı Dolum|Fast Refill|Recarga Rápida|Recarga Rápida|Schnelles Aufladen|Recharge Rapide|Быстрое восстановление|Isi Cepat
+Enerji 3 sn daha hızlı dolar|Energy refills 3 s faster|La energía se recarga 3 s más rápido|A energia recarrega 3 s mais rápido|Energie lädt 3 Sek. schneller|L'énergie se recharge 3 s plus vite|Энергия восстанавливается на 3 с быстрее|Energi terisi 3 dtk lebih cepat
+Şanslı Yuva|Lucky Nest|Nido de la Suerte|Ninho da Sorte|Glücksnest|Nid Chanceux|Гнездо удачи|Sarang Beruntung
+Üretilen ürün daha büyük çıkma şansı +3%|Chance of a bigger item +3%|Más probabilidad de objeto grande +3%|Mais chance de item maior +3%|Chance auf größeres Item +3%|Chance d'un plus gros objet +3 %|Шанс крупнее предмета +3%|Peluang benda lebih besar +3%
 `;
 // ---- Dil / çeviri ----
 const LANGS=[['tr','Türkçe'],['en','English'],['es','Español'],['pt','Português'],['de','Deutsch'],['fr','Français'],['ru','Русский'],['id','Bahasa Indonesia']];
